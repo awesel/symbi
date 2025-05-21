@@ -1,22 +1,14 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router'; // This was already correctly commented out or removed
 
 const HomePage: React.FC = () => {
   const { user, userProfile, loading: authLoading } = useAuth();
-  // const router = useRouter(); // router.push is removed
+  // const router = useRouter(); // This was already correctly commented out or removed
 
-  // useEffect(() => { // REMOVING REDIRECTION LOGIC
-  //   if (!authLoading) {
-  //     if (user && userProfile?.onboardingCompleted) {
-  //       router.push('/dashboard');
-  //     } else if (user && !userProfile?.onboardingCompleted) {
-  //       router.push('/onboarding');
-  //     }
-  //   }
-  // }, [user, userProfile, authLoading, router]);
+  // useEffect(() => { ... }); // This was already correctly removed
 
   if (authLoading) { // Simplified loading state
     return <p>Loading...</p>;
