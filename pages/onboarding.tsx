@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { UserProfile } from '../lib/useAuth';
 import { db } from '../lib/firebase';
 import { doc, updateDoc, arrayUnion, serverTimestamp, Timestamp, collection, getDocs } from 'firebase/firestore';
+import Link from 'next/link';
 
 interface ChatMessage {
   id: string;
@@ -57,11 +58,11 @@ const OnboardingPage: React.FC = () => {
     if (!authLoading) {
       if (!user || authError) {
         router.push('/login');
-      } else if (userProfile?.onboardingCompleted) {
+      } else if (userProfile?.onboardingCompleted && currentStep !== 'completed') {
         router.push('/'); // Already onboarded
       }
     }
-  }, [user, userProfile, authLoading, authError, router]);
+  }, [user, userProfile, authLoading, authError, router, currentStep]);
 
   useEffect(() => {
     if (currentStep === 'interests' && messages.length === 0) {
@@ -150,7 +151,7 @@ const OnboardingPage: React.FC = () => {
         setMessages(prev => [...prev, {
           id: 'system3',
           sender: 'system',
-          text: "Thanks for sharing! You're all set up. Redirecting you now...",
+          text: "Thanks for sharing! You&apos;re all set up. Redirecting you now...",
           timestamp: serverTimestamp() as Timestamp
         }]);
         console.log("Redirecting to homepage in 2 seconds..."); // Debug log
@@ -176,7 +177,7 @@ const OnboardingPage: React.FC = () => {
   }
 
   if (authError) {
-    return <p>Error: {authError}. Please <a href="/login">login</a> again.</p>;
+    return <p>Error: {authError}. Please <Link href="/login"><a>login</a></Link> again.</p>;
   }
 
   if (!userProfile || (userProfile.onboardingCompleted && currentStep !== 'completed')) {

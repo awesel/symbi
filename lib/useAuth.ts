@@ -57,7 +57,7 @@ export function useAuth() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, [auth, db]); // Dependencies for setting up the listener
+  }, []); // Removed auth and db from dependencies
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
@@ -95,9 +95,13 @@ export function useAuth() {
         setUserProfile(null);
         setError('Please sign in with your @stanford.edu email address.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Authentication error:", err);
-      setError(err.message || 'Failed to sign in with Google.');
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to sign in with Google.');
+      } else {
+        setError('An unknown error occurred during sign in.');
+      }
       setUser(null);
       setUserProfile(null);
     } finally {
@@ -112,9 +116,13 @@ export function useAuth() {
       await signOut(auth);
       setUser(null);
       setUserProfile(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Sign out error:", err);
-      setError(err.message || 'Failed to sign out.');
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to sign out.');
+      } else {
+        setError('An unknown error occurred during sign out.');
+      }
     } finally {
       setLoading(false);
     }

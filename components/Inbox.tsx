@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { collection, query, where, orderBy, getDocs, doc, getDoc } from 'firebase/firestore';
+import Link from 'next/link';
+import { collection, query, where, orderBy, getDocs, doc, getDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // Assuming you have this path
 import { useAuth } from '../lib/useAuth'; // Assuming you have this path
+import Image from 'next/image'; // Import Image
 
 interface Chat {
   id: string;
   users: string[];
   lastMessage: string | null;
-  lastTimestamp: any | null; // Adjust type as per your Firestore structure
+  lastTimestamp: Timestamp | null; // Changed from any
   otherUserName?: string; // To store the other user's name
   otherUserPhotoURL?: string; // To store the other user's photo
 }
@@ -88,7 +89,25 @@ const Inbox: React.FC = () => {
   }
 
   if (chats.length === 0) {
-    return <div>No chats yet. Start a conversation!</div>;
+    return (
+      <div style={{ textAlign: 'center', marginTop: '50px' }}>
+        <h2>No chats yet.</h2>
+        <p>Get started by inviting friends or refining your profile!</p>
+        <div style={{ marginTop: '20px' }}>
+          <button 
+            onClick={() => alert('Go ask them! You know them better than we do!')}
+            style={{ marginRight: '10px', padding: '10px 20px', cursor: 'pointer' }}
+          >
+            Invite Your Friends
+          </button>
+          <Link href="/onboarding-again" legacyBehavior>
+            <a style={{ padding: '10px 20px', textDecoration: 'none', backgroundColor: '#f0f0f0', color: '#333', border: '1px solid #ccc', borderRadius: '4px' }}>
+              Add More Interests/Expertise
+            </a>
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -97,28 +116,31 @@ const Inbox: React.FC = () => {
       <ul className="chat-list">
         {chats.map((chat) => (
           <li key={chat.id} className="chat-preview-card">
-            <Link to={`/chat/${chat.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div className="chat-info">
-                <img 
-                  src={chat.otherUserPhotoURL || 'https://via.placeholder.com/50'} 
-                  alt={chat.otherUserName} 
-                  className="avatar" 
-                  style={{ width: 50, height: 50, borderRadius: '50%', marginRight: '15px'}}
-                />
-                <div>
-                  <h3>{chat.otherUserName}</h3>
-                  <p className="last-message">
-                    {chat.lastMessage ? 
-                      (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 27) + '...' : chat.lastMessage) 
-                      : <i>No messages yet</i>}
-                  </p>
+            <Link href={`/chat/${chat.id}`} legacyBehavior>
+              <a style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div className="chat-info">
+                  <Image 
+                    src={chat.otherUserPhotoURL || 'https://via.placeholder.com/50'} 
+                    alt={chat.otherUserName || 'User avatar'} 
+                    className="avatar" 
+                    width={50} height={50} // Added width and height for Next/Image
+                    style={{ borderRadius: '50%', marginRight: '15px'}}
+                  />
+                  <div>
+                    <h3>{chat.otherUserName}</h3>
+                    <p className="last-message">
+                      {chat.lastMessage ? 
+                        (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 27) + '...' : chat.lastMessage) 
+                        : <i>No messages yet</i>}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              {chat.lastTimestamp && (
-                <span className="timestamp">
-                  {new Date(chat.lastTimestamp?.toDate()).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
-                </span>
-              )}
+                {chat.lastTimestamp && (
+                  <span className="timestamp">
+                    {new Date(chat.lastTimestamp?.toDate()).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+                  </span>
+                )}
+              </a>
             </Link>
           </li>
         ))}

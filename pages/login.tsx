@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext'; // Updated import
 import { useRouter } from 'next/router';
 
 const LoginPage: React.FC = () => {
-  const { user, userProfile, error, loading, signInWithGoogle, logOut } = useAuth();
+  const { user, userProfile, error, loading, signInWithGoogle } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

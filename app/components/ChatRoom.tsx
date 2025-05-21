@@ -7,6 +7,12 @@ import { db } from "@/lib/firebase";              // your initialized Firestore
 
 type ChatRoomProps = { chatId: string };
 
+interface MessageData {
+  text: string;
+  sender: string;
+  timestamp: any; // Firestore serverTimestamp can be complex, using any for now
+}
+
 export default function ChatRoom({ chatId }: ChatRoomProps) {
   /* 1️⃣ local state */
   const [messages, setMessages] = useState<{id:string;text:string;sender:string}[]>([]);
@@ -19,7 +25,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
     const messagesRef = collection(db, "chats", chatId, "messages");
     const q = query(messagesRef, orderBy("timestamp", "asc"));
     const unsub = onSnapshot(q, snap => {
-      setMessages(snap.docs.map(d => ({ id: d.id, ...(d.data() as any) })));
+      setMessages(snap.docs.map(d => ({ id: d.id, ...(d.data() as MessageData) })));
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     });
     return unsub;
