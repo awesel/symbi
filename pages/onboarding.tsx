@@ -1,7 +1,6 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
-import type { UserProfile } from '../lib/useAuth';
 import { db } from '../lib/firebase';
 import { doc, updateDoc, arrayUnion, serverTimestamp, Timestamp, collection, getDocs } from 'firebase/firestore';
 import Link from 'next/link';
@@ -82,7 +81,7 @@ const OnboardingPage: React.FC = () => {
         timestamp: serverTimestamp() as Timestamp
       }]);
     }
-  }, [currentStep, messages.length]);
+  }, [currentStep, messages]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

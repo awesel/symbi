@@ -24,7 +24,7 @@ const HomePage: React.FC = () => {
         <section style={{ marginBottom: '40px' }}>
           <h1>Vision</h1>
           <p style={{ lineHeight: '1.6', fontSize: '1.1em' }}>
-            If you have a question, you might turn to Google and find articles written by your peers—or ask ChatGPT, an algorithm built by your classmates. But why not talk to the people around you? There's someone within a mile who's an expert in your curiosity. Meet them on Symbi.
+            If you have a question, you might turn to Google and find articles written by your peers—or ask ChatGPT, an algorithm built by your classmates. But why not talk to the people around you? There&apos;s someone within a mile who&apos;s an expert in your curiosity. Meet them on Symbi.
           </p>
         </section>
 
@@ -32,13 +32,13 @@ const HomePage: React.FC = () => {
           <h1>Rules</h1>
           <ol style={{ lineHeight: '1.6', fontSize: '1.1em', paddingLeft: '20px', display: 'inline-block', textAlign: 'left' }}>
             <li style={{ marginBottom: '10px' }}>
-              We require Stanford emails. It is our simple heuristic for verifying identity and proximity. If you're nearby and want to join our community, just ask!
+              We require Stanford emails. It is our simple heuristic for verifying identity and proximity. If you&apos;re nearby and want to join our community, just ask!
             </li>
             <li style={{ marginBottom: '10px' }}>
-              Mutualism. This platform works best when you're both a teacher and a learner.
+              Mutualism. This platform works best when you&apos;re both a teacher and a learner.
             </li>
             <li>
-              In-person first. We can't force anyone to grab a meal—but what makes Symbi better than emailing an expert is the chance to sit down face-to-face.
+              In-person first. We can&apos;t force anyone to grab a meal—but what makes Symbi better than emailing an expert is the chance to sit down face-to-face.
             </li>
           </ol>
         </section>

@@ -1,6 +1,6 @@
 // app/components/ChatRoom.tsx
 import { useState, useEffect, useRef } from "react";
-import { doc, collection, addDoc, serverTimestamp,
+import { doc, collection, addDoc, serverTimestamp, FieldValue,
          onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
 import { useAuth } from "@/lib/useAuth";          // whatever hook returns {user}
 import { db } from "@/lib/firebase";              // your initialized Firestore
@@ -10,7 +10,7 @@ type ChatRoomProps = { chatId: string };
 interface MessageData {
   text: string;
   sender: string;
-  timestamp: any; // Firestore serverTimestamp can be complex, using any for now
+  timestamp: FieldValue | null; // Firestore serverTimestamp can be complex, using any for now
 }
 
 export default function ChatRoom({ chatId }: ChatRoomProps) {
