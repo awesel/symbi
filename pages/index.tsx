@@ -1,8 +1,44 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useRouter } from 'next/router';
 
 const HomePage: React.FC = () => {
+  const { user, userProfile, loading: authLoading } = useAuth();
+  // const router = useRouter(); // router.push is removed
+
+  // useEffect(() => { // REMOVING REDIRECTION LOGIC
+  //   if (!authLoading) {
+  //     if (user && userProfile?.onboardingCompleted) {
+  //       router.push('/dashboard');
+  //     } else if (user && !userProfile?.onboardingCompleted) {
+  //       router.push('/onboarding');
+  //     }
+  //   }
+  // }, [user, userProfile, authLoading, router]);
+
+  if (authLoading) { // Simplified loading state
+    return <p>Loading...</p>;
+  }
+
+  let buttonHref = "/login";
+  let buttonText = "Sign In";
+  let buttonColor = "#0070f3"; // Default blue
+
+  if (user) {
+    if (userProfile?.onboardingCompleted) {
+      buttonHref = "/dashboard";
+      buttonText = "Go to My Dashboard";
+      buttonColor = "#28a745"; // Green for dashboard
+    } else {
+      // User exists but onboarding not completed (or userProfile still loading)
+      buttonHref = "/onboarding";
+      buttonText = "Complete Onboarding";
+      buttonColor = "#0070f3"; // Blue, or could be a different color e.g. orange for pending action
+    }
+  }
+
   return (
     <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif', padding: '20px', textAlign: 'center' }}>
       <Head>
@@ -13,9 +49,17 @@ const HomePage: React.FC = () => {
 
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '20px' }}>
         <div style={{ fontSize: '1.5em', fontWeight: 'bold' }}>Symbi</div>
-        <Link href="/login" legacyBehavior>
-          <a style={{ textDecoration: 'none', color: 'white', backgroundColor: '#0070f3', padding: '10px 20px', borderRadius: '5px', fontSize: '1em' }}>
-            Sign In
+        <Link href={buttonHref} legacyBehavior>
+          <a style={{
+            textDecoration: 'none', 
+            color: 'white', 
+            backgroundColor: buttonColor, 
+            padding: '10px 20px', 
+            borderRadius: '5px', 
+            fontSize: '1em',
+            transition: 'background-color 0.2s ease' // Added transition for smoother color change
+          }}>
+            {buttonText}
           </a>
         </Link>
       </header>
