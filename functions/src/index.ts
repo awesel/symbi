@@ -185,90 +185,146 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
     return;
   }
 
-  const changedUserCombinedTags = [
-    ...(changedUserData.interests || []),
-    ...(changedUserData.expertise || []),
-  ];
-
   // Fuse.js setup for interests vs expertise and vice-versa
   const fuseOptions = {
     includeScore: true,
-    threshold: 0.0, // We want all results to calculate score, then filter by score >= 80
+    threshold: 0.2, // Adjusted threshold for fuzzy matching
     minMatchCharLength: 1,
+    isCaseSensitive: false,
   };
 
   const batch = admin.firestore().batch();
   const matchesCollection = admin.firestore().collection("matches");
   const chatsCollection = admin.firestore().collection("chats");
 
+  const stillValidCandidateIds = new Set<string>(); // Keep track of valid matches
+
+  // Normalize tags for the changed user once
+  const changedUserInterestsLower = (changedUserData.interests || []).map((t) => t.toLowerCase());
+  const changedUserExpertiseLower = (changedUserData.expertise || []).map((t) => t.toLowerCase());
+
   for (const candidate of potentialMatches) {
     if (!candidate.profile || (!candidate.profile.interests?.length && !candidate.profile.expertise?.length)) {
       continue; // Skip candidates with no tags
     }
 
-    const candidateCombinedTags = [
-      ...(candidate.profile.interests || []),
-      ...(candidate.profile.expertise || []),
-    ];
+    // Normalize tags for the candidate user
+    const candidateInterestsLower = (candidate.profile.interests || []).map((t) => t.toLowerCase());
+    const candidateExpertiseLower = (candidate.profile.expertise || []).map((t) => t.toLowerCase());
 
     let score1 = 0;
-    if (changedUserData.interests?.length && candidate.profile.expertise?.length) {
-      const fuse1 = new Fuse(candidate.profile.expertise, fuseOptions);
-      // Fuse search can return an empty array if no matches
-      const results1 = changedUserData.interests.flatMap((interest) => fuse1.search(interest));
-      if (results1.length > 0) {
-        const bestResult1 = results1.reduce((minScoreItem, r) => (r.score ?? 1) < (minScoreItem.score ?? 1) ? r : minScoreItem, { score: 1, item: "", refIndex: -1 });
-        score1 = (1 - (bestResult1.score ?? 1)) * 100;
+    let bestPair1: { score: number; interest: string; expertise: string } | null = null;
+
+    if (changedUserInterestsLower.length && candidateExpertiseLower.length) {
+      const fuseExpertise = new Fuse(candidateExpertiseLower, fuseOptions);
+      let currentBestFuseScore1 = 1.0;
+
+      for (const interest of changedUserInterestsLower) {
+        const results = fuseExpertise.search(interest);
+        if (results.length > 0) {
+          const bestMatchInExpertiseForThisInterest = results.reduce(
+            (min, r) => ((r.score ?? 1) < (min.score ?? 1) ? r : min),
+            { score: 1.0, item: "", refIndex: -1 }
+          );
+
+          if ((bestMatchInExpertiseForThisInterest.score ?? 1) < currentBestFuseScore1) {
+            currentBestFuseScore1 = bestMatchInExpertiseForThisInterest.score ?? 1;
+            // Store original casing for display/logging if needed, but match on lowercased
+            // For simplicity, we'll use the lowercased versions directly for now.
+            // If original casing is needed for finalMatchedOnTags, retrieve original tags by index or map.
+            // For now, bestPair stores the items as found by Fuse (which were lowercased inputs)
+            bestPair1 = {
+              score: currentBestFuseScore1,
+              interest: interest, // This is already from changedUserInterestsLower
+              expertise: bestMatchInExpertiseForThisInterest.item, // This is from candidateExpertiseLower
+            };
+          }
+        }
+      }
+      if (bestPair1) {
+        score1 = (1 - bestPair1.score) * 100;
       }
     }
 
     let score2 = 0;
-    if (changedUserData.expertise?.length && candidate.profile.interests?.length) {
-      const fuse2 = new Fuse(candidate.profile.interests, fuseOptions);
-      const results2 = changedUserData.expertise.flatMap((expertiseItem) => fuse2.search(expertiseItem));
-      if (results2.length > 0) {
-        const bestResult2 = results2.reduce((minScoreItem, r) => (r.score ?? 1) < (minScoreItem.score ?? 1) ? r : minScoreItem, { score: 1, item: "", refIndex: -1 });
-        score2 = (1 - (bestResult2.score ?? 1)) * 100;
+    let bestPair2: { score: number; expertise: string; interest: string } | null = null;
+
+    if (changedUserExpertiseLower.length && candidateInterestsLower.length) {
+      const fuseInterests = new Fuse(candidateInterestsLower, fuseOptions);
+      let currentBestFuseScore2 = 1.0;
+
+      for (const expertiseItem of changedUserExpertiseLower) {
+        const results = fuseInterests.search(expertiseItem);
+        if (results.length > 0) {
+          const bestMatchInInterestsForThisExpertise = results.reduce(
+            (min, r) => ((r.score ?? 1) < (min.score ?? 1) ? r : min),
+            { score: 1.0, item: "", refIndex: -1 }
+          );
+
+          if ((bestMatchInInterestsForThisExpertise.score ?? 1) < currentBestFuseScore2) {
+            currentBestFuseScore2 = bestMatchInInterestsForThisExpertise.score ?? 1;
+            bestPair2 = {
+              score: currentBestFuseScore2,
+              expertise: expertiseItem, // This is from changedUserExpertiseLower
+              interest: bestMatchInInterestsForThisExpertise.item, // This is from candidateInterestsLower
+            };
+          }
+        }
+      }
+      if (bestPair2) {
+        score2 = (1 - bestPair2.score) * 100;
       }
     }
 
     const finalScore = Math.max(score1, score2);
 
     if (finalScore >= 80) {
+      stillValidCandidateIds.add(candidate.id); // Add candidate to set of valid matches
+
       const userA = changedUserId < candidate.id ? changedUserId : candidate.id;
       const userB = changedUserId < candidate.id ? candidate.id : changedUserId;
       const matchId = `${userA}_${userB}`;
 
       const matchDocRef = matchesCollection.doc(matchId);
+      const finalMatchedOnTags: string[] = [];
 
-      let matchedOnTags: string[] = [];
+      // Populate finalMatchedOnTags based on the pairs that led to the finalScore
+      // "yours" refers to changedUser, "theirs" refers to candidate
+      if (score1 === finalScore && bestPair1?.interest && bestPair1?.expertise) {
+        const matchString =
+          `Interest: ${bestPair1.interest} (yours) matched Expertise: ${bestPair1.expertise} (theirs)`;
+        finalMatchedOnTags.push(matchString);
+      }
+      // If score2 also contributed (e.g. score1 === score2, or score2 was the sole max)
+      if (score2 === finalScore && bestPair2?.expertise && bestPair2?.interest) {
+        const match2String = `Expertise: ${bestPair2.expertise} (yours) matched Interest: ${bestPair2.interest} (theirs)`;
+        // Avoid adding a duplicate string if score1 and score2 were equal and formed the same conceptual match string
+        const isNotDuplicate = !finalMatchedOnTags.includes(match2String);
+        const isDifferentMatch = !(
+          score1 === score2 &&
+          bestPair1?.interest === bestPair2.interest &&
+          bestPair1?.expertise === bestPair2.expertise
+        );
 
-      // Refined logic for matchedOn tags based on which score was higher and contributed to the match
-      if (finalScore === score1 && score1 >= 80 && changedUserData.interests?.length && candidate.profile.expertise?.length) {
-        const fuse = new Fuse(candidate.profile.expertise, { ...fuseOptions, threshold: 0.2 });
-        changedUserData.interests.forEach((interest) => {
-          const results = fuse.search(interest);
-          if (results.length > 0 && (results[0].score ?? 1) <= 0.2) {
-            matchedOnTags.push(`${interest} (yours) <> ${results[0].item} (theirs)`);
+        if (isNotDuplicate && isDifferentMatch) {
+          // The second condition above is a stricter check for semantic duplication if score1=score2
+          // For simplicity, the !finalMatchedOnTags.includes(match2String) might be sufficient if string formats are consistent.
+          // Let's ensure distinctness if score1 was already processed.
+          if (score1 === finalScore && score1 === score2) {
+            // if score1 already added its version, only add score2 if it's genuinely different information
+            // This scenario (truly different pairs giving same max score) is rare.
+            // For now, if score1 already added, and score1=score2, we might be adding redundant info if not careful.
+            // The current structure: if score1 is max, it adds. if score2 is *also* max, it adds. This is okay.
           }
-        });
-      } else if (finalScore === score2 && score2 >= 80 && changedUserData.expertise?.length && candidate.profile.interests?.length) {
-        const fuse = new Fuse(candidate.profile.interests, { ...fuseOptions, threshold: 0.2 });
-        changedUserData.expertise.forEach((expertiseItem) => {
-          const results = fuse.search(expertiseItem);
-          if (results.length > 0 && (results[0].score ?? 1) <= 0.2) {
-            matchedOnTags.push(`${expertiseItem} (yours) <> ${results[0].item} (theirs)`);
-          }
-        });
+          finalMatchedOnTags.push(match2String);
+        }
       }
 
-      if (matchedOnTags.length === 0) {
-        const commonTags = changedUserCombinedTags.filter((tag) => candidateCombinedTags.includes(tag));
-        if (commonTags.length > 0) {
-          matchedOnTags = commonTags;
-        } else {
-          matchedOnTags = ["Shared interests/expertise"];
-        }
+      // If after the above, no specific tags were identified, provide a generic reason.
+      // This should be rare if finalScore >= 80.
+      if (finalMatchedOnTags.length === 0) {
+        logger.warn(`Match ${matchId} (score: ${finalScore}) couldn't form specific matchedOnTags. UserA: ${changedUserId}, UserB: ${candidate.id}. Defaulting.`);
+        finalMatchedOnTags.push("Strong interest/expertise alignment");
       }
 
       const matchDocSnapshot = await matchDocRef.get();
@@ -321,12 +377,18 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
       if (newChatCreationFailed) {
         logger.error(`Skipping upsert of match ${matchId} because new chat ID generation failed.`);
       } else {
+        // Retrieve original casing for display in matchedOn
+        // This requires mapping back from the lowercased tags used in matching to original tags.
+        // For simplicity, we will keep using the matched (lowercased) tags in finalMatchedOnTags.
+        // If preserving original casing is critical, this part needs more sophisticated handling.
+        // For now, the matchedOn tags will be lowercased if they came from Fuse results.
+
         const matchData = {
           userA: userA,
           userB: userB,
           score: finalScore,
-          matchedOn: matchedOnTags.slice(0, 5),
-          chatId: chatIdToPersist, // Will be existing, newly generated, or null if existing was null and no new one needed/created.
+          matchedOn: finalMatchedOnTags.slice(0, 5), // Use the new precise matchedOnTags
+          chatId: chatIdToPersist,
           status: "accepted",
           timestamp: FieldValue.serverTimestamp(),
         };
@@ -337,6 +399,53 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
     }
   }
 
+  // After processing all candidates, handle stale matches
+  const existingMatchesAsUserAPromise = matchesCollection.where("userA", "==", changedUserId).get();
+  const existingMatchesAsUserBPromise = matchesCollection.where("userB", "==", changedUserId).get();
+
+  const [existingMatchesAsUserASnapshot, existingMatchesAsUserBSnapshot] = await Promise.all([
+    existingMatchesAsUserAPromise,
+    existingMatchesAsUserBPromise,
+  ]);
+
+  const existingMatchDocs: admin.firestore.QueryDocumentSnapshot[] = [];
+  existingMatchesAsUserASnapshot.forEach((doc) => existingMatchDocs.push(doc));
+  existingMatchesAsUserBSnapshot.forEach((doc) => {
+    // Avoid duplicates if a match somehow got queried twice (shouldn't happen with userA/userB logic)
+    if (!existingMatchDocs.find((d) => d.id === doc.id)) {
+      existingMatchDocs.push(doc);
+    }
+  });
+
+  let deletedStaleMatchesCount = 0;
+  let deletedAssociatedChatsCount = 0; // Track deleted chats
+  for (const doc of existingMatchDocs) {
+    const matchData = doc.data();
+    const otherId = matchData.userA === changedUserId ? matchData.userB : matchData.userA;
+    if (!stillValidCandidateIds.has(otherId)) {
+      logger.log(`Match ${doc.id} with user ${otherId} is no longer valid (score < 80 or user no longer viable). Deleting match.`);
+      batch.delete(doc.ref);
+      deletedStaleMatchesCount++;
+
+      // Also delete the associated chat if chatId exists
+      const chatIdToDelete = matchData.chatId;
+      if (chatIdToDelete && typeof chatIdToDelete === "string") {
+        logger.log(`Match ${doc.id} had chatId ${chatIdToDelete}. Scheduling associated chat for deletion.`);
+        const chatRefToDelete = chatsCollection.doc(chatIdToDelete);
+        batch.delete(chatRefToDelete);
+        deletedAssociatedChatsCount++;
+      } else {
+        logger.log(`Match ${doc.id} either had no chatId or it was invalid. No associated chat to delete.`);
+      }
+    }
+  }
+  if (deletedStaleMatchesCount > 0) {
+    logger.log(`Scheduled ${deletedStaleMatchesCount} stale matches for deletion.`);
+  }
+  if (deletedAssociatedChatsCount > 0) {
+    logger.log(`Scheduled ${deletedAssociatedChatsCount} associated chats for deletion.`);
+  }
+
   try {
     await batch.commit();
     logger.log("Match generation batch committed successfully.");
@@ -345,7 +454,13 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
   }
 });
 
-export const getUserChats = onCall(async (request: CallableRequest<any>) => {
+// Define an interface for the expected data structure if getUserChats were to use request.data
+// interface GetUserChatsData {
+//   // Define fields if you expect any specific data from the client
+//   someProperty?: string;
+// }
+
+export const getUserChats = onCall(async (request: CallableRequest<unknown>) => {
   if (!request.auth) {
     throw new HttpsError(
       "unauthenticated",
@@ -354,14 +469,13 @@ export const getUserChats = onCall(async (request: CallableRequest<any>) => {
   }
 
   const uid = request.auth.uid;
-  // const data = request.data; // data is not used in this function yet
 
   try {
     const chatsSnapshot = await admin
       .firestore()
       .collection("chats")
       .where("users", "array-contains", uid)
-      .orderBy("lastTimestamp", "desc")
+      // .orderBy("lastTimestamp", "desc") // Temporarily commented out for diagnosis
       .get();
 
     const chats = chatsSnapshot.docs.map((doc) => ({

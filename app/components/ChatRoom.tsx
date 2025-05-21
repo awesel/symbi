@@ -1,7 +1,7 @@
 // app/components/ChatRoom.tsx
 import { useState, useEffect, useRef } from "react";
 import { doc, collection, addDoc, serverTimestamp,
-         onSnapshot, orderBy, query, updateDoc, Timestamp } from "firebase/firestore";
+         onSnapshot, orderBy, query, updateDoc, Timestamp, getDoc } from "firebase/firestore";
 import { useAuth } from "../../contexts/AuthContext";          // whatever hook returns {user}
 import { db } from "../../lib/firebase";              // your initialized Firestore
 import { format } from 'date-fns'; // Import date-fns for timestamp formatting
@@ -23,17 +23,177 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const { user } = useAuth();       // assumes .uid
+  const [otherUserName, setOtherUserName] = useState<string>("Chat"); // Added state for other user's name
+  const [otherUserUID, setOtherUserUID] = useState<string | null>(null); // Added state for other user's UID
+
+  const [systemMessage, setSystemMessage] = useState<string | null>(null);
+  const [isLoadingSystemMessage, setIsLoadingSystemMessage] = useState<boolean>(true);
+
+  /* Effect to fetch match details and set system message */
+  useEffect(() => {
+    if (!chatId || !user) {
+      setIsLoadingSystemMessage(false);
+      setOtherUserUID(null); // Reset other user UID
+      return;
+    }
+
+    const fetchMatchDetails = async () => {
+      setIsLoadingSystemMessage(true);
+      setOtherUserUID(null); 
+      try {
+        const chatDocRef = doc(db, "chats", chatId);
+        const chatSnap = await getDoc(chatDocRef);
+
+        if (!chatSnap.exists()) {
+          setSystemMessage("Chat details not found.");
+          setOtherUserName("Chat"); 
+          setOtherUserUID(null);
+          return;
+        }
+
+        const chatData = chatSnap.data();
+        const usersInChat = chatData.users as string[];
+        if (!usersInChat || usersInChat.length !== 2) {
+          setSystemMessage("Invalid chat participants configuration.");
+          setOtherUserName("Chat"); 
+          setOtherUserUID(null);
+          return;
+        }
+
+        const currentUserActualUID = user.uid;
+        const identifiedOtherUserUID = usersInChat.find(uid => uid !== currentUserActualUID);
+
+        if (!identifiedOtherUserUID) {
+          setSystemMessage("Could not identify the other user in this chat.");
+          setOtherUserName("Chat"); 
+          setOtherUserUID(null);
+          return;
+        }
+        setOtherUserUID(identifiedOtherUserUID); 
+
+        const currentUserDocRef = doc(db, "users", currentUserActualUID);
+        const currentUserSnap = await getDoc(currentUserDocRef);
+        const currentUserData = currentUserSnap.exists() ? currentUserSnap.data() : null;
+
+        const otherUserDocRef = doc(db, "users", identifiedOtherUserUID);
+        const otherUserSnap = await getDoc(otherUserDocRef);
+        const otherUserData = otherUserSnap.exists() ? otherUserSnap.data() : null;
+
+        const currentUserDisplayName = currentUserData?.displayName || "You";
+        const actualOtherUserDisplayName = otherUserData?.displayName || "Your chat partner";
+        setOtherUserName(otherUserData?.displayName || "Chat");
+
+
+        if (currentUserData && otherUserData) {
+          const currentUserInterests: string[] = currentUserData.interests || [];
+          const currentUserExpertise: string[] = currentUserData.expertise || [];
+          const otherUserInterests: string[] = otherUserData.interests || [];
+          const otherUserExpertise: string[] = otherUserData.expertise || [];
+
+          const learningPoints: string[] = [];
+
+          // Current user is interested, other user is expert
+          currentUserInterests.forEach(interest => {
+            if (otherUserExpertise.includes(interest)) {
+              learningPoints.push(`- ${currentUserDisplayName} can learn about "${interest}" from ${actualOtherUserDisplayName}.`);
+            }
+          });
+
+          // Other user is interested, current user is expert
+          otherUserInterests.forEach(interest => {
+            if (currentUserExpertise.includes(interest)) {
+              const point = `- ${actualOtherUserDisplayName} can learn about "${interest}" from ${currentUserDisplayName}.`;
+              // Avoid adding if a similar point (same topic) is already there from the first check.
+              // This check is simplified; more robust de-duplication might be needed for complex cases.
+              if (!learningPoints.some(lp => lp.includes(`"${interest}"`))) {
+                 learningPoints.push(point);
+              }
+            }
+          });
+          
+          // Deduplicate learning points
+          const uniqueLearningPoints = Array.from(new Set(learningPoints));
+
+          if (uniqueLearningPoints.length > 0) {
+            // For JSX rendering, newlines \n might not render as expected directly in <p>.
+            // We'll join with a string that can be split or processed in the render, or use a pre-formatted tag.
+            // For simplicity here, we'll join with a literal newline character. The CSS `white-space: pre-line;` on the <p> will handle it.
+            const messageBody = uniqueLearningPoints.join('\n');
+            setSystemMessage(
+              `Here's some common ground and what you might learn from each other:\n${messageBody}`
+            );
+          } else {
+            // Fallback to original match logic
+            let interestedUserDisplayNameFallback = "";
+            let knowledgeableUserDisplayNameFallback = "";
+            let topic: string | null = null;
+
+            const matchDocRef1 = doc(db, "matches", `${currentUserActualUID}_${identifiedOtherUserUID}`);
+            const matchSnap1 = await getDoc(matchDocRef1);
+
+            if (matchSnap1.exists() && matchSnap1.data()?.matchedOn) {
+              const matchedOnData = matchSnap1.data()?.matchedOn;
+              if (Array.isArray(matchedOnData) && matchedOnData.length > 0) {
+                topic = matchedOnData[0].split(" (yours) <>")[0];
+              } else if (typeof matchedOnData === 'string') {
+                topic = matchedOnData.split(" (yours) <>")[0];
+              }
+              interestedUserDisplayNameFallback = currentUserDisplayName; // Current user is interested
+              knowledgeableUserDisplayNameFallback = actualOtherUserDisplayName; // Other user is knowledgeable
+            } else {
+              const matchDocRef2 = doc(db, "matches", `${identifiedOtherUserUID}_${currentUserActualUID}`);
+              const matchSnap2 = await getDoc(matchDocRef2);
+              if (matchSnap2.exists() && matchSnap2.data()?.matchedOn) {
+                const matchedOnData = matchSnap2.data()?.matchedOn;
+                if (Array.isArray(matchedOnData) && matchedOnData.length > 0) {
+                  topic = matchedOnData[0].split(" (yours) <>")[0];
+                } else if (typeof matchedOnData === 'string') {
+                  topic = matchedOnData.split(" (yours) <>")[0];
+                }
+                interestedUserDisplayNameFallback = actualOtherUserDisplayName; // Other user is interested
+                knowledgeableUserDisplayNameFallback = currentUserDisplayName; // Current user is knowledgeable
+              }
+            }
+
+            if (topic && interestedUserDisplayNameFallback && knowledgeableUserDisplayNameFallback) {
+              setSystemMessage(
+                `You were matched because ${interestedUserDisplayNameFallback} was interested in "${topic}" that ${knowledgeableUserDisplayNameFallback} knows a lot about.`
+              );
+            } else {
+              // Generic message if no specific learning points or match topic found
+              setSystemMessage(`You and ${actualOtherUserDisplayName} are now connected. Start chatting!`);
+            }
+          }
+        } else {
+          // Message if profile data couldn't be loaded
+          setSystemMessage("Could not load profile information to determine mutual interests or expertise.");
+        }
+      } catch (error) {
+        console.error("Error fetching match details for system message:", error);
+        setSystemMessage("Error loading chat information.");
+      } finally {
+        setIsLoadingSystemMessage(false);
+      }
+    };
+
+    fetchMatchDetails();
+  }, [chatId, user]);
 
   /* 2️⃣ realtime listener */
   useEffect(() => {
     const messagesRef = collection(db, "chats", chatId, "messages");
     const q = query(messagesRef, orderBy("timestamp", "asc"));
     const unsub = onSnapshot(q, snap => {
-      setMessages(snap.docs.map(d => ({ id: d.id, ...(d.data() as MessageData) })));
+      const allMessages = snap.docs.map(d => ({ id: d.id, ...(d.data() as MessageData) }));
+      // Filter messages to only include those from the current user or the other user in the chat
+      const filteredMessages = allMessages.filter(
+        msg => user && (msg.sender === user.uid || (otherUserUID && msg.sender === otherUserUID))
+      );
+      setMessages(filteredMessages);
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     });
     return unsub;
-  }, [chatId]);
+  }, [chatId, user, otherUserUID]);
 
   /* 3️⃣ send message */
   const sendMessage = async () => {
@@ -59,7 +219,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
   return (
     <div className="flex flex-col h-[85vh] max-h-[720px] w-full max-w-2xl mx-auto bg-white shadow-xl rounded-lg">
       <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">Chat</h2>
+        <h2 className="text-xl font-semibold text-gray-800">{otherUserName}</h2>
         <Link href="/dashboard" legacyBehavior>
           <a className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
             Back to Dashboard
@@ -67,10 +227,19 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
         </Link>
       </div>
       <div className="flex-1 overflow-y-auto p-6 space-y-2">
+        {isLoadingSystemMessage && (
+          <div className="my-2 p-3 text-center text-sm text-gray-500">
+            <p>Loading chat information...</p>
+          </div>
+        )}
+        {!isLoadingSystemMessage && systemMessage && (
+          <div className="my-2 p-3 bg-gray-100 rounded-lg text-center text-sm text-gray-700 shadow">
+            <p style={{ whiteSpace: 'pre-line' }}>{systemMessage}</p>
+          </div>
+        )}
         {messages.map(m => {
           const isUser = m.sender === user?.uid;
           const timestamp = m.timestamp?.toDate ? format(m.timestamp.toDate(), 'Pp') : 'Sending...';
-          const senderName = isUser ? (user?.displayName || 'You') : (m.displayName || 'User');
 
           return (
             <div key={m.id} className={`flex ${isUser ? "justify-end" : "justify-start"} mb-2`}>
@@ -81,7 +250,6 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
                     : "bg-gray-200 text-gray-800 rounded-bl-none"
                 }`}
               >
-                <p className="font-bold text-sm mb-1">{senderName}</p>
                 <p className="text-sm">{m.text}</p>
                 <p className={`text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-500'} text-right`}>
                   {timestamp}
@@ -116,4 +284,4 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
       </form>
     </div>
   );
-} 
+}

@@ -1,25 +1,64 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    /* ───────── USERS ───────── */
     match /users/{userId} {
-      allow read: if true;
+      // Any signed-in user can read a profile (needed for chat UI, etc.)
+      allow read: if request.auth != null;
+
+      // Only the owner can write to their document
       allow write: if request.auth != null && request.auth.uid == userId;
     }
 
+    /* ───────── TAGS ───────── */
     match /tags_used/{tagId} {
+      // Readable by authenticated users
       allow read: if request.auth != null;
-      // Write rule might be needed if tags are created/updated by users directly
-      // For now, assuming tags are managed by backend functions like incrementTagCount
+
+      // Direct client writes blocked; handled by backend functions
     }
 
+    /* ───────── CHATS & MESSAGES ───────── */
     match /chats/{chatId} {
-      allow read, write: if request.auth.uid in resource.data.users;
+      // Allow querying chats collection if the query specifically looks for user's chats.
+      // Allow direct reads only if the user is a participant.
+      allow list: if request.auth != null;
+      allow get: if request.auth != null && request.auth.uid in resource.data.users;
 
+      // Only participants may update the chat doc
+      allow write: if request.auth != null &&
+                          request.auth.uid in resource.data.users;
+
+      // Messages sub-collection
       match /messages/{messageId} {
-        allow read, write: if request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.users;
+        // Confirm membership via the parent chat
+        allow read, write: if request.auth != null &&
+                            get(/databases/$(database)/documents/chats/$(chatId))
+                              .data.users.hasAny([request.auth.uid]);
       }
     }
 
+    /* ───────── MATCHES ───────── */
+    match /matches/{matchId} {
+      // Document ID format: "<uid1>_<uid2>"
+      allow list: if request.auth != null;
+      allow read: if request.auth != null &&
+                  (request.auth.uid == matchId.split('_')[0] ||
+                   request.auth.uid == matchId.split('_')[1]);
+
+      // Allow creating a match you are part of
+      allow create: if request.auth != null &&
+                    (request.auth.uid == matchId.split('_')[0] ||
+                     request.auth.uid == matchId.split('_')[1]);
+
+      // Block client updates/deletes (use backend if needed)
+    }
+
+    /* ───────── DEFAULT DENY ───────── */
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
 }

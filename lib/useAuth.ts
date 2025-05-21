@@ -27,95 +27,116 @@ export function useAuth() {
     errorRef.current = error;
   }, [error]);
 
+  const signInPromiseRef = useRef<Promise<void> | null>(null);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
       setUser(currentUser);
       if (currentUser) {
+        if (signInPromiseRef.current) {
+          try {
+            await signInPromiseRef.current;
+          } catch {
+            // signInWithGoogle should have already set an error if one occurred.
+            // console.warn("signInPromiseRef settlement caused an error, handled by signInWithGoogle:");
+          }
+        }
+
         const userDocRef = doc(db, 'users', currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
+
         if (userDocSnap.exists()) {
           setUserProfile(userDocSnap.data() as UserProfile);
           if (errorRef.current === "User profile not found. Please try signing in again.") {
-            setError(null); // Clear the specific error if profile is now found
+            setError(null);
           }
         } else {
-          // User is authenticated, but profile document not found.
-          // This could be a transient issue if signInWithGoogle just created it.
-          // Set error, but DO NOT set userProfile to null here.
-          // This prevents wiping the profile state if signInWithGoogle just set it.
-          setError("User profile not found. Please try signing in again.");
+          // If user is authenticated but Firestore doc is missing
+          setUserProfile(null);
+          setError("User profile not found. Please try signing in again or complete onboarding.");
         }
       } else {
-        // User is null (logged out)
         setUserProfile(null);
-        // Optionally clear the error when user logs out
-        if (errorRef.current === "User profile not found. Please try signing in again.") {
+        if (errorRef.current === "User profile not found. Please try signing in again." || errorRef.current === "User profile not found. Please try signing in again or complete onboarding.") {
             setError(null);
         }
       }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []); // Removed auth and db from dependencies
+  }, []);
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ hd: 'stanford.edu' });
     setError(null);
-    setLoading(true);
-    try {
-      const result = await signInWithPopup(auth, provider);
-      if (result.user && result.user.email && result.user.email.endsWith('@stanford.edu')) {
-        const userDocRef = doc(db, 'users', result.user.uid);
-        const userDocSnap = await getDoc(userDocRef);
 
-        if (!userDocSnap.exists()) {
-          // New user, create profile
-          const newUserProfile: UserProfile = {
-            uid: result.user.uid,
-            email: result.user.email,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-            onboardingCompleted: false,
-            createdAt: serverTimestamp() as Timestamp, // Will be converted by Firestore
-            lastLoginAt: serverTimestamp() as Timestamp, // Will be converted by Firestore
-          };
-          await setDoc(userDocRef, newUserProfile);
-          setUserProfile(newUserProfile);
+    const signInProcess = async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+
+        if (result.user && result.user.email && result.user.email.endsWith('@stanford.edu')) {
+          const userDocRef = doc(db, 'users', result.user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+
+          let currentProfile: UserProfile;
+          if (!userDocSnap.exists()) {
+            const newUserProfileData: UserProfile = {
+              uid: result.user.uid,
+              email: result.user.email,
+              displayName: result.user.displayName,
+              photoURL: result.user.photoURL,
+              onboardingCompleted: false,
+              createdAt: serverTimestamp() as Timestamp,
+              lastLoginAt: serverTimestamp() as Timestamp,
+            };
+            await setDoc(userDocRef, newUserProfileData);
+            currentProfile = newUserProfileData;
+          } else {
+            await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
+            currentProfile = { ...userDocSnap.data(), lastLoginAt: serverTimestamp() } as UserProfile;
+          }
+          setUserProfile(currentProfile);
+          setError(null);
         } else {
-          // Existing user, update last login time and set profile
-          await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
-          setUserProfile(userDocSnap.data() as UserProfile);
+          await signOut(auth);
+          setError('Please sign in with your @stanford.edu email address.');
+          setUserProfile(null);
         }
-        setUser(result.user); // Firebase user object
-      } else {
-        await signOut(auth); // Sign out if not a Stanford email
-        setUser(null);
+      } catch (err: unknown) {
+        console.error("Authentication error:", err);
+        let errorMessage = 'An unknown error occurred during sign in.';
+        if (err instanceof Error) {
+          errorMessage = err.message || 'Failed to sign in with Google.';
+        }
+        if (typeof err === 'object' && err !== null && 'code' in err && ((err as {code: unknown}).code === 'auth/popup-closed-by-user' || (err as {code: unknown}).code === 'auth/cancelled-popup-request')) {
+            setError(null);
+        } else {
+            setError(errorMessage);
+        }
         setUserProfile(null);
-        setError('Please sign in with your @stanford.edu email address.');
+      } finally {
       }
-    } catch (err: unknown) {
-      console.error("Authentication error:", err);
-      if (err instanceof Error) {
-        setError(err.message || 'Failed to sign in with Google.');
-      } else {
-        setError('An unknown error occurred during sign in.');
-      }
-      setUser(null);
-      setUserProfile(null);
-    } finally {
-      setLoading(false);
+    };
+
+    signInPromiseRef.current = signInProcess();
+
+    try {
+      await signInPromiseRef.current;
+    } catch {
+      // Errors are handled within signInProcess and set to the error state.
+      // This catch is to prevent unhandled promise rejection if signInProcess itself throws
+      // *outside* of its own try/catch (which it shouldn't, but as a safeguard).
+      // console.warn("signInPromiseRef.current threw an error that propagated: ", e)
+    }finally {
+      signInPromiseRef.current = null;
     }
   };
 
   const logOut = async () => {
-    setError(null);
-    setLoading(true);
     try {
       await signOut(auth);
-      setUser(null);
-      setUserProfile(null);
     } catch (err: unknown) {
       console.error("Sign out error:", err);
       if (err instanceof Error) {
@@ -123,8 +144,6 @@ export function useAuth() {
       } else {
         setError('An unknown error occurred during sign out.');
       }
-    } finally {
-      setLoading(false);
     }
   };
 

@@ -33,8 +33,8 @@ const DashboardPage: React.FC = () => {
       <Head>
         <title>Your Dashboard - Symbi</title>
       </Head>
-      <header style={{ textAlign: 'center', marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '2.5em', color: '#333', marginBottom: '10px' }}>Welcome, {userProfile?.displayName || user.email}!</h1>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1 style={{ fontSize: '2.5em', color: '#333', marginBottom: '10px', textAlign: 'center' }}>Welcome, {userProfile?.displayName || user.email}!</h1>
       </header>
 
       <div style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
@@ -80,17 +80,6 @@ const DashboardPage: React.FC = () => {
 
       <div style={{ marginBottom: '30px' }}>
         <Inbox />
-      </div>
-      
-      <p style={{ marginBottom: '20px', fontSize: '1.1em', textAlign: 'center' }}>this is where you will find chats and can edit your profile. Login every day for new matches!</p>
-      <p style={{ marginBottom: '10px', textAlign: 'center' }}>Your UID: {user.uid}</p>
-      
-      <div className="profile-section" style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', marginTop: '20px' }}>
-        <h2 style={{ marginTop: '0', color: '#555', borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '15px' }}>Your Profile:</h2>
-        <p><strong>Email:</strong> {userProfile.email}</p>
-        <p><strong>Onboarding Completed:</strong> {userProfile.onboardingCompleted ? 'Yes' : 'No'}</p>
-        <p><strong>Interests:</strong> {userProfile.interests?.join(', ') || 'Not set'}</p>
-        <p><strong>Expertise:</strong> {userProfile.expertise?.join(', ') || 'Not set'}</p>
       </div>
       
       <style jsx>{`

@@ -1,17 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { collection, query, where, orderBy, getDocs, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // Assuming you have this path
 import { useAuth } from '../lib/useAuth'; // Assuming you have this path
 import Image from 'next/image'; // Import Image
+
+interface Match {
+  id: string;
+  userA: string;
+  userB: string;
+  chatId: string;
+  status: string;
+  // Add other match fields if needed by inbox logic, e.g., lastTimestamp for sorting?
+  // For now, assuming we sort by chat's lastTimestamp later.
+}
 
 interface Chat {
   id: string;
   users: string[];
   lastMessage: string | null;
-  lastTimestamp: Timestamp | null; // Changed from any
-  otherUserName?: string; // To store the other user's name
-  otherUserPhotoURL?: string; // To store the other user's photo
+  lastTimestamp: Timestamp | null;
+  otherUserName?: string;
+  otherUserPhotoURL?: string;
 }
 
 const Inbox: React.FC = () => {
@@ -26,54 +36,110 @@ const Inbox: React.FC = () => {
       return;
     }
 
-    const fetchChats = async () => {
+    const fetchChatsFromMatches = async () => {
       setLoading(true);
       setError(null);
       try {
-        const chatsRef = collection(db, 'chats');
-        const q = query(
-          chatsRef,
-          where('users', 'array-contains', user.uid),
-          orderBy('lastTimestamp', 'desc')
+        const matchesRef = collection(db, 'matches');
+        // Query for matches where user is userA OR userB
+        const qUserA = query(
+          matchesRef,
+          where('userA', '==', user.uid),
+          where('status', '==', 'accepted') // Ensure match is active
+        );
+        const qUserB = query(
+          matchesRef,
+          where('userB', '==', user.uid),
+          where('status', '==', 'accepted') // Ensure match is active
         );
 
-        const querySnapshot = await getDocs(q);
-        const chatsData: Chat[] = [];
+        const [querySnapshotUserA, querySnapshotUserB] = await Promise.all([
+          getDocs(qUserA),
+          getDocs(qUserB),
+        ]);
 
-        for (const chatDoc of querySnapshot.docs) {
-          const chat: Partial<Chat> = { id: chatDoc.id, ...chatDoc.data() };
-          const otherUserId = chat.users?.find(uid => uid !== user.uid);
+        const userMatches: Match[] = [];
+        const matchIds = new Set<string>(); // To avoid duplicates if a user is somehow userA and userB in a bugged match doc
 
-          if (otherUserId) {
-            try {
-              const userDocRef = doc(db, 'users', otherUserId);
-              const userDocSnap = await getDoc(userDocRef);
-              if (userDocSnap.exists()) {
-                const userData = userDocSnap.data();
-                chat.otherUserName = userData.displayName || 'Computer'; // Adjust field as necessary
-                chat.otherUserPhotoURL = userData.photoURL || ''; // Adjust field as necessary
-              } else {
-                chat.otherUserName = 'Unknown User';
-              }
-            } catch (userError) {
-              console.error('Error fetching user data:', userError);
-              chat.otherUserName = 'Error Fetching Name';
-            }
-          } else {
-            chat.otherUserName = 'N/A'; // Should not happen in a 2-user chat
+        querySnapshotUserA.forEach((matchDoc) => {
+          if (!matchIds.has(matchDoc.id)) {
+            userMatches.push({ id: matchDoc.id, ...matchDoc.data() } as Match);
+            matchIds.add(matchDoc.id);
           }
-          chatsData.push(chat as Chat);
+        });
+
+        querySnapshotUserB.forEach((matchDoc) => {
+          if (!matchIds.has(matchDoc.id)) {
+            userMatches.push({ id: matchDoc.id, ...matchDoc.data() } as Match);
+            matchIds.add(matchDoc.id);
+          }
+        });
+
+        if (userMatches.length === 0) {
+          setChats([]);
+          setLoading(false);
+          return;
         }
-        setChats(chatsData);
+
+        const chatsDataPromises = userMatches.map(async (match) => {
+          if (!match.chatId) {
+            console.warn(`Match ${match.id} is missing a chatId.`);
+            return null; // Skip if no chatId
+          }
+          try {
+            const chatDocRef = doc(db, 'chats', match.chatId);
+            const chatDocSnap = await getDoc(chatDocRef);
+
+            if (chatDocSnap.exists()) {
+              const chatData = { id: chatDocSnap.id, ...chatDocSnap.data() } as Partial<Chat>;
+              const otherUserId = match.userA === user.uid ? match.userB : match.userA;
+
+              if (otherUserId) {
+                const userDocRef = doc(db, 'users', otherUserId);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                  const userData = userDocSnap.data();
+                  chatData.otherUserName = userData.displayName || 'Computer';
+                  chatData.otherUserPhotoURL = userData.photoURL || '';
+                } else {
+                  chatData.otherUserName = 'Unknown User';
+                }
+              } else {
+                chatData.otherUserName = 'N/A';
+              }
+              return chatData as Chat;
+            }
+            return null; // Chat doc doesn't exist
+          } catch (chatError) {
+            console.error(`Error fetching chat ${match.chatId} for match ${match.id}:`, chatError);
+            return null;
+          }
+        });
+
+        const resolvedChatsData = (await Promise.all(chatsDataPromises))
+          .filter(chat => chat !== null) as Chat[];
+
+        // Sort chats by lastTimestamp, descending
+        resolvedChatsData.sort((a, b) => {
+          if (a.lastTimestamp && b.lastTimestamp) {
+            return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
+          }
+          if (a.lastTimestamp) return -1; // a comes first if b has no timestamp
+          if (b.lastTimestamp) return 1;  // b comes first if a has no timestamp
+          return 0; // no timestamps, order doesn't matter
+        });
+
+        setChats(resolvedChatsData);
+
       } catch (err) {
-        console.error("Error fetching chats:", err);
+        console.error("Error fetching chats from matches:", err);
         setError("Failed to load chats.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchChats();
+    fetchChatsFromMatches();
   }, [user]);
 
   if (loading) {

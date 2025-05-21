@@ -2,7 +2,6 @@ import * as admin from "firebase-admin";
 import fft from "firebase-functions-test";
 import { incrementTagCount } from "./index"; // Adjust path if your structure is different
 // import { FeaturesList } from 'firebase-functions-test/lib/features';
-// import {Change, firestore} from 'firebase-functions/v2';
 // import {DocumentSnapshot} from 'firebase-admin/firestore';
 // import { Timestamp } from "firebase-admin/firestore";
 
@@ -50,10 +49,30 @@ const testEnv = fft(); // Offline mode is default, but for Firestore triggers, o
 //   };
 // };
 
+// Define a type for user data used in tests
+interface UserTestData {
+  interests?: string[];
+  expertise?: string[];
+  // Add other fields if they appear in test data
+}
+
+// Type for the event data passed to the wrapped function
+// This type is for the *input* to the testEnv.wrap() function for an onDocumentWritten trigger.
+// It expects plain JS objects for data.before and data.after.
+interface WrappedFunctionInputEventData {
+  data: {
+    before: UserTestData | null;
+    after: UserTestData | null;
+  };
+  params: { [key: string]: string };
+}
+
 // Helper to make the data structure that firebase-functions-test uses to create
 // the Change<DocumentSnapshot> for the wrapped function.
-// It expects plain data for `before` and `after`.
-const makeChangeData = (beforeData: any, afterData: any): { before: any, after: any } => {
+const makeChangeData = (
+  beforeData: UserTestData | null,
+  afterData: UserTestData | null
+): { before: UserTestData | null; after: UserTestData | null } => {
   return {
     before: beforeData,
     after: afterData,
@@ -62,7 +81,10 @@ const makeChangeData = (beforeData: any, afterData: any): { before: any, after: 
 
 describe("incrementTagCount Cloud Function", () => {
   const db = admin.firestore();
-  const wrappedIncrementTagCount = testEnv.wrap(incrementTagCount) as any;
+  // The wrapped function by testEnv for onDocumentWritten will be called by the test framework
+  // with an object that has `data` (containing before/after plain objects) and `params`.
+  const wrappedIncrementTagCount =
+    testEnv.wrap(incrementTagCount) as (event: WrappedFunctionInputEventData) => Promise<void>;
 
   // Clean up Firestore emulator before and after tests
   beforeEach(async () => {
@@ -213,8 +235,8 @@ describe("incrementTagCount Cloud Function", () => {
   test("type field should correctly accumulate interest and expertise", async () => {
     const userId = "userTypeTest";
     // 1. Add as interest
-    let beforeData: any = null;
-    let afterData: any = { interests: ["Type Test Tag"], expertise: [] };
+    let beforeData: UserTestData | null = null;
+    let afterData: UserTestData = { interests: ["Type Test Tag"], expertise: [] };
     let eventData = makeChangeData(beforeData, afterData);
     await wrappedIncrementTagCount({ data: eventData, params: { uid: userId } });
 
