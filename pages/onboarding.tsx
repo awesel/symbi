@@ -13,7 +13,52 @@ interface ChatMessage {
 }
 
 // Mocked tags for autofill - replace with actual Firestore fetching
-const MOCKED_TAGS = ['machine learning', 'web development', 'data science', 'blockchain', 'quantum computing', 'history', 'philosophy', 'economics'];
+const MOCKED_TAGS = [
+  // STEM
+  'machine learning', 'deep learning', 'artificial intelligence', 'natural language processing',
+  'computer vision', 'web development', 'frontend', 'backend', 'full stack',
+  'data science', 'data engineering', 'statistics', 'mathematics', 'calculus', 'linear algebra',
+  'physics', 'quantum computing', 'astrophysics', 'chemistry', 'biology', 'neuroscience',
+  'robotics', 'embedded systems', 'blockchain', 'cryptography', 'computer graphics', 'game dev',
+  'AR/VR', 'network security', 'ethical hacking', 'cloud computing', 'devops',
+
+  // Social Sciences
+  'economics', 'macroeconomics', 'microeconomics', 'behavioral economics', 'psychology',
+  'sociology', 'anthropology', 'political science', 'international relations', 'law',
+
+  // Humanities
+  'philosophy', 'ethics', 'history', 'classics', 'literature', 'religious studies', 'linguistics',
+
+  // Arts & Creative
+  'writing', 'poetry', 'film', 'screenwriting', 'theater', 'acting', 'painting', 'sculpture',
+  'graphic design', 'photography', 'animation', 'music', 'music production', 'djing',
+  'singing', 'songwriting', 'fashion design', 'interior design', 'architecture',
+
+  // Languages
+  'spanish', 'french', 'german', 'chinese', 'japanese', 'korean', 'latin', 'greek', 'arabic',
+
+  // Career & Productivity
+  'entrepreneurship', 'startups', 'venture capital', 'product management',
+  'consulting', 'finance', 'investment banking', 'trading', 'marketing', 'design thinking',
+  'time management', 'note-taking', 'public speaking', 'resume writing', 'interview prep',
+
+  // Hobbies
+  'gaming', 'chess', 'poker', 'board games', 'dungeons & dragons', 'cooking',
+  'baking', 'hiking', 'camping', 'photography', 'journaling', 'gardening', 'bird watching',
+  'travel', 'vlogging', 'blogging', 'calligraphy', 'origami',
+
+  // Fitness & Wellness
+  'gym', 'bodybuilding', 'calisthenics', 'powerlifting', 'yoga', 'meditation', 'nutrition',
+  'mental health', 'sleep science', 'running', 'cycling', 'rock climbing', 'martial arts',
+
+  // Pop Culture
+  'anime', 'manga', 'kpop', 'hip hop', 'indie music', 'film analysis', 'standup comedy',
+  'sci-fi', 'fantasy', 'marvel', 'star wars', 'harry potter', 'video essays',
+
+  // Miscellaneous
+  '3D printing', 'urban planning', 'space exploration', 'sustainability', 'climate change',
+  'philanthropy', 'education reform', 'e-sports', 'quantified self', 'biohacking'
+];
 
 const OnboardingPage: React.FC = () => {
   const { user, userProfile, loading: authLoading, error: authError } = useAuth();
@@ -69,7 +114,7 @@ const OnboardingPage: React.FC = () => {
         {
           id: 'system1',
           sender: 'system',
-          text: "Welcome! Let's get to know you a bit. What are some of your interests? Please enter them as a comma-separated list (e.g., machine learning, history, hiking).",
+          text: "Welcome! Let's get to know you a bit. What are you curious about? This can be within your classroom studies, or totally different! Please enter them as a comma-separated list (e.g., machine learning, history, hiking).",
           timestamp: serverTimestamp() as Timestamp
         }
       ]);
@@ -77,7 +122,7 @@ const OnboardingPage: React.FC = () => {
       setMessages(prev => [...prev, {
         id: 'system2',
         sender: 'system',
-        text: "Great! Now, what are some areas where you have expertise or skills? Please enter them as a comma-separated list (e.g., Python, project management, public speaking).",
+        text: "Great! Now, what are some areas where you have expertise or skills? This should be areas you have taken a class in or are otherwise knowledgable about. Please enter them as a comma-separated list (e.g., Python, project management, public speaking).",
         timestamp: serverTimestamp() as Timestamp
       }]);
     }

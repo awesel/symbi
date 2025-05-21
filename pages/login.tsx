@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
         textAlign: 'center'
       }}>
-        <h1 style={{ marginBottom: '10px', fontSize: '24px', color: '#333' }}>Welcome to Common Ground</h1>
+        <h1 style={{ marginBottom: '10px', fontSize: '24px', color: '#333' }}>Welcome to Symbi</h1>
         <p style={{ marginBottom: '30px', fontSize: '16px', color: '#555' }}>Please sign in with your Stanford email to continue.</p>
         {error && <p style={{ color: 'red', marginBottom: '20px' }}>{error}</p>}
         <button 

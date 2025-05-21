@@ -63,7 +63,7 @@ const DashboardPage: React.FC = () => {
         <Inbox />
       </div>
       
-      <p style={{ marginBottom: '20px', fontSize: '1.1em', textAlign: 'center' }}>This is your main dashboard.</p>
+      <p style={{ marginBottom: '20px', fontSize: '1.1em', textAlign: 'center' }}>this is where you will find chats and can edit your profile. Login every day for new matches!</p>
       <p style={{ marginBottom: '10px', textAlign: 'center' }}>Your UID: {user.uid}</p>
       
       <div className="profile-section" style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', marginTop: '20px' }}>
