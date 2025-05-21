@@ -150,7 +150,7 @@ const OnboardingPage: React.FC = () => {
         setMessages(prev => [...prev, {
           id: 'system3',
           sender: 'system',
-          text: "Thanks for sharing! You&apos;re all set up. Redirecting you now...",
+          text: "Thanks for sharing! You are all set up. Redirecting you now...",
           timestamp: serverTimestamp() as Timestamp
         }]);
         console.log("Redirecting to homepage in 2 seconds..."); // Debug log
@@ -210,7 +210,7 @@ const OnboardingPage: React.FC = () => {
         height: 'calc(100vh - 40px)', // Adjust height to fit viewport better, considering padding
         maxHeight: '700px' // Max height for the chat box on larger screens
       }}>
-        <h2 style={{ textAlign: 'center', color: '#333', marginBottom: '20px'}}>Let's get you set up!</h2>
+        <h2 style={{ textAlign: 'center', color: '#333', marginBottom: '20px'}}>Time to get you set up!</h2>
         <div style={{
           flexGrow: 1, // Allow chat messages area to grow
           overflowY: 'auto',

@@ -2,8 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { doc, collection, addDoc, serverTimestamp, FieldValue,
          onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
-import { useAuth } from "@/lib/useAuth";          // whatever hook returns {user}
-import { db } from "@/lib/firebase";              // your initialized Firestore
+import { useAuth } from "../../contexts/AuthContext";          // whatever hook returns {user}
+import { db } from "../../lib/firebase";              // your initialized Firestore
 
 type ChatRoomProps = { chatId: string };
 
