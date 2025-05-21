@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   background-color: #f0fff0; /* Honeydew - a light pastel green */
   color: #333; /* Dark grey for text, good contrast */

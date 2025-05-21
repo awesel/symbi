@@ -50,7 +50,7 @@ const Inbox: React.FC = () => {
               const userDocSnap = await getDoc(userDocRef);
               if (userDocSnap.exists()) {
                 const userData = userDocSnap.data();
-                chat.otherUserName = userData.displayName || 'User'; // Adjust field as necessary
+                chat.otherUserName = userData.displayName || 'Computer'; // Adjust field as necessary
                 chat.otherUserPhotoURL = userData.photoURL || ''; // Adjust field as necessary
               } else {
                 chat.otherUserName = 'Unknown User';
