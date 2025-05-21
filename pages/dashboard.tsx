@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Inbox from '../components/Inbox';
+import Link from 'next/link';
 
 const DashboardPage: React.FC = () => {
   const { user, userProfile, loading, logOut } = useAuth();
@@ -36,7 +37,7 @@ const DashboardPage: React.FC = () => {
         <h1 style={{ fontSize: '2.5em', color: '#333', marginBottom: '10px' }}>Welcome, {userProfile?.displayName || user.email}!</h1>
       </header>
 
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
         <button 
           style={{ 
             padding: '12px 25px', 
@@ -57,6 +58,24 @@ const DashboardPage: React.FC = () => {
         >
           Log Out
         </button>
+        <Link href="/onboarding-again" legacyBehavior>
+          <a style={{
+            padding: '12px 25px',
+            fontSize: '1.1em',
+            color: 'white',
+            backgroundColor: '#28a745',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            textDecoration: 'none',
+            transition: 'background-color 0.2s ease'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#218838'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#28a745'}
+          >
+            Edit Profile
+          </a>
+        </Link>
       </div>
 
       <div style={{ marginBottom: '30px' }}>
