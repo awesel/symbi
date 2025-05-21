@@ -1,0 +1,117 @@
+Here’s the full design document in plain text format — no markdown, no formatting, no bullets, just clean, copy-pastable text for your repo or documentation file:
+
+⸻
+
+Stanford Interest Matching Platform - Design Document
+
+Overview:
+This project matches Stanford students based on what they are interested in and what they are an expert in. Users log in using their Stanford email, fill out interests and expertise tags, and are matched with other students whose interests align with their expertise (and vice versa). Once a match is mutually accepted, users can message each other within the app.
+
+Functional Requirements:
+	1.	Users log in using Google OAuth restricted to @stanford.edu addresses.
+	2.	After login, users fill out their profile including interests and expertise (as freeform or selected tags).
+	3.	While typing, users receive autocomplete suggestions based on previously entered tags by others.
+	4.	A backend process finds users with overlapping interest/expertise using fuzzy string matching and creates match objects.
+	5.	Matches are pending until both users accept. Once accepted, a chat room is created.
+	6.	Users can send real-time messages to matched users in a one-on-one chat.
+	7.	Users can report others via a reporting system. Reports are visible only to admins in the Firebase console.
+
+Tech Stack:
+Frontend: React with Next.js 14 and Tailwind CSS
+Authentication: Firebase Auth (Google provider with domain restriction)
+Database: Firestore (Native mode)
+Backend: Firebase Cloud Functions (Node.js 20)
+Fuzzy Matching: Fuse.js (frontend), RapidFuzz (backend)
+Deployment: Firebase Hosting and Functions via GitHub Actions
+
+Firestore Data Model:
+
+Collection: users
+Document ID: uid (Firebase Auth UID)
+Fields:
+	•	email (string)
+	•	displayName (string)
+	•	bio (string)
+	•	interests (array of strings)
+	•	expertise (array of strings)
+	•	createdAt (timestamp)
+	•	lastActive (timestamp)
+
+Collection: tags_used
+Document ID: tag slug (e.g., “climate-tech”)
+Fields:
+	•	tag (string)
+	•	count (int)
+	•	type (array of strings, e.g., [“interest”, “expertise”])
+
+Collection: matches
+Document ID: uidA_uidB (sorted alphabetically)
+Fields:
+	•	userA (string)
+	•	userB (string)
+	•	score (float, fuzzy match score)
+	•	matchedOn (array of strings)
+	•	chatId (string or null)
+	•	status (string: “pending”, “accepted”, “declined”)
+	•	timestamp (timestamp)
+
+Collection: chats
+Document ID: auto-generated
+Fields:
+	•	users (array of two uids)
+	•	lastMessage (string)
+	•	lastTimestamp (timestamp)
+	•	createdAt (timestamp)
+
+Subcollection: chats/{chatId}/messages
+Document ID: auto-generated
+Fields:
+	•	sender (uid string)
+	•	text (string)
+	•	timestamp (timestamp)
+
+Collection: reports (optional)
+Document ID: auto-generated
+Fields:
+	•	reporter (string uid)
+	•	reportedUser (string uid)
+	•	reason (string)
+	•	chatId (string, optional)
+	•	timestamp (timestamp)
+
+Matching Logic:
+For every user who updates their interests or expertise, the backend checks all other users for matches.
+It compares interests against expertise using fuzzy string similarity.
+For each candidate user, compute:
+max(fuzzy(interests_this_user, expertise_other_user),
+fuzzy(expertise_this_user, interests_other_user))
+If the max similarity score is 80 or greater, a match document is created if one does not already exist.
+
+Cloud Functions:
+	•	incrementTagCount: Triggered on write to /users/{uid}. Updates tag counts in tags_used by diffing old vs new tags.
+	•	generateMatches: Triggered on write to /users/{uid}. Compares updated user against all others using fuzzy matching and creates or updates match documents.
+	•	acceptMatch: Callable. Allows a user to accept a match. If both users have accepted, creates a chat and stores the chat ID in the match.
+	•	suggestTags: Callable. Takes a query string, performs fuzzy search against all existing tags, and returns top 5 matches sorted by similarity and popularity.
+
+Security Rules:
+	•	Only the user can write to their own /users/{uid} document.
+	•	Only Cloud Functions can write to tags_used.
+	•	Only Cloud Functions can create match documents.
+	•	Users can only read and update matches where they are either userA or userB.
+	•	Users can only read and write messages in chats where they are a participant.
+	•	Reports can only be created by authenticated users; readable only by admins via console.
+
+Indexes:
+Create compound indexes for matches sorted by userA/status and userB/status for efficient queries.
+Create a descending index on count in tags_used for popular tag suggestions.
+
+Project Rules:
+	•	All Firestore field and collection names are lowercase and use underscores.
+	•	All functions must be tested with Firebase Emulator using Jest or Vitest.
+	•	All frontend forms use controlled inputs and validate before sending to Firestore.
+	•	Never allow direct write access to tags_used, matches, or reports from the client.
+	•	PRs must pass lint, unit tests, and Firestore emulator integration tests before deployment.
+	•	Matching logic must be idempotent and deterministic.
+	•	Tags are stored lowercase and slugified (e.g., “AI Ethics” → “ai-ethics”).
+
+End of Design Document.
