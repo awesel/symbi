@@ -1,24 +1,25 @@
 // app/components/ChatRoom.tsx
 import { useState, useEffect, useRef } from "react";
-import { doc, collection, addDoc, serverTimestamp, FieldValue,
-         onSnapshot, orderBy, query, updateDoc } from "firebase/firestore";
+import { doc, collection, addDoc, serverTimestamp,
+         onSnapshot, orderBy, query, updateDoc, Timestamp } from "firebase/firestore";
 import { useAuth } from "../../contexts/AuthContext";          // whatever hook returns {user}
 import { db } from "../../lib/firebase";              // your initialized Firestore
 import { format } from 'date-fns'; // Import date-fns for timestamp formatting
+import Link from 'next/link'; // Added Link import
 
 type ChatRoomProps = { chatId: string };
 
 interface MessageData {
   text: string;
   sender: string;
-  timestamp: FieldValue | null; // Firestore serverTimestamp can be complex, using any for now
+  timestamp: Timestamp | null;
   photoURL?: string; // Add photoURL for user avatar
   displayName?: string; // Add displayName for user name
 }
 
 export default function ChatRoom({ chatId }: ChatRoomProps) {
   /* 1️⃣ local state */
-  const [messages, setMessages] = useState<{ id: string; text: string; sender: string; timestamp: any; photoURL?: string; displayName?: string; }[]>([]);
+  const [messages, setMessages] = useState<{ id: string; text: string; sender: string; timestamp: Timestamp | null; photoURL?: string; displayName?: string; }[]>([]);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const { user } = useAuth();       // assumes .uid
@@ -57,6 +58,14 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
   /* 4️⃣ render */
   return (
     <div className="flex flex-col h-[85vh] max-h-[720px] w-full max-w-2xl mx-auto bg-white shadow-xl rounded-lg">
+      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-800">Chat</h2>
+        <Link href="/dashboard" legacyBehavior>
+          <a className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
+            Back to Dashboard
+          </a>
+        </Link>
+      </div>
       <div className="flex-1 overflow-y-auto p-6 space-y-2">
         {messages.map(m => {
           const isUser = m.sender === user?.uid;
