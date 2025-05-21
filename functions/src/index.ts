@@ -8,7 +8,7 @@
  */
 
 // import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import { logger } from "firebase-functions";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import { onCall, CallableRequest, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
