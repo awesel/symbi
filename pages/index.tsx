@@ -55,7 +55,7 @@ const HomePage: React.FC = () => {
         <section className={styles.section}>
           <h1>Your classmates are world-class experts. Learn from them on Symbi.</h1>
           <p>
-          We connect Stanford students based on their interests, so you can talk to experts in your curiosity face-to-face. Skip the Google search or AI chatbot—have a real conversation with someone right around the corner.
+          Tell us what you are curious about and what you know about, and we will connect you with someone who knows about your curiousity and is curious about what you know. Skip the Google search or AI chatbot—have a real conversation with someone right around the corner.
 
           </p>
         </section>

@@ -52,7 +52,7 @@ const OnboardingAgainPage: React.FC = () => {
         lastLoginAt: serverTimestamp() 
       });
       setMessage('Profile updated successfully!');
-      // Optionally, refetch userProfile or update it locally if useAuth provides a way
+      // The onSnapshot listener in useAuth will automatically update the profile
     } catch (error) {
       console.error("Error updating profile:", error);
       setMessage('Failed to update profile. Please try again.');

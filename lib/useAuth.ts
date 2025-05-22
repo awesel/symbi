@@ -1,7 +1,7 @@
 // lib/useAuth.ts
 import { useState, useEffect, useRef } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, Timestamp, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 export interface UserProfile {
@@ -32,13 +32,17 @@ export function useAuth() {
 
   const updateUserProfile = async (userId: string) => {
     const userDocRef = doc(db, 'users', userId);
-    const userDocSnap = await getDoc(userDocRef);
-    if (userDocSnap.exists()) {
-      setUserProfile(userDocSnap.data() as UserProfile);
-    }
+    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setUserProfile(docSnap.data() as UserProfile);
+      }
+    });
+    return unsubscribe;
   };
 
   useEffect(() => {
+    let unsubscribeProfile: (() => void) | undefined;
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
       setUser(currentUser);
@@ -52,7 +56,8 @@ export function useAuth() {
           }
         }
 
-        await updateUserProfile(currentUser.uid);
+        // Set up real-time listener for profile updates
+        unsubscribeProfile = await updateUserProfile(currentUser.uid);
       } else {
         setUserProfile(null);
         if (errorRef.current === "User profile not found. Please try signing in again." || errorRef.current === "User profile not found. Please try signing in again or complete onboarding.") {
@@ -62,7 +67,14 @@ export function useAuth() {
       setLoading(false);
       setAuthReady(true);
     });
-    return () => unsubscribe();
+
+    // Cleanup function
+    return () => {
+      unsubscribe();
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+      }
+    };
   }, []);
 
   const signInWithGoogle = async () => {
