@@ -184,7 +184,16 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
         }
       } catch (error) {
         console.error("Error fetching match details for system message:", error);
-        setSystemMessage("Error loading chat information.");
+        // Add more detailed error logging
+        if (error instanceof Error) {
+          console.error("Error details:", {
+            message: error.message,
+            stack: error.stack,
+            chatId,
+            userId: user?.uid
+          });
+        }
+        setSystemMessage("Error loading chat information. Please try refreshing the page.");
       } finally {
         setIsLoadingSystemMessage(false);
       }
@@ -217,8 +226,8 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
       sender: user.uid,
       text: input.trim(),
       timestamp: serverTimestamp(),
-      photoURL: user.photoURL, // Add user photoURL
-      displayName: user.displayName // Add user displayName
+      photoURL: user.photoURL,
+      displayName: user.displayName
     });
     /* 3a update chat metadata */
     const chatDoc = doc(db, "chats", chatId);
