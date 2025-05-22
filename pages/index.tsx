@@ -64,16 +64,16 @@ const HomePage: React.FC = () => {
           <h1>How it Works</h1>
           <ol className={styles.howItWorksList}>
             <li>
-              1. Sign in with your Stanford email.
+              Sign in with your Stanford email.
             </li>
             <li>
-              2. Enter what you are curious about, and what you know a lot about.
+              Enter what you are curious about, and what you know a lot about.
             </li>
             <li>
-              3. You will get matches based on who you can learn from and who can learn from you. Some will be Symbi matches, meaning you both want to learn from each other.
+              You will get matches based on who you can learn from and who can learn from you. Some will be Symbi matches, meaning you both want to learn from each other.
             </li>
             <li>
-              4. Chat with them on this website, or grab lunch! You are within a mile of each other :) Remember your name is associated with what you say—be kind.</li>
+              Chat with them on this website, or grab lunch! You are within a mile of each other :) Remember your name is associated with what you say—be kind.</li>
           </ol>
         </section>
 
