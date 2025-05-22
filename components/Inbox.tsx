@@ -22,6 +22,7 @@ interface Chat {
   lastTimestamp: Timestamp | null;
   otherUserName?: string;
   otherUserPhotoURL?: string;
+  matchStatus?: string;
 }
 
 const Inbox: React.FC = () => {
@@ -45,12 +46,12 @@ const Inbox: React.FC = () => {
         const qUserA = query(
           matchesRef,
           where('userA', '==', user.uid),
-          where('status', '==', 'accepted') // Ensure match is active
+          where('status', 'in', ['accepted', 'symbi']) // Ensure match is active or symbi
         );
         const qUserB = query(
           matchesRef,
           where('userB', '==', user.uid),
-          where('status', '==', 'accepted') // Ensure match is active
+          where('status', 'in', ['accepted', 'symbi']) // Ensure match is active or symbi
         );
 
         const [querySnapshotUserA, querySnapshotUserB] = await Promise.all([
@@ -91,7 +92,11 @@ const Inbox: React.FC = () => {
             const chatDocSnap = await getDoc(chatDocRef);
 
             if (chatDocSnap.exists()) {
-              const chatData = { id: chatDocSnap.id, ...chatDocSnap.data() } as Partial<Chat>;
+              const chatData = { 
+                id: chatDocSnap.id, 
+                ...chatDocSnap.data(),
+                matchStatus: match.status
+              } as Partial<Chat>;
               const otherUserId = match.userA === user.uid ? match.userB : match.userA;
 
               if (otherUserId) {
@@ -119,14 +124,25 @@ const Inbox: React.FC = () => {
         const resolvedChatsData = (await Promise.all(chatsDataPromises))
           .filter(chat => chat !== null) as Chat[];
 
-        // Sort chats by lastTimestamp, descending
+        // Sort chats: symbi matches first, then by lastTimestamp, descending
         resolvedChatsData.sort((a, b) => {
+          const aIsSymbi = a.matchStatus === 'symbi';
+          const bIsSymbi = b.matchStatus === 'symbi';
+
+          if (aIsSymbi && !bIsSymbi) {
+            return -1; // a comes first
+          }
+          if (!aIsSymbi && bIsSymbi) {
+            return 1; // b comes first
+          }
+
+          // If both are symbi or both are not, sort by lastTimestamp
           if (a.lastTimestamp && b.lastTimestamp) {
             return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
           }
           if (a.lastTimestamp) return -1; // a comes first if b has no timestamp
           if (b.lastTimestamp) return 1;  // b comes first if a has no timestamp
-          return 0; // no timestamps, order doesn't matter
+          return 0; // no timestamps or same status, order doesn't matter for this comparison pass
         });
 
         setChats(resolvedChatsData);
@@ -193,7 +209,10 @@ const Inbox: React.FC = () => {
                     style={{ borderRadius: '50%', marginRight: '15px'}}
                   />
                   <div>
-                    <h3>{chat.otherUserName}</h3>
+                    <h3>
+                      {chat.otherUserName}
+                      {chat.matchStatus === 'symbi' && <span style={{ marginLeft: '8px', color: 'gold' }}>⭐</span>}
+                    </h3>
                     <p className="last-message">
                       {chat.lastMessage ? 
                         (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 27) + '...' : chat.lastMessage) 

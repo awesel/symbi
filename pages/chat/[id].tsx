@@ -3,6 +3,10 @@ import { useRouter } from 'next/router';
 import ChatRoom from '../../app/components/ChatRoom';
 import { useAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import SymbiMatchBanner from '../../app/components/SymbiMatchBanner';
 
 // Consistent styling for messages
 const MESSAGE_CONTAINER_CLASSES = "flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4";
@@ -13,6 +17,29 @@ const ChatPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user, loading, error } = useAuth();
+  const [isSymbiMatch, setIsSymbiMatch] = useState(false);
+
+  useEffect(() => {
+    const fetchMatchStatus = async () => {
+      if (!id || !user) return;
+
+      try {
+        const matchesRef = collection(db, 'matches');
+        const qUserA = query(
+          matchesRef,
+          where('chatId', '==', id),
+          where('status', '==', 'symbi')
+        );
+        const matchSnapshot = await getDocs(qUserA);
+        
+        setIsSymbiMatch(!matchSnapshot.empty);
+      } catch (err) {
+        console.error('Error fetching match status:', err);
+      }
+    };
+
+    fetchMatchStatus();
+  }, [id, user]);
 
   if (loading) {
     return (
@@ -46,6 +73,7 @@ const ChatPage = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-6">
+      {isSymbiMatch && <SymbiMatchBanner variant="chat" />}
       <ChatRoom chatId={id} />
     </div>
   );

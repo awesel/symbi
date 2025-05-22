@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Inbox from '../components/Inbox';
 import Link from 'next/link';
+import SymbiMatchBanner from '../app/components/SymbiMatchBanner';
 
 const DashboardPage: React.FC = () => {
   const { user, userProfile, loading, logOut } = useAuth();
@@ -36,6 +37,8 @@ const DashboardPage: React.FC = () => {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <h1 style={{ fontSize: '2.5em', color: '#333', marginBottom: '10px', textAlign: 'center' }}>Welcome, {userProfile?.displayName || user.email}!</h1>
       </header>
+
+      <SymbiMatchBanner variant="dashboard" />
 
       <div style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
         <button 

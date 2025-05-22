@@ -286,46 +286,49 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
       const matchId = `${userA}_${userB}`;
 
       const matchDocRef = matchesCollection.doc(matchId);
-      const finalMatchedOnTags: string[] = [];
 
-      // Populate finalMatchedOnTags based on the pairs that led to the finalScore
-      // "yours" refers to changedUser, "theirs" refers to candidate
-      if (score1 === finalScore && bestPair1?.interest && bestPair1?.expertise) {
-        const matchString =
-          `Interest: ${bestPair1.interest} (yours) matched Expertise: ${bestPair1.expertise} (theirs)`;
-        finalMatchedOnTags.push(matchString);
-      }
-      // If score2 also contributed (e.g. score1 === score2, or score2 was the sole max)
-      if (score2 === finalScore && bestPair2?.expertise && bestPair2?.interest) {
-        const match2String = `Expertise: ${bestPair2.expertise} (yours) matched Interest: ${bestPair2.interest} (theirs)`;
-        // Avoid adding a duplicate string if score1 and score2 were equal and formed the same conceptual match string
-        const isNotDuplicate = !finalMatchedOnTags.includes(match2String);
-        const isDifferentMatch = !(
-          score1 === score2 &&
-          bestPair1?.interest === bestPair2.interest &&
-          bestPair1?.expertise === bestPair2.expertise
-        );
+      // ---- START OF MODIFIED SECTION FOR MATCH STATUS AND TAGS ----
+      const finalMatchedOnTagsOutput: string[] = [];
+      let determinedMatchStatus: string;
 
-        if (isNotDuplicate && isDifferentMatch) {
-          // The second condition above is a stricter check for semantic duplication if score1=score2
-          // For simplicity, the !finalMatchedOnTags.includes(match2String) might be sufficient if string formats are consistent.
-          // Let's ensure distinctness if score1 was already processed.
-          if (score1 === finalScore && score1 === score2) {
-            // if score1 already added its version, only add score2 if it's genuinely different information
-            // This scenario (truly different pairs giving same max score) is rare.
-            // For now, if score1 already added, and score1=score2, we might be adding redundant info if not careful.
-            // The current structure: if score1 is max, it adds. if score2 is *also* max, it adds. This is okay.
-          }
-          finalMatchedOnTags.push(match2String);
+      // score1: changedUser's interests vs candidate's expertise
+      // score2: changedUser's expertise vs candidate's interests
+      const changedUserLikesCandidateExpertise = score1 >= 80 && bestPair1?.interest && bestPair1?.expertise;
+      const candidateLikesChangedUserExpertise = score2 >= 80 && bestPair2?.expertise && bestPair2?.interest;
+
+      const isSymbi = changedUserLikesCandidateExpertise && candidateLikesChangedUserExpertise;
+
+      if (isSymbi) {
+        determinedMatchStatus = "symbi";
+        // Add descriptions for both directions of the match
+        const desc1 = `Interest: ${bestPair1!.interest} (yours) matched Expertise: ${bestPair1!.expertise} (theirs)`;
+        finalMatchedOnTagsOutput.push(desc1);
+        const desc2 = `Expertise: ${bestPair2!.expertise} (yours) matched Interest: ${bestPair2!.interest} (theirs)`;
+        // Add second description only if it's meaningfully different (e.g., not just swapped terms of the same underlying pair)
+        if (desc1.toLowerCase() !== desc2.toLowerCase()) {
+          finalMatchedOnTagsOutput.push(desc2);
         }
+      } else if (changedUserLikesCandidateExpertise && score1 >= score2) { // score1 is the primary or equal reason
+        determinedMatchStatus = "accepted";
+        const desc1 = `Interest: ${bestPair1!.interest} (yours) matched Expertise: ${bestPair1!.expertise} (theirs)`;
+        finalMatchedOnTagsOutput.push(desc1);
+      } else if (candidateLikesChangedUserExpertise) { // score2 is the primary or only reason
+        determinedMatchStatus = "accepted";
+        const desc2 = `Expertise: ${bestPair2!.expertise} (yours) matched Interest: ${bestPair2!.interest} (theirs)`;
+        finalMatchedOnTagsOutput.push(desc2);
+      } else {
+        // This case implies finalScore >= 80, but neither of the specific conditions above were met
+        // (e.g. bestPair1 or bestPair2 was null, or some other edge case).
+        // Default to "accepted" status; tags will be handled by the generic fallback.
+        determinedMatchStatus = "accepted";
       }
 
-      // If after the above, no specific tags were identified, provide a generic reason.
-      // This should be rare if finalScore >= 80.
-      if (finalMatchedOnTags.length === 0) {
-        logger.warn(`Match ${matchId} (score: ${finalScore}) couldn't form specific matchedOnTags. UserA: ${changedUserId}, UserB: ${candidate.id}. Defaulting.`);
-        finalMatchedOnTags.push("Strong interest/expertise alignment");
+      // Fallback for cases where status is determined (e.g., "accepted") but no specific tags were generated
+      if (finalMatchedOnTagsOutput.length === 0 && finalScore >= 80) {
+        logger.warn(`Match ${matchId} (score: ${finalScore}, status: ${determinedMatchStatus}) couldn't form specific matchedOnTags. Defaulting.`);
+        finalMatchedOnTagsOutput.push("Strong interest/expertise alignment");
       }
+      // ---- END OF MODIFIED SECTION FOR MATCH STATUS AND TAGS ----
 
       const matchDocSnapshot = await matchDocRef.get();
       let chatIdToPersist: string | null = null;
@@ -387,13 +390,13 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
           userA: userA,
           userB: userB,
           score: finalScore,
-          matchedOn: finalMatchedOnTags.slice(0, 5), // Use the new precise matchedOnTags
+          matchedOn: finalMatchedOnTagsOutput.slice(0, 5), // MODIFIED to use new tags array
           chatId: chatIdToPersist,
-          status: "accepted",
+          status: determinedMatchStatus, // MODIFIED to use determined status
           timestamp: FieldValue.serverTimestamp(),
         };
 
-        logger.info("Upserting match object", { matchDetails: { id: matchId, score: finalScore, chatIdValue: chatIdToPersist } });
+        logger.info("Upserting match object", { matchDetails: { id: matchId, score: finalScore, status: determinedMatchStatus, chatIdValue: chatIdToPersist } }); // MODIFIED to log new status
         batch.set(matchDocRef, matchData, { merge: true });
       }
     }
@@ -460,28 +463,88 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
 //   someProperty?: string;
 // }
 
+interface ChatDocumentData {
+  users: string[];
+  createdAt: admin.firestore.Timestamp;
+  lastMessage: string | null;
+  lastTimestamp: admin.firestore.Timestamp | null;
+  // Add any other fields that are expected in chat documents
+}
+
+interface ChatWithStatus extends ChatDocumentData {
+  id: string;
+  matchStatus: string;
+}
+
 export const getUserChats = onCall(async (request: CallableRequest<unknown>) => {
   if (!request.auth) {
     throw new HttpsError(
       "unauthenticated",
-      "The function must be called while authenticated.",
+      "The function must be called while authenticated."
     );
   }
 
   const uid = request.auth.uid;
 
   try {
+    // First, fetch all matches involving the user to get their status
+    const matchesAsUserAPromise = admin.firestore().collection("matches").where("userA", "==", uid).get();
+    const matchesAsUserBPromise = admin.firestore().collection("matches").where("userB", "==", uid).get();
+
+    const [matchesAsUserASnapshot, matchesAsUserBSnapshot] = await Promise.all([
+      matchesAsUserAPromise,
+      matchesAsUserBPromise,
+    ]);
+
+    const matchStatusMap = new Map<string, string>(); // <chatId, status>
+    matchesAsUserASnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.chatId) {
+        matchStatusMap.set(data.chatId, data.status || "accepted");
+      }
+    });
+    matchesAsUserBSnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.chatId && !matchStatusMap.has(data.chatId)) { // Avoid overwriting if userA query already got it
+        matchStatusMap.set(data.chatId, data.status || "accepted");
+      }
+    });
+
+    // Then, fetch all chats where the user is a participant
     const chatsSnapshot = await admin
       .firestore()
       .collection("chats")
       .where("users", "array-contains", uid)
-      // .orderBy("lastTimestamp", "desc") // Temporarily commented out for diagnosis
+      // Firestore does not support orderBy on a different field than the where clause if it's an array-contains
+      // So, we fetch all and sort in the function itself.
+      // .orderBy("lastTimestamp", "desc") // Cannot be used here directly
       .get();
 
-    const chats = chatsSnapshot.docs.map((doc) => ({
+    const chats: ChatWithStatus[] = chatsSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data(),
+      matchStatus: matchStatusMap.get(doc.id) || "accepted", // Add match status to chat object
+      ...(doc.data() as ChatDocumentData), // Explicitly cast to ChatDocumentData
     }));
+
+    // Sort the chats: symbi matches first, then by lastTimestamp descending
+    chats.sort((a, b) => {
+      const aIsSymbi = a.matchStatus === "symbi";
+      const bIsSymbi = b.matchStatus === "symbi";
+
+      if (aIsSymbi && !bIsSymbi) {
+        return -1; // a comes first
+      }
+      if (!aIsSymbi && bIsSymbi) {
+        return 1; // b comes first
+      }
+
+      // If both are symbi or both are not, sort by lastTimestamp
+      // Assuming lastTimestamp is a Firestore Timestamp or a comparable value (e.g., number)
+      const lastTimestampA = (a.lastTimestamp as admin.firestore.Timestamp)?.toMillis() || 0;
+      const lastTimestampB = (b.lastTimestamp as admin.firestore.Timestamp)?.toMillis() || 0;
+
+      return lastTimestampB - lastTimestampA; // Descending order
+    });
 
     return { chats };
   } catch (error) {
