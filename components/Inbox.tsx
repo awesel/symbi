@@ -25,9 +25,14 @@ interface Chat {
   matchStatus?: string;
 }
 
+interface GroupedChats {
+  symbi: Chat[];
+  accepted: Chat[];
+}
+
 const Inbox: React.FC = () => {
   const { user } = useAuth();
-  const [chats, setChats] = useState<Chat[]>([]);
+  const [chats, setChats] = useState<GroupedChats>({ symbi: [], accepted: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -77,7 +82,7 @@ const Inbox: React.FC = () => {
         });
 
         if (userMatches.length === 0) {
-          setChats([]);
+          setChats({ symbi: [], accepted: [] });
           setLoading(false);
           return;
         }
@@ -124,28 +129,23 @@ const Inbox: React.FC = () => {
         const resolvedChatsData = (await Promise.all(chatsDataPromises))
           .filter(chat => chat !== null) as Chat[];
 
-        // Sort chats: symbi matches first, then by lastTimestamp, descending
+        // Sort chats by lastTimestamp
         resolvedChatsData.sort((a, b) => {
-          const aIsSymbi = a.matchStatus === 'symbi';
-          const bIsSymbi = b.matchStatus === 'symbi';
-
-          if (aIsSymbi && !bIsSymbi) {
-            return -1; // a comes first
-          }
-          if (!aIsSymbi && bIsSymbi) {
-            return 1; // b comes first
-          }
-
-          // If both are symbi or both are not, sort by lastTimestamp
           if (a.lastTimestamp && b.lastTimestamp) {
             return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
           }
-          if (a.lastTimestamp) return -1; // a comes first if b has no timestamp
-          if (b.lastTimestamp) return 1;  // b comes first if a has no timestamp
-          return 0; // no timestamps or same status, order doesn't matter for this comparison pass
+          if (a.lastTimestamp) return -1;
+          if (b.lastTimestamp) return 1;
+          return 0;
         });
 
-        setChats(resolvedChatsData);
+        // Group chats by status
+        const groupedChats: GroupedChats = {
+          symbi: resolvedChatsData.filter(chat => chat.matchStatus === 'symbi'),
+          accepted: resolvedChatsData.filter(chat => chat.matchStatus !== 'symbi')
+        };
+
+        setChats(groupedChats);
 
       } catch (err) {
         console.error("Error fetching chats from matches:", err);
@@ -170,7 +170,8 @@ const Inbox: React.FC = () => {
     return <div>Please log in to see your chats.</div>;
   }
 
-  if (chats.length === 0) {
+  const totalChats = chats.symbi.length + chats.accepted.length;
+  if (totalChats === 0) {
     return (
       <div style={{ textAlign: 'center', marginTop: '50px' }}>
         <h2>No chats yet.</h2>
@@ -192,50 +193,77 @@ const Inbox: React.FC = () => {
     );
   }
 
+  const renderChatList = (chatList: Chat[], sectionTitle: string) => {
+    if (chatList.length === 0) return null;
+    
+    return (
+      <div className="chat-section">
+        <h3 className="section-title">{sectionTitle}</h3>
+        <ul className="chat-list">
+          {chatList.map((chat) => (
+            <li key={chat.id} className="chat-preview-card">
+              <Link href={`/chat/${chat.id}`} legacyBehavior>
+                <a style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div className="chat-info">
+                    <Image 
+                      src={chat.otherUserPhotoURL || 'https://via.placeholder.com/50'} 
+                      alt={chat.otherUserName || 'User avatar'} 
+                      className="avatar" 
+                      width={50} height={50}
+                      style={{ borderRadius: '50%', marginRight: '15px'}}
+                    />
+                    <div>
+                      <h3>
+                        {chat.otherUserName}
+                        {chat.matchStatus === 'symbi' && <span style={{ marginLeft: '8px', color: 'gold' }}>⭐</span>}
+                      </h3>
+                      <p className="last-message">
+                        {chat.lastMessage ? 
+                          (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 27) + '...' : chat.lastMessage) 
+                          : <i>No messages yet</i>}
+                      </p>
+                    </div>
+                  </div>
+                  {chat.lastTimestamp && (
+                    <span className="timestamp">
+                      {new Date(chat.lastTimestamp?.toDate()).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+                    </span>
+                  )}
+                </a>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div className="inbox-container">
       <h2>Inbox</h2>
-      <ul className="chat-list">
-        {chats.map((chat) => (
-          <li key={chat.id} className="chat-preview-card">
-            <Link href={`/chat/${chat.id}`} legacyBehavior>
-              <a style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className="chat-info">
-                  <Image 
-                    src={chat.otherUserPhotoURL || 'https://via.placeholder.com/50'} 
-                    alt={chat.otherUserName || 'User avatar'} 
-                    className="avatar" 
-                    width={50} height={50} // Added width and height for Next/Image
-                    style={{ borderRadius: '50%', marginRight: '15px'}}
-                  />
-                  <div>
-                    <h3>
-                      {chat.otherUserName}
-                      {chat.matchStatus === 'symbi' && <span style={{ marginLeft: '8px', color: 'gold' }}>⭐</span>}
-                    </h3>
-                    <p className="last-message">
-                      {chat.lastMessage ? 
-                        (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 27) + '...' : chat.lastMessage) 
-                        : <i>No messages yet</i>}
-                    </p>
-                  </div>
-                </div>
-                {chat.lastTimestamp && (
-                  <span className="timestamp">
-                    {new Date(chat.lastTimestamp?.toDate()).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
-                  </span>
-                )}
-              </a>
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {renderChatList(chats.symbi, "Symbi Matches")}
+      {renderChatList(chats.accepted, "Other Matches")}
       <style>{`
         .inbox-container {
           max-width: 600px;
-          margin: 20px auto;
+          margin: -10px auto 20px;
           padding: 20px;
           font-family: Arial, sans-serif;
+        }
+        .inbox-container h2 {
+          font-size: 2em;
+          font-weight: bold;
+          margin-bottom: 25px;
+        }
+        .chat-section {
+          margin-bottom: 30px;
+        }
+        .section-title {
+          font-size: 1em;
+          color: #666;
+          margin-bottom: 15px;
+          padding-bottom: 8px;
+          border-bottom: 2px solid #eee;
         }
         .chat-list {
           list-style: none;

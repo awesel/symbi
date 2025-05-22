@@ -476,6 +476,11 @@ interface ChatWithStatus extends ChatDocumentData {
   matchStatus: string;
 }
 
+interface GroupedChats {
+  symbi: ChatWithStatus[];
+  accepted: ChatWithStatus[];
+}
+
 export const getUserChats = onCall(async (request: CallableRequest<unknown>) => {
   if (!request.auth) {
     throw new HttpsError(
@@ -515,9 +520,6 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
       .firestore()
       .collection("chats")
       .where("users", "array-contains", uid)
-      // Firestore does not support orderBy on a different field than the where clause if it's an array-contains
-      // So, we fetch all and sort in the function itself.
-      // .orderBy("lastTimestamp", "desc") // Cannot be used here directly
       .get();
 
     const chats: ChatWithStatus[] = chatsSnapshot.docs.map((doc) => ({
@@ -526,27 +528,29 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
       ...(doc.data() as ChatDocumentData), // Explicitly cast to ChatDocumentData
     }));
 
-    // Sort the chats: symbi matches first, then by lastTimestamp descending
+    // Group chats by status
+    const groupedChats: GroupedChats = {
+      symbi: [],
+      accepted: []
+    };
+
+    // Sort each chat by lastTimestamp before grouping
     chats.sort((a, b) => {
-      const aIsSymbi = a.matchStatus === "symbi";
-      const bIsSymbi = b.matchStatus === "symbi";
-
-      if (aIsSymbi && !bIsSymbi) {
-        return -1; // a comes first
-      }
-      if (!aIsSymbi && bIsSymbi) {
-        return 1; // b comes first
-      }
-
-      // If both are symbi or both are not, sort by lastTimestamp
-      // Assuming lastTimestamp is a Firestore Timestamp or a comparable value (e.g., number)
       const lastTimestampA = (a.lastTimestamp as admin.firestore.Timestamp)?.toMillis() || 0;
       const lastTimestampB = (b.lastTimestamp as admin.firestore.Timestamp)?.toMillis() || 0;
-
       return lastTimestampB - lastTimestampA; // Descending order
     });
 
-    return { chats };
+    // Group chats into their respective arrays
+    chats.forEach(chat => {
+      if (chat.matchStatus === 'symbi') {
+        groupedChats.symbi.push(chat);
+      } else {
+        groupedChats.accepted.push(chat);
+      }
+    });
+
+    return { chats: groupedChats };
   } catch (error) {
     logger.error("Error fetching user chats:", error);
     throw new HttpsError(
@@ -555,3 +559,4 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
     );
   }
 });
+

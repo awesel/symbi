@@ -32,7 +32,7 @@ const SymbiMatchBanner: React.FC<SymbiMatchBannerProps> = ({ variant = 'chat' })
         <div>
           <h3 className="text-amber-800 font-semibold">Symbiotic Match!</h3>
           <p className="text-amber-700 text-sm">
-            This is a special "symbi" match because both of you have things to learn from each other. 
+            This is a special &quot;symbi&quot; match because both of you have things to learn from each other. 
             These matches are rare and valuable - we recommend prioritizing conversations with your starred matches!
           </p>
         </div>
