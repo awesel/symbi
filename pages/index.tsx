@@ -53,9 +53,9 @@ const HomePage: React.FC = () => {
 
       <main className={styles.mainContent}>
         <section className={styles.section}>
-          <h1>World-class experts are your classmates.</h1>
+          <h1>Your classmates are world-class experts. Learn from them on Symbi.</h1>
           <p>
-          Symbi connects Stanford students based on their interests, so you can talk to experts in your curiosity face-to-face. Skip the Google search or AI chatbot—have a real conversation with someone right around the corner.
+          We connects Stanford students based on their interests, so you can talk to experts in your curiosity face-to-face. Skip the Google search or AI chatbot—have a real conversation with someone right around the corner.
 
           </p>
         </section>
@@ -64,14 +64,16 @@ const HomePage: React.FC = () => {
           <h1>How it Works</h1>
           <ol className={styles.howItWorksList}>
             <li>
-              Sign in with your Stanford email.
+              1. Sign in with your Stanford email.
             </li>
             <li>
-              Enter what you are curious about, and what you know a lot about.
+              2. Enter what you are curious about, and what you know a lot about.
             </li>
             <li>
-              You will get two types of matches: people who want to learn from you, and people who we think you will want to learn from. Chat with them on this website, or grab lunch! You are within a mile of each other :) Remember your name is associated with what you say—be kind.
+              3. You will get matches based on who you can learn from and who can learn from you. Some will be Symbi matches, meaning you both want to learn from each other.
             </li>
+            <li>
+              4. Chat with them on this website, or grab lunch! You are within a mile of each other :) Remember your name is associated with what you say—be kind.</li>
           </ol>
         </section>
 
