@@ -124,24 +124,48 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
             if (matchSnap1.exists() && matchSnap1.data()?.matchedOn) {
               const matchedOnData = matchSnap1.data()?.matchedOn;
               if (Array.isArray(matchedOnData) && matchedOnData.length > 0) {
-                topic = matchedOnData[0].split(" (yours) <>")[0];
+                const matchText = matchedOnData[0];
+                if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
+                  const [expertise, interest] = matchText.split(" <> ");
+                  topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
+                } else {
+                  topic = matchText.split(" (yours) <>")[0];
+                }
               } else if (typeof matchedOnData === 'string') {
-                topic = matchedOnData.split(" (yours) <>")[0];
+                const matchText = matchedOnData;
+                if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
+                  const [expertise, interest] = matchText.split(" <> ");
+                  topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
+                } else {
+                  topic = matchText.split(" (yours) <>")[0];
+                }
               }
-              interestedUserDisplayNameFallback = currentUserDisplayName; // Current user is interested
-              knowledgeableUserDisplayNameFallback = actualOtherUserDisplayName; // Other user is knowledgeable
+              interestedUserDisplayNameFallback = currentUserDisplayName;
+              knowledgeableUserDisplayNameFallback = actualOtherUserDisplayName;
             } else {
               const matchDocRef2 = doc(db, "matches", `${identifiedOtherUserUID}_${currentUserActualUID}`);
               const matchSnap2 = await getDoc(matchDocRef2);
               if (matchSnap2.exists() && matchSnap2.data()?.matchedOn) {
                 const matchedOnData = matchSnap2.data()?.matchedOn;
                 if (Array.isArray(matchedOnData) && matchedOnData.length > 0) {
-                  topic = matchedOnData[0].split(" (yours) <>")[0];
+                  const matchText = matchedOnData[0];
+                  if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
+                    const [expertise, interest] = matchText.split(" <> ");
+                    topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
+                  } else {
+                    topic = matchText.split(" (yours) <>")[0];
+                  }
                 } else if (typeof matchedOnData === 'string') {
-                  topic = matchedOnData.split(" (yours) <>")[0];
+                  const matchText = matchedOnData;
+                  if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
+                    const [expertise, interest] = matchText.split(" <> ");
+                    topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
+                  } else {
+                    topic = matchText.split(" (yours) <>")[0];
+                  }
                 }
-                interestedUserDisplayNameFallback = actualOtherUserDisplayName; // Other user is interested
-                knowledgeableUserDisplayNameFallback = currentUserDisplayName; // Current user is knowledgeable
+                interestedUserDisplayNameFallback = actualOtherUserDisplayName;
+                knowledgeableUserDisplayNameFallback = currentUserDisplayName;
               }
             }
 
