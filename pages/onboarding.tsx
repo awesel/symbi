@@ -114,7 +114,7 @@ const OnboardingPage: React.FC = () => {
         {
           id: 'system1',
           sender: 'system',
-          text: "Welcome! Let's get to know you a bit. What are you curious about? This can be within your classroom studies, or totally different! Please enter them as a comma-separated list (e.g., machine learning, history, hiking).",
+          text: "What are you curious about, but not an expert in? Please enter a comma-separated list (e.g., machine learning, history, hiking).",
           timestamp: serverTimestamp() as Timestamp
         }
       ]);
@@ -122,7 +122,7 @@ const OnboardingPage: React.FC = () => {
       setMessages(prev => [...prev, {
         id: 'system2',
         sender: 'system',
-        text: "Great! Now, what are some areas where you have expertise or skills? This should be areas you have taken a class in or are otherwise knowledgable about. Please enter them as a comma-separated list (e.g., Python, project management, public speaking).",
+        text: "Great! Now, what are you knowledgeable about? Please enter a comma-separated list (e.g., Python, project management, public speaking).",
         timestamp: serverTimestamp() as Timestamp
       }]);
     }
