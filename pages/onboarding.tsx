@@ -61,7 +61,7 @@ const MOCKED_TAGS = [
 ];
 
 const OnboardingPage: React.FC = () => {
-  const { user, userProfile, loading: authLoading, error: authError } = useAuth();
+  const { user, userProfile, loading: authLoading, error: authError, updateUserProfile } = useAuth();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<'interests' | 'expertise' | 'completed'>('interests');
   const [inputValue, setInputValue] = useState('');
@@ -173,7 +173,7 @@ const OnboardingPage: React.FC = () => {
     const items = inputValue.split(',').map(item => item.trim()).filter(item => item);
     const userDocRef = doc(db, 'users', user.uid);
 
-    console.log(`Submitting for step: ${currentStep}. Items:`, items); // Debug log
+    console.log(`Submitting for step: ${currentStep}. Items:`, items);
 
     try {
       if (currentStep === 'interests') {
@@ -190,6 +190,13 @@ const OnboardingPage: React.FC = () => {
           lastLoginAt: serverTimestamp()
         });
         console.log("Expertise updated and onboardingCompleted set to true in Firestore."); // Debug log
+        // Update local userProfile state
+        if (userProfile) {
+          userProfile.onboardingCompleted = true;
+          userProfile.expertise = [...(userProfile.expertise || []), ...items];
+        }
+        // Refresh user profile from Firestore
+        await updateUserProfile(user.uid);
         setCurrentStep('completed');
         // Optionally, show a success message before redirecting
         setMessages(prev => [...prev, {

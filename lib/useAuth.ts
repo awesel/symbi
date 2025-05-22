@@ -30,6 +30,14 @@ export function useAuth() {
 
   const signInPromiseRef = useRef<Promise<void> | null>(null);
 
+  const updateUserProfile = async (userId: string) => {
+    const userDocRef = doc(db, 'users', userId);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      setUserProfile(userDocSnap.data() as UserProfile);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
@@ -44,19 +52,7 @@ export function useAuth() {
           }
         }
 
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (userDocSnap.exists()) {
-          setUserProfile(userDocSnap.data() as UserProfile);
-          if (errorRef.current === "User profile not found. Please try signing in again.") {
-            setError(null);
-          }
-        } else {
-          // If user is authenticated but Firestore doc is missing
-          setUserProfile(null);
-          setError("User profile not found. Please try signing in again or complete onboarding.");
-        }
+        await updateUserProfile(currentUser.uid);
       } else {
         setUserProfile(null);
         if (errorRef.current === "User profile not found. Please try signing in again." || errorRef.current === "User profile not found. Please try signing in again or complete onboarding.") {
@@ -149,5 +145,5 @@ export function useAuth() {
     }
   };
 
-  return { user, userProfile, error, loading, authReady, signInWithGoogle, logOut };
+  return { user, userProfile, error, loading, authReady, signInWithGoogle, logOut, updateUserProfile };
 } 
