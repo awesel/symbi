@@ -102,23 +102,13 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
           // Other user is interested, current user is expert
           otherUserInterests.forEach(interest => {
             if (currentUserExpertise.includes(interest)) {
-              const point = `- ${actualOtherUserDisplayName} can learn about "${interest}" from ${currentUserDisplayName}.`;
-              // Avoid adding if a similar point (same topic) is already there from the first check.
-              // This check is simplified; more robust de-duplication might be needed for complex cases.
-              if (!learningPoints.some(lp => lp.includes(`"${interest}"`))) {
-                 learningPoints.push(point);
-              }
+              learningPoints.push(`- ${actualOtherUserDisplayName} can learn about "${interest}" from ${currentUserDisplayName}.`);
             }
           });
           
-          // Deduplicate learning points
-          const uniqueLearningPoints = Array.from(new Set(learningPoints));
-
-          if (uniqueLearningPoints.length > 0) {
-            // For JSX rendering, newlines \n might not render as expected directly in <p>.
-            // We'll join with a string that can be split or processed in the render, or use a pre-formatted tag.
-            // For simplicity here, we'll join with a literal newline character. The CSS `white-space: pre-line;` on the <p> will handle it.
-            const messageBody = uniqueLearningPoints.join('\n');
+          // No need to deduplicate since we want to show both directions of learning
+          if (learningPoints.length > 0) {
+            const messageBody = learningPoints.join('\n');
             setSystemMessage(
               `Here's some common ground and what you might learn from each other:\n${messageBody}`
             );
