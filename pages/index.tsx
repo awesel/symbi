@@ -70,7 +70,7 @@ const HomePage: React.FC = () => {
               Enter what you are curious about, and what you know a lot about.
             </li>
             <li>
-              You will get matches based on who you can learn from and who can learn from you. Some will be Symbi matches, meaning you both want to learn from each other.
+              You will get matches based on who you can learn from and who can learn from you. Some will be Symbi (symbiotic) matches, meaning you both want to learn from each other.
             </li>
             <li>
               Chat with them on this website, or grab lunch! You are within a mile of each other :) Remember your name is associated with what you say—be kind.</li>
