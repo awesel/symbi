@@ -1,6 +1,8 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useAuth as useFirebaseAuth, UserProfile } from '../lib/useAuth'; // Renamed to avoid naming conflict
+import { useAuth as useFirebaseAuth } from '../lib/useAuth';
 import { User as FirebaseUser } from 'firebase/auth';
+import { UserProfile } from '../lib/useAuth';
+import { Unsubscribe } from 'firebase/firestore';
 
 interface AuthContextType {
   user: FirebaseUser | null;
@@ -10,13 +12,13 @@ interface AuthContextType {
   error: string | null;
   signInWithGoogle: () => Promise<void>;
   logOut: () => Promise<void>;
-  updateUserProfile: (userId: string) => Promise<void>;
+  updateUserProfile: (userId: string) => Promise<Unsubscribe>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const auth = useFirebaseAuth(); // Use the hook previously named useAuth
+  const auth = useFirebaseAuth();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
 

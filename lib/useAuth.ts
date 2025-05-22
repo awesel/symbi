@@ -32,12 +32,11 @@ export function useAuth() {
 
   const updateUserProfile = async (userId: string) => {
     const userDocRef = doc(db, 'users', userId);
-    const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+    return onSnapshot(userDocRef, (docSnap) => {
       if (docSnap.exists()) {
         setUserProfile(docSnap.data() as UserProfile);
       }
     });
-    return unsubscribe;
   };
 
   useEffect(() => {
@@ -51,8 +50,7 @@ export function useAuth() {
           try {
             await signInPromiseRef.current;
           } catch {
-            // signInWithGoogle should have already set an error if one occurred.
-            // console.warn("signInPromiseRef settlement caused an error, handled by signInWithGoogle:");
+            // signInPromiseRef should have already set an error if one occurred
           }
         }
 
