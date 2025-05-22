@@ -21,6 +21,7 @@ export function useAuth() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
 
   const errorRef = useRef(error);
   useEffect(() => {
@@ -63,6 +64,7 @@ export function useAuth() {
         }
       }
       setLoading(false);
+      setAuthReady(true);
     });
     return () => unsubscribe();
   }, []);
@@ -147,5 +149,5 @@ export function useAuth() {
     }
   };
 
-  return { user, userProfile, error, loading, signInWithGoogle, logOut };
+  return { user, userProfile, error, loading, authReady, signInWithGoogle, logOut };
 } 

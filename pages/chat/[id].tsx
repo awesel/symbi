@@ -16,7 +16,7 @@ const LINK_CLASSES = "mt-4 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg
 const ChatPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { user, loading, error } = useAuth();
+  const { user, error, authReady } = useAuth();
   const [isSymbiMatch, setIsSymbiMatch] = useState(false);
 
   useEffect(() => {
@@ -38,10 +38,12 @@ const ChatPage = () => {
       }
     };
 
-    fetchMatchStatus();
-  }, [id, user]);
+    if (authReady) {
+      fetchMatchStatus();
+    }
+  }, [id, user, authReady]);
 
-  if (loading) {
+  if (!authReady) {
     return (
       <div className={MESSAGE_CONTAINER_CLASSES}>
         <p className={MESSAGE_TEXT_CLASSES}>Loading session...</p>

@@ -6,6 +6,7 @@ interface AuthContextType {
   user: FirebaseUser | null;
   userProfile: UserProfile | null;
   loading: boolean;
+  authReady: boolean;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
   logOut: () => Promise<void>;
