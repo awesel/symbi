@@ -9,6 +9,63 @@ import Link from 'next/link'; // Added Link import
 
 type ChatRoomProps = { chatId: string };
 
+/** Parse one match-explanation line
+    Supports either…
+      "Expertise: history (yours) matched Interest: syrian history (theirs)"
+    -or- "fashion (yours) <> fashion (theirs)"
+    Returns { yoursTopic, theirsTopic, yoursRole, theirsRole }
+*/
+function parseMatchText(text: string) {
+  let yoursTopic: string | null = null;
+  let theirsTopic: string | null = null;
+  let yoursRole: "expert" | "interest" | null = null;
+  let theirsRole: "expert" | "interest" | null = null;
+
+  // --- format A: "Expertise: … matched Interest: …"
+  const expRE = /Expertise:\s*([^()]+?)\s*\((yours|theirs)\)/i;
+  const intRE = /Interest:\s*([^()]+?)\s*\((yours|theirs)\)/i;
+  const expM = text.match(expRE);
+  const intM = text.match(intRE);
+  if (expM && intM) {
+    const [, expTopic, expWhose] = expM;
+    const [, intTopic, intWhose] = intM;
+    if (expWhose === "yours") {
+      yoursTopic = expTopic.trim();
+      yoursRole  = "expert";
+    } else {
+      theirsTopic = expTopic.trim();
+      theirsRole  = "expert";
+    }
+    if (intWhose === "yours") {
+      yoursTopic = intTopic.trim();
+      yoursRole  = "interest";
+    } else {
+      theirsTopic = intTopic.trim();
+      theirsRole  = "interest";
+    }
+    return { yoursTopic, theirsTopic, yoursRole, theirsRole };
+  }
+
+  // --- format B: "topic (yours) <> topic (theirs)"
+  if (text.includes(" <> ")) {
+    const [left, right] = text.split(" <> ");
+    const partRE = /(.+?)\s*\((yours|theirs)\)/i;
+    const l = left.match(partRE);
+    const r = right.match(partRE);
+    if (l) {
+      (l[2] === "yours" ? (yoursTopic = l[1].trim()) : (theirsTopic = l[1].trim()));
+    }
+    if (r) {
+      (r[2] === "yours" ? (yoursTopic = r[1].trim()) : (theirsTopic = r[1].trim()));
+    }
+    // roles unknown → treat both as "interest"
+    yoursRole = yoursRole ?? "interest";
+    theirsRole = theirsRole ?? "interest";
+  }
+
+  return { yoursTopic, theirsTopic, yoursRole, theirsRole };
+}
+
 interface MessageData {
   text: string;
   sender: string;
@@ -125,19 +182,24 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
               const matchedOnData = matchSnap1.data()?.matchedOn;
               if (Array.isArray(matchedOnData) && matchedOnData.length > 0) {
                 const matchText = matchedOnData[0];
-                if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
-                  const [expertise, interest] = matchText.split(" <> ");
-                  topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
-                } else {
-                  topic = matchText.split(" (yours) <>")[0];
+                if (matchText && typeof matchText === 'string') {
+                  if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
+                    const [expertise, interest] = matchText.split(" <> ");
+                    if (expertise && interest) {
+                      topic = `${expertise.split("Expertise: ")[1]?.split(" (yours)")[0] || ''} and ${interest.split("Interest: ")[1]?.split(" (theirs)")[0] || ''}`;
+                    }
+                  } else {
+                    topic = matchText.split(" (yours) <>")[0] || '';
+                  }
                 }
               } else if (typeof matchedOnData === 'string') {
-                const matchText = matchedOnData;
-                if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
-                  const [expertise, interest] = matchText.split(" <> ");
-                  topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
+                if (matchedOnData.includes("Expertise:") && matchedOnData.includes("Interest:")) {
+                  const [expertise, interest] = matchedOnData.split(" <> ");
+                  if (expertise && interest) {
+                    topic = `${expertise.split("Expertise: ")[1]?.split(" (yours)")[0] || ''} and ${interest.split("Interest: ")[1]?.split(" (theirs)")[0] || ''}`;
+                  }
                 } else {
-                  topic = matchText.split(" (yours) <>")[0];
+                  topic = matchedOnData.split(" (yours) <>")[0] || '';
                 }
               }
               interestedUserDisplayNameFallback = currentUserDisplayName;
@@ -149,23 +211,37 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
                 const matchedOnData = matchSnap2.data()?.matchedOn;
                 if (Array.isArray(matchedOnData) && matchedOnData.length > 0) {
                   const matchText = matchedOnData[0];
-                  if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
-                    const [expertise, interest] = matchText.split(" <> ");
-                    topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
-                  } else {
-                    topic = matchText.split(" (yours) <>")[0];
-                  }
-                } else if (typeof matchedOnData === 'string') {
-                  const matchText = matchedOnData;
-                  if (matchText.includes("Expertise:") && matchText.includes("Interest:")) {
-                    const [expertise, interest] = matchText.split(" <> ");
-                    topic = `${expertise.split("Expertise: ")[1].split(" (yours)")[0]} and ${interest.split("Interest: ")[1].split(" (theirs)")[0]}`;
-                  } else {
-                    topic = matchText.split(" (yours) <>")[0];
+                  if (matchText && typeof matchText === 'string') {
+                    let topic: string | null = null;
+                    let finalMsg: string | null = null;
+
+                    if (typeof matchedOnData === "string") {
+                      const { yoursTopic, theirsTopic, yoursRole, theirsRole } =
+                        parseMatchText(matchedOnData);
+
+                      if (yoursTopic && theirsTopic) {
+                        // different topics or different roles → spell out both directions
+                        if (yoursTopic !== theirsTopic || yoursRole !== theirsRole) {
+                          finalMsg = `${currentUserDisplayName} is ${
+                            yoursRole === "expert" ? "knowledgeable about" : "interested in"
+                          } "${yoursTopic}" and ${actualOtherUserDisplayName} is ${
+                            theirsRole === "expert" ? "knowledgeable about" : "interested in"
+                          } "${theirsTopic}".`;
+                        } else {
+                          // same topic & role → simple overlap message
+                          finalMsg = `You both share a passion for "${yoursTopic}". Dive in!`;
+                        }
+                      }
+                    }
+
+                    if (finalMsg) {
+                      setSystemMessage(finalMsg);
+                    } else {
+                      // Generic message if no specific learning points or match topic found
+                      setSystemMessage(`You and ${actualOtherUserDisplayName} are now bonnected. Start chatting!`);
+                    }
                   }
                 }
-                interestedUserDisplayNameFallback = actualOtherUserDisplayName;
-                knowledgeableUserDisplayNameFallback = currentUserDisplayName;
               }
             }
 
@@ -175,7 +251,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
               );
             } else {
               // Generic message if no specific learning points or match topic found
-              setSystemMessage(`You and ${actualOtherUserDisplayName} are now connected. Start chatting!`);
+              setSystemMessage(`You and ${actualOtherUserDisplayName} are now bonnected. Start chatting!`);
             }
           }
         } else {

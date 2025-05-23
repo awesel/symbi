@@ -19,78 +19,168 @@ const DashboardPage: React.FC = () => {
   }, [user, userProfile, loading, router]);
 
   if (loading || !user || (userProfile && !userProfile.onboardingCompleted)) {
-    // Added a check to ensure userProfile is not null before accessing onboardingCompleted
-    // This also handles the case where user is loaded but userProfile is still loading.
-    return <p>Loading user data...</p>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading user data...</p>
+      </div>
+    );
   }
 
-  // Ensure userProfile is loaded before trying to display its properties
   if (!userProfile) {
-    return <p>Loading profile details...</p>;
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading profile details...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="container" style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div className="dashboard-container">
       <Head>
         <title>Your Dashboard - Symbi</title>
       </Head>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '2.5em', color: '#333', marginBottom: '10px', textAlign: 'center' }}>Welcome, {userProfile?.displayName || user.email}!</h1>
+      
+      <header className="dashboard-header">
+        <h1 className="welcome-text">
+          Welcome, {userProfile?.displayName || user.email}!
+        </h1>
       </header>
 
       <SymbiMatchBanner variant="dashboard" />
 
-      <div style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+      <div className="action-buttons">
         <button 
-          style={{ 
-            padding: '12px 25px', 
-            fontSize: '1.1em', 
-            color: 'white', 
-            backgroundColor: '#dc3545',
-            border: 'none', 
-            borderRadius: '5px', 
-            cursor: 'pointer',
-            transition: 'background-color 0.2s ease'
-          }}
+          className="btn btn-danger"
           onClick={async () => {
             await logOut();
             router.push('/login'); 
-          }} 
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#c82333'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#dc3545'}
+          }}
         >
           Log Out
         </button>
         <Link href="/onboarding-again" legacyBehavior>
-          <a style={{
-            padding: '12px 25px',
-            fontSize: '1.1em',
-            color: 'white',
-            backgroundColor: '#28a745',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            textDecoration: 'none',
-            transition: 'background-color 0.2s ease'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#218838'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#28a745'}
-          >
+          <a className="btn btn-success">
             Edit Profile
           </a>
         </Link>
       </div>
 
-      <div style={{ marginBottom: '30px' }}>
+      <div className="inbox-container">
         <Inbox />
       </div>
       
       <style jsx>{`
-        .container {
-          max-width: 800px;
+        .dashboard-container {
+          max-width: 1200px;
           margin: 0 auto;
+          padding: 2rem;
+          min-height: 100vh;
+          background-color: #f8f9fa;
         }
-        // Add other component-specific styles if needed
+
+        .dashboard-header {
+          margin-bottom: 2rem;
+          text-align: center;
+        }
+
+        .welcome-text {
+          font-size: 2.5rem;
+          color: #2d3748;
+          font-weight: 700;
+          margin: 0;
+        }
+
+        .action-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          margin: 2rem 0;
+        }
+
+        .btn {
+          padding: 0.75rem 1.5rem;
+          font-size: 1rem;
+          font-weight: 600;
+          border-radius: 0.5rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-decoration: none;
+          display: inline-block;
+          border: none;
+        }
+
+        .btn-danger {
+          background-color: #dc3545;
+          color: white;
+        }
+
+        .btn-danger:hover {
+          background-color: #c82333;
+          transform: translateY(-1px);
+        }
+
+        .btn-success {
+          background-color: #28a745;
+          color: white;
+        }
+
+        .btn-success:hover {
+          background-color: #218838;
+          transform: translateY(-1px);
+        }
+
+        .inbox-container {
+          background: #f8f9fa;
+          border-radius: 1rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          padding: 1.5rem;
+        }
+
+        .loading-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          gap: 1rem;
+          background-color: #f8f9fa;
+        }
+
+        .loading-spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #e9ecef;
+          border-top: 4px solid #28a745;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+          .dashboard-container {
+            padding: 1rem;
+          }
+
+          .welcome-text {
+            font-size: 2rem;
+          }
+
+          .action-buttons {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .btn {
+            width: 100%;
+            max-width: 300px;
+          }
+        }
       `}</style>
     </div>
   );
