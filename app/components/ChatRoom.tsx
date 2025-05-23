@@ -162,16 +162,16 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
               // still fall back—rare edge-case
               setSysMsg(
                 status === "symbi"
-                  ? "You both share interests and expertise—perfect synergy!"
-                  : "You’ve been matched on complementary interests."
+                  ? "You have been bonnected due to symbiotic synergy!"
+                  : "You’ve been bonnected."
               );
             }
           } else {
             // matchedOn empty → fallback
             setSysMsg(
               status === "symbi"
-                ? "You both share interests and expertise—perfect synergy!"
-                : "You’ve been matched on complementary interests."
+                ? "You have been bonnected due to symbiotic synergy!"
+                : "You’ve been bonnected."
             );
           }
         } else {
