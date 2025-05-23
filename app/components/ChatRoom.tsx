@@ -18,14 +18,14 @@ import { format } from "date-fns";
 import Link from "next/link";
 
 /** Parse one `matchedOn` line coming from Firestore.  
-    Returns { teacherIsMe, topic, learnerIsMe } or null if it doesn’t fit. */
+    Returns { teacherIsMe, topic, learnerIsMe } or null if it doesn't fit. */
     function parseMatchedOn(line: string) {
       // — pattern 1: Interest → Expertise —
       let m = line.match(
         /Interest:\s*([^()]+?)\s*\((yours|theirs)\)\s*matched\s*Expertise:\s*([^()]+?)\s*\((yours|theirs)\)/i
       );
       if (m) {
-        const [, interest, interestWhose, expertise, expertiseWhose] = m;
+        const [, , interestWhose, expertise, expertiseWhose] = m;
         return {
           topic: expertise.trim(),
           teacherIsMe: expertiseWhose === "yours",
@@ -38,7 +38,7 @@ import Link from "next/link";
         /Expertise:\s*([^()]+?)\s*\((yours|theirs)\)\s*matched\s*Interest:\s*([^()]+?)\s*\((yours|theirs)\)/i
       );
       if (m) {
-        const [, expertise, expertiseWhose, interest, interestWhose] = m;
+        const [, expertise, expertiseWhose, , interestWhose] = m;
         return {
           topic: expertise.trim(),
           teacherIsMe: expertiseWhose === "yours",
@@ -107,7 +107,6 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  const [otherUid, setOtherUid] = useState<string | null>(null);
   const [otherName, setOtherName] = useState<string>("Chat");
 
   const [sysMsg, setSysMsg] = useState<string | null>(null);
@@ -120,7 +119,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
     (async () => {
       setLoadingSysMsg(true);
       try {
-        /* 1️⃣  who’s in the chat? */
+        /* 1️⃣  who's in the chat? */
         const chatSnap = await getDoc(doc(db, "chats", chatId));
         if (!chatSnap.exists()) throw new Error("Chat not found");
         const users = (chatSnap.data().users as string[]) ?? [];
@@ -129,7 +128,6 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
         const me = user.uid;
         const them = users.find((u) => u !== me);
         if (!them) throw new Error("Other user not found");
-        setOtherUid(them);
 
         /* 2️⃣  load their display name */
         const themSnap = await getDoc(doc(db, "users", them));
@@ -163,7 +161,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
               setSysMsg(
                 status === "symbi"
                   ? "You have been bonnected due to symbiotic synergy!"
-                  : "You’ve been bonnected."
+                  : "You've been bonnected."
               );
             }
           } else {
@@ -171,11 +169,11 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
             setSysMsg(
               status === "symbi"
                 ? "You have been bonnected due to symbiotic synergy!"
-                : "You’ve been bonnected."
+                : "You've been bonnected."
             );
           }
         } else {
-          setSysMsg("You’ve been matched! Start chatting.");
+          setSysMsg("You've been matched! Start chatting.");
         }
       } catch (err) {
         console.error(err);
