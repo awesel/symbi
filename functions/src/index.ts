@@ -301,20 +301,20 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
       if (isSymbi) {
         determinedMatchStatus = "symbi";
         // Add descriptions for both directions of the match
-        const desc1 = `Interest: ${bestPair1!.interest} (yours) matched Expertise: ${bestPair1!.expertise} (theirs)`;
+        const desc1 = `Interest: ${bestPair1!.interest} (${changedUserId}) matched Expertise: ${bestPair1!.expertise} (${candidate.id})`;
         finalMatchedOnTagsOutput.push(desc1);
-        const desc2 = `Expertise: ${bestPair2!.expertise} (yours) matched Interest: ${bestPair2!.interest} (theirs)`;
+        const desc2 = `Expertise: ${bestPair2!.expertise} (${changedUserId}) matched Interest: ${bestPair2!.interest} (${candidate.id})`;
         // Add second description only if it's meaningfully different (e.g., not just swapped terms of the same underlying pair)
         if (desc1.toLowerCase() !== desc2.toLowerCase()) {
           finalMatchedOnTagsOutput.push(desc2);
         }
       } else if (changedUserLikesCandidateExpertise && score1 >= score2) { // score1 is the primary or equal reason
         determinedMatchStatus = "accepted";
-        const desc1 = `Interest: ${bestPair1!.interest} (yours) matched Expertise: ${bestPair1!.expertise} (theirs)`;
+        const desc1 = `Interest: ${bestPair1!.interest} (${changedUserId}) matched Expertise: ${bestPair1!.expertise} (${candidate.id})`;
         finalMatchedOnTagsOutput.push(desc1);
       } else if (candidateLikesChangedUserExpertise) { // score2 is the primary or only reason
         determinedMatchStatus = "accepted";
-        const desc2 = `Expertise: ${bestPair2!.expertise} (yours) matched Interest: ${bestPair2!.interest} (theirs)`;
+        const desc2 = `Expertise: ${bestPair2!.expertise} (${changedUserId}) matched Interest: ${bestPair2!.interest} (${candidate.id})`;
         finalMatchedOnTagsOutput.push(desc2);
       } else {
         // This case implies finalScore >= 80, but neither of the specific conditions above were met
@@ -531,7 +531,7 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
     // Group chats by status
     const groupedChats: GroupedChats = {
       symbi: [],
-      accepted: []
+      accepted: [],
     };
 
     // Sort each chat by lastTimestamp before grouping
@@ -542,8 +542,8 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
     });
 
     // Group chats into their respective arrays
-    chats.forEach(chat => {
-      if (chat.matchStatus === 'symbi') {
+    chats.forEach((chat) => {
+      if (chat.matchStatus === "symbi") {
         groupedChats.symbi.push(chat);
       } else {
         groupedChats.accepted.push(chat);

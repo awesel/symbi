@@ -19,41 +19,58 @@ import Link from "next/link";
 
 /** Parse one `matchedOn` line coming from Firestore.  
     Returns { teacherIsMe, topic, learnerIsMe } or null if it doesn't fit. */
-    function parseMatchedOn(line: string) {
-      // — pattern 1: Interest → Expertise —
+    function parseMatchedOn(line: string, currentUserId: string) {
+      // Updated regex to capture user IDs instead of 'yours'/'theirs'
+      // Pattern 1: Interest → Expertise
       let m = line.match(
-        /Interest:\s*([^()]+?)\s*\((yours|theirs)\)\s*matched\s*Expertise:\s*([^()]+?)\s*\((yours|theirs)\)/i
+        /Interest:\s*([^()]+?)\s*\(([^)]+)\)\s*matched\s*Expertise:\s*([^()]+?)\s*\(([^)]+)\)/i
       );
       if (m) {
-        const [, , interestWhose, expertise, expertiseWhose] = m;
+        const [, , interestHolderId, expertise, expertiseHolderId] = m;
         return {
           topic: expertise.trim(),
-          teacherIsMe: expertiseWhose === "yours",
-          learnerIsMe: interestWhose === "yours",
+          teacherIsMe: expertiseHolderId === currentUserId,
+          learnerIsMe: interestHolderId === currentUserId,
         };
       }
     
-      // — pattern 2: Expertise → Interest —
+      // Pattern 2: Expertise → Interest
       m = line.match(
-        /Expertise:\s*([^()]+?)\s*\((yours|theirs)\)\s*matched\s*Interest:\s*([^()]+?)\s*\((yours|theirs)\)/i
+        /Expertise:\s*([^()]+?)\s*\(([^)]+)\)\s*matched\s*Interest:\s*([^()]+?)\s*\(([^)]+)\)/i
       );
       if (m) {
-        const [, expertise, expertiseWhose, , interestWhose] = m;
+        const [, expertise, expertiseHolderId, , interestHolderId] = m;
         return {
           topic: expertise.trim(),
-          teacherIsMe: expertiseWhose === "yours",
-          learnerIsMe: interestWhose === "yours",
+          teacherIsMe: expertiseHolderId === currentUserId,
+          learnerIsMe: interestHolderId === currentUserId,
         };
       }
     
-      // — pattern 3: "topic (yours) <> topic (theirs)" —
-      m = line.match(/(.+?)\s*\((yours|theirs)\)\s*<>\s*(.+?)\s*\((yours|theirs)\)/i);
+      // Pattern 3: "topic (userId1) <> topic (userId2)"
+      // This pattern assumes the left side is the teacher if it's the current user,
+      // and the right side is the learner if it's the current user.
+      // Adjust based on actual data structure if this assumption is wrong.
+      m = line.match(/(.+?)\s*\(([^)]+)\)\s*<>\s*(.+?)\s*\(([^)]+)\)/i);
       if (m) {
-        const [, leftTopic, leftWhose, rightTopic, rightWhose] = m;
+        const [, leftTopic, leftHolderId, rightTopic, rightHolderId] = m;
+        // Determine topic based on who is NOT the current user.
+        // This assumes the topic of interest is what the *other* person offers.
+        let topic = "";
+        if (leftHolderId === currentUserId) { // If current user is on the left
+          topic = rightTopic.trim();
+        } else if (rightHolderId === currentUserId) { // If current user is on the right
+          topic = leftTopic.trim();
+        } else {
+          // Fallback or error: current user ID doesn't match either holder.
+          // This might mean the line is not for this user or is malformed.
+          // For now, pick left topic as a default if a specific one can't be determined for the user.
+          topic = leftTopic.trim();
+        }
         return {
-          topic: leftWhose === "yours" ? rightTopic.trim() : leftTopic.trim(),
-          teacherIsMe: leftWhose === "yours",
-          learnerIsMe: rightWhose === "yours",
+          topic: topic,
+          teacherIsMe: leftHolderId === currentUserId, // If current user is on left, they are the teacher in this pattern
+          learnerIsMe: rightHolderId === currentUserId, // If current user is on right, they are the learner
         };
       }
     
@@ -65,17 +82,33 @@ import Link from "next/link";
 function buildTeachingSentence(
   lines: string[],
   meName: string,
-  themName: string
+  themName: string,
+  currentUserId: string
 ) {
   const bullets: string[] = [];
 
   for (const line of lines) {
-    const parsed = parseMatchedOn(line);
+    const parsed = parseMatchedOn(line, currentUserId);
     if (!parsed) continue;
 
     const teacher = parsed.teacherIsMe ? meName : themName;
     const learner = parsed.learnerIsMe ? meName : themName;
-    bullets.push(`- ${teacher} can teach ${learner} about ${parsed.topic}`);
+    // Ensure that the sentence makes sense if teacher or learner is not the current user or the other user.
+    // This can happen if a parsed line refers to a different set of users (edge case)
+    // or if teacherIsMe and learnerIsMe are both false.
+    if (parsed.teacherIsMe || parsed.learnerIsMe) {
+        bullets.push(`- ${teacher} can teach ${learner} about ${parsed.topic}`);
+    } else {
+        // Fallback for a line that doesn't directly involve "me" as teacher or learner,
+        // but still describes a teaching relationship about a topic.
+        // This might need refinement based on how such lines should be presented.
+        // For now, we'll assume the names passed (meName, themName) are still relevant contextually
+        // if the parser implies a third-party relationship (e.g. "PersonA can teach PersonB about TopicX")
+        // However, given the current parsing logic, this 'else' might be less common.
+        // bullets.push(`- Regarding ${parsed.topic}, ${themName} and another user have a teaching dynamic.`);
+        // Or, if lines are always about me/them:
+        // logger.warn("Parsed line where current user is neither teacher nor learner:", line, parsed);
+    }
   }
 
   // collapse duplicates if necessary
@@ -145,13 +178,21 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
 
         if (matchSnap.exists()) {
           const { matchedOn = [], status } = matchSnap.data();
-        
+          console.log("MatchedOn from Firestore:", matchedOn); // Log matchedOn data
+          matchedOn.forEach((line: string) => { // Log parsing for each line
+            console.log("Parsing line:", line, "with currentUserId:", me);
+            const parsedLine = parseMatchedOn(line, me);
+            console.log("Parsed result for line:", parsedLine);
+          });
+
           if (Array.isArray(matchedOn) && matchedOn.length) {
             const sentence = buildTeachingSentence(
               matchedOn,
               currentUserDisplayName,
-              actualOtherUserDisplayName
+              actualOtherUserDisplayName,
+              me
             );
+            console.log("Built sentence:", sentence); // Log the final sentence
         
             // If we parsed at least one teaching pair, show it
             if (sentence) {
