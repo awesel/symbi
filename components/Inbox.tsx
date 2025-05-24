@@ -129,13 +129,31 @@ const Inbox: React.FC = () => {
         const resolvedChatsData = (await Promise.all(chatsDataPromises))
           .filter(chat => chat !== null) as Chat[];
 
-        // Sort chats by lastTimestamp
+        // Sort chats: no messages first, then by lastTimestamp
         resolvedChatsData.sort((a, b) => {
+          const aHasNoTimestamp = !a.lastTimestamp;
+          const bHasNoTimestamp = !b.lastTimestamp;
+
+          if (aHasNoTimestamp && !bHasNoTimestamp) {
+            return -1; // a (no timestamp/message) comes before b (has timestamp/message)
+          }
+          if (!aHasNoTimestamp && bHasNoTimestamp) {
+            return 1;  // b (no timestamp/message) comes before a (has timestamp/message)
+          }
+
+          // If both are in the same category (both have no timestamp OR both have a timestamp)
+          if (aHasNoTimestamp && bHasNoTimestamp) {
+            // Both have no timestamp/message, their relative order doesn't matter for this sorting pass
+            return 0;
+          }
+
+          // Both have timestamps (implies a.lastTimestamp and b.lastTimestamp are valid)
+          // This case is when !aHasNoTimestamp && !bHasNoTimestamp
           if (a.lastTimestamp && b.lastTimestamp) {
             return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
           }
-          if (a.lastTimestamp) return -1;
-          if (b.lastTimestamp) return 1;
+
+          // Fallback, though ideally not reached if data is consistent
           return 0;
         });
 
