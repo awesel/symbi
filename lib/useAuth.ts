@@ -113,18 +113,30 @@ export function useAuth() {
           setUserProfile(null);
         }
       } catch (err: unknown) {
-        console.error("Authentication error:", err);
+        console.error("Authentication error in signInProcess:", err);
         let errorMessage = 'An unknown error occurred during sign in.';
+
         if (err instanceof Error) {
-          errorMessage = err.message || 'Failed to sign in with Google.';
+          errorMessage = err.message;
         }
-        if (typeof err === 'object' && err !== null && 'code' in err && ((err as {code: unknown}).code === 'auth/popup-closed-by-user' || (err as {code: unknown}).code === 'auth/cancelled-popup-request')) {
-            setError(null);
-        } else {
+
+        if (typeof err === 'object' && err !== null && 'code' in err) {
+          const errorCode = (err as { code: string }).code;
+          if (errorCode === 'auth/popup-closed-by-user' || errorCode === 'auth/cancelled-popup-request') {
+            errorMessage = '';
+          } else if (errorCode === 'auth/account-exists-with-different-credential') {
+            errorMessage = 'An account already exists with the same email address but different sign-in credentials. Try signing in using a provider associated with this email address.';
+          } else if (errorCode === 'auth/hd-not-allowed') {
+             errorMessage = 'The account you tried to sign in with is not from the stanford.edu domain. Please use your @stanford.edu email.';
+          }
+        }
+        
+        if (errorMessage) {
             setError(errorMessage);
+        } else {
+            setError(null);
         }
         setUserProfile(null);
-      } finally {
       }
     };
 
@@ -132,12 +144,12 @@ export function useAuth() {
 
     try {
       await signInPromiseRef.current;
-    } catch {
-      // Errors are handled within signInProcess and set to the error state.
-      // This catch is to prevent unhandled promise rejection if signInProcess itself throws
-      // *outside* of its own try/catch (which it shouldn't, but as a safeguard).
-      // console.warn("signInPromiseRef.current threw an error that propagated: ", e)
-    }finally {
+    } catch (e) {
+      console.warn("Error awaiting signInPromiseRef.current:", e);
+      if (errorRef.current === null) {
+          setError('An unexpected issue occurred during sign-in preparation.');
+      }
+    } finally {
       signInPromiseRef.current = null;
     }
   };
