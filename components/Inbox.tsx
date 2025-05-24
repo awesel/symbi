@@ -36,6 +36,14 @@ const Inbox: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const formatName = (fullName: string): string => {
+    const words = fullName.trim().split(/\s+/);
+    if (words.length === 1) return words[0];
+    const firstName = words[0];
+    const lastName = words[words.length - 1];
+    return `${firstName} ${lastName[0]}.`;
+  };
+
   useEffect(() => {
     if (!user) {
       setLoading(false);
@@ -232,7 +240,7 @@ const Inbox: React.FC = () => {
                     />
                     <div>
                       <h3>
-                        {chat.otherUserName}
+                        {formatName(chat.otherUserName || 'Unknown User')}
                         {chat.matchStatus === 'symbi' && <span style={{ marginLeft: '8px', color: 'gold' }}>⭐</span>}
                       </h3>
                       <p className="last-message">
