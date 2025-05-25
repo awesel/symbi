@@ -404,53 +404,6 @@ export const generateMatches = onDocumentWritten("users/{uid}", async (event) =>
     }
   }
 
-  // After processing all candidates, handle stale matches
-  const existingMatchesAsUserAPromise = matchesCollection.where("userA", "==", changedUserId).get();
-  const existingMatchesAsUserBPromise = matchesCollection.where("userB", "==", changedUserId).get();
-
-  const [existingMatchesAsUserASnapshot, existingMatchesAsUserBSnapshot] = await Promise.all([
-    existingMatchesAsUserAPromise,
-    existingMatchesAsUserBPromise,
-  ]);
-
-  const existingMatchDocs: admin.firestore.QueryDocumentSnapshot[] = [];
-  existingMatchesAsUserASnapshot.forEach((doc) => existingMatchDocs.push(doc));
-  existingMatchesAsUserBSnapshot.forEach((doc) => {
-    // Avoid duplicates if a match somehow got queried twice (shouldn't happen with userA/userB logic)
-    if (!existingMatchDocs.find((d) => d.id === doc.id)) {
-      existingMatchDocs.push(doc);
-    }
-  });
-
-  let deletedStaleMatchesCount = 0;
-  let deletedAssociatedChatsCount = 0; // Track deleted chats
-  for (const doc of existingMatchDocs) {
-    const matchData = doc.data();
-    const otherId = matchData.userA === changedUserId ? matchData.userB : matchData.userA;
-    if (!stillValidCandidateIds.has(otherId)) {
-      logger.log(`Match ${doc.id} with user ${otherId} is no longer valid (score < 80 or user no longer viable). Deleting match.`);
-      batch.delete(doc.ref);
-      deletedStaleMatchesCount++;
-
-      // Also delete the associated chat if chatId exists
-      const chatIdToDelete = matchData.chatId;
-      if (chatIdToDelete && typeof chatIdToDelete === "string") {
-        logger.log(`Match ${doc.id} had chatId ${chatIdToDelete}. Scheduling associated chat for deletion.`);
-        const chatRefToDelete = chatsCollection.doc(chatIdToDelete);
-        batch.delete(chatRefToDelete);
-        deletedAssociatedChatsCount++;
-      } else {
-        logger.log(`Match ${doc.id} either had no chatId or it was invalid. No associated chat to delete.`);
-      }
-    }
-  }
-  if (deletedStaleMatchesCount > 0) {
-    logger.log(`Scheduled ${deletedStaleMatchesCount} stale matches for deletion.`);
-  }
-  if (deletedAssociatedChatsCount > 0) {
-    logger.log(`Scheduled ${deletedAssociatedChatsCount} associated chats for deletion.`);
-  }
-
   try {
     await batch.commit();
     logger.log("Match generation batch committed successfully.");
