@@ -1,0 +1,210 @@
+[debug] [2025-05-25T20:08:51.109Z] ----------------------------------------------------------------------
+[debug] [2025-05-25T20:08:51.111Z] Command:       /usr/local/bin/node /usr/local/bin/firebase deploy --only functions
+[debug] [2025-05-25T20:08:51.111Z] CLI Version:   14.4.0
+[debug] [2025-05-25T20:08:51.111Z] Platform:      darwin
+[debug] [2025-05-25T20:08:51.111Z] Node Version:  v22.13.1
+[debug] [2025-05-25T20:08:51.111Z] Time:          Sun May 25 2025 13:08:51 GMT-0700 (Pacific Daylight Time)
+[debug] [2025-05-25T20:08:51.111Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-05-25T20:08:51.202Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-25T20:08:51.202Z] > authorizing via signed-in user (andrew.wesel@gmail.com)
+[debug] [2025-05-25T20:08:51.202Z] [iam] checking project awesel-common-ground for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2025-05-25T20:08:51.203Z] Checked if tokens are valid: false, expires at: 1748132648233
+[debug] [2025-05-25T20:08:51.203Z] Checked if tokens are valid: false, expires at: 1748132648233
+[debug] [2025-05-25T20:08:51.203Z] > refreshing access token with scopes: []
+[debug] [2025-05-25T20:08:51.204Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-05-25T20:08:51.204Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-25T20:08:51.336Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-05-25T20:08:51.336Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-05-25T20:08:51.350Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions [none]
+[debug] [2025-05-25T20:08:51.350Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:08:51.350Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-05-25T20:08:51.554Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions 200
+[debug] [2025-05-25T20:08:51.555Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2025-05-25T20:08:51.555Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:51.555Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:51.556Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/awesel-common-ground/serviceAccounts/awesel-common-ground@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2025-05-25T20:08:51.556Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/awesel-common-ground/serviceAccounts/awesel-common-ground@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2025-05-25T20:08:51.715Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/awesel-common-ground/serviceAccounts/awesel-common-ground@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2025-05-25T20:08:51.715Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/awesel-common-ground/serviceAccounts/awesel-common-ground@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'awesel-common-ground'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] ✔  functions: Finished running predeploy script. 
+[debug] [2025-05-25T20:08:57.251Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.251Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.251Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudresourcemanager.googleapis.com [none]
+[debug] [2025-05-25T20:08:57.251Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudresourcemanager.googleapis.com x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:08:57.665Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudresourcemanager.googleapis.com 200
+[debug] [2025-05-25T20:08:57.666Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudresourcemanager.googleapis.com [omitted]
+[debug] [2025-05-25T20:08:57.666Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.666Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.666Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground [none]
+[debug] [2025-05-25T20:08:57.791Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground 200
+[debug] [2025-05-25T20:08:57.791Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground {"projectNumber":"35559389165","projectId":"awesel-common-ground","lifecycleState":"ACTIVE","name":"common-ground","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-05-20T21:04:07.643653Z"}
+[info] i  functions: preparing codebase default for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[debug] [2025-05-25T20:08:57.793Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.793Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.793Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.793Z] Checked if tokens are valid: true, expires at: 1748207330336
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[debug] [2025-05-25T20:08:57.794Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.794Z] Checked if tokens are valid: true, expires at: 1748207330336
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2025-05-25T20:08:57.794Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.794Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:57.794Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudfunctions.googleapis.com [none]
+[debug] [2025-05-25T20:08:57.794Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:08:57.795Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/runtimeconfig.googleapis.com [none]
+[debug] [2025-05-25T20:08:57.795Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:08:57.798Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudbuild.googleapis.com [none]
+[debug] [2025-05-25T20:08:57.798Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudbuild.googleapis.com x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:08:57.800Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/artifactregistry.googleapis.com [none]
+[debug] [2025-05-25T20:08:57.800Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/artifactregistry.googleapis.com x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:08:58.005Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/artifactregistry.googleapis.com 200
+[debug] [2025-05-25T20:08:58.006Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/artifactregistry.googleapis.com [omitted]
+[info] ✔  artifactregistry: required API artifactregistry.googleapis.com is enabled 
+[debug] [2025-05-25T20:08:58.145Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudfunctions.googleapis.com 200
+[debug] [2025-05-25T20:08:58.145Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudfunctions.googleapis.com [omitted]
+[info] ✔  functions: required API cloudfunctions.googleapis.com is enabled 
+[debug] [2025-05-25T20:08:58.160Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/runtimeconfig.googleapis.com 200
+[debug] [2025-05-25T20:08:58.160Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2025-05-25T20:08:58.161Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudbuild.googleapis.com 200
+[debug] [2025-05-25T20:08:58.161Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/cloudbuild.googleapis.com [omitted]
+[info] ✔  functions: required API cloudbuild.googleapis.com is enabled 
+[debug] [2025-05-25T20:08:58.162Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.162Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.162Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/awesel-common-ground/adminSdkConfig [none]
+[debug] [2025-05-25T20:08:58.591Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/awesel-common-ground/adminSdkConfig 200
+[debug] [2025-05-25T20:08:58.591Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/awesel-common-ground/adminSdkConfig {"projectId":"awesel-common-ground","storageBucket":"awesel-common-ground.firebasestorage.app"}
+[debug] [2025-05-25T20:08:58.592Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.592Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.592Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs [none]
+[debug] [2025-05-25T20:08:58.787Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs 200
+[debug] [2025-05-25T20:08:58.787Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs {"configs":[{"name":"projects/awesel-common-ground/configs/email"}]}
+[debug] [2025-05-25T20:08:58.787Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.788Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.788Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables [none]
+[debug] [2025-05-25T20:08:58.937Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables 200
+[debug] [2025-05-25T20:08:58.938Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables {"variables":[{"name":"projects/awesel-common-ground/configs/email/variables/pass","updateTime":"2025-05-22T03:40:26.677246041Z"},{"name":"projects/awesel-common-ground/configs/email/variables/password","updateTime":"2025-05-24T23:24:10.775438429Z"},{"name":"projects/awesel-common-ground/configs/email/variables/user","updateTime":"2025-05-24T23:24:10.210367422Z"}]}
+[debug] [2025-05-25T20:08:58.938Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.938Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.938Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.938Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.938Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.938Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:08:58.938Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/pass [none]
+[debug] [2025-05-25T20:08:58.939Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/password [none]
+[debug] [2025-05-25T20:08:58.940Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/user [none]
+[debug] [2025-05-25T20:08:59.073Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/pass 200
+[debug] [2025-05-25T20:08:59.074Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/pass {"name":"projects/awesel-common-ground/configs/email/variables/pass","updateTime":"2025-05-22T03:40:26.677246041Z","text":"your-app-specific-password"}
+[debug] [2025-05-25T20:08:59.117Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/user 200
+[debug] [2025-05-25T20:08:59.117Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/user {"name":"projects/awesel-common-ground/configs/email/variables/user","updateTime":"2025-05-24T23:24:10.210367422Z","text":"andrew.wesel@gmail.com"}
+[debug] [2025-05-25T20:08:59.193Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/password 200
+[debug] [2025-05-25T20:08:59.193Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/awesel-common-ground/configs/email/variables/password {"name":"projects/awesel-common-ground/configs/email/variables/password","updateTime":"2025-05-24T23:24:10.775438429Z","text":"Lights16 email.from=andrew.wesel@gmail.com app.url=https://symbi.club\n\n\n\n"}
+[debug] [2025-05-25T20:08:59.194Z] Validating nodejs source
+[warn] ⚠  functions: Runtime Node.js 18 was deprecated on 2025-04-30 and will be decommissioned on 2025-10-30, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy 
+[debug] [2025-05-25T20:08:59.606Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . -c .eslintrc.js --fix",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@types/nodemailer": "^6.4.17",
+    "firebase-admin": "^11.8.0",
+    "firebase-functions": "^6.3.2",
+    "fuse.js": "^7.0.0",
+    "nodemailer": "^7.0.3"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.9.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.25.4",
+    "firebase-functions-test": "^3.1.0",
+    "typescript": "^4.9.0"
+  },
+  "private": true
+}
+[debug] [2025-05-25T20:08:59.606Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase default to determine what to deploy 
+[debug] [2025-05-25T20:08:59.607Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-05-25T20:08:59.612Z] Found firebase-functions binary at '/Users/andrew/symbi/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8953
+
+[debug] [2025-05-25T20:08:59.937Z] Got response from /__/functions.yaml {"endpoints":{"incrementTagCount":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.written","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"users/{uid}"},"retry":false},"entryPoint":"incrementTagCount"},"generateMatches":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"eventTrigger":{"eventType":"google.cloud.firestore.document.v1.written","eventFilters":{"database":"(default)","namespace":"(default)"},"eventFilterPathPatterns":{"document":"users/{uid}"},"retry":false},"entryPoint":"generateMatches"},"getUserChats":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"callableTrigger":{},"entryPoint":"getUserChats"},"checkUnrespondedMessages":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","labels":{},"scheduleTrigger":{"schedule":"every 24 hours","retryConfig":{},"timeZone":"America/Los_Angeles"},"entryPoint":"checkUnrespondedMessages"}},"specVersion":"v1alpha1","requiredAPIs":[{"api":"cloudscheduler.googleapis.com","reason":"Needed for scheduled functions."}],"extensions":{}}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2025-05-25T20:09:03.954Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:03.954Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:03.954Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/firebaseextensions.googleapis.com [none]
+[debug] [2025-05-25T20:09:03.954Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/firebaseextensions.googleapis.com x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:09:04.541Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/firebaseextensions.googleapis.com 200
+[debug] [2025-05-25T20:09:04.542Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/awesel-common-ground/services/firebaseextensions.googleapis.com [omitted]
+[info] ✔  extensions: required API firebaseextensions.googleapis.com is enabled 
+[debug] [2025-05-25T20:09:04.542Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-05-25T20:09:04.543Z] > authorizing via signed-in user (andrew.wesel@gmail.com)
+[debug] [2025-05-25T20:09:04.543Z] [iam] checking project awesel-common-ground for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2025-05-25T20:09:04.543Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:04.543Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:04.543Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions [none]
+[debug] [2025-05-25T20:09:04.543Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions x-goog-quota-user=projects/awesel-common-ground
+[debug] [2025-05-25T20:09:04.543Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2025-05-25T20:09:04.720Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions 200
+[debug] [2025-05-25T20:09:04.720Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/awesel-common-ground:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2025-05-25T20:09:04.721Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:04.721Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:04.722Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/awesel-common-ground/instances pageSize=100&pageToken=
+[debug] [2025-05-25T20:09:05.154Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/awesel-common-ground/instances 200
+[debug] [2025-05-25T20:09:05.155Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/awesel-common-ground/instances {}
+[info] i  functions: preparing functions directory for uploading... 
+[info] i  functions: packaged /Users/andrew/symbi/functions (126.4 KB) for uploading 
+[debug] [2025-05-25T20:09:05.206Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:05.206Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:05.206Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/awesel-common-ground/locations/-/functions [none]
+[debug] [2025-05-25T20:09:05.738Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/awesel-common-ground/locations/-/functions 200
+[debug] [2025-05-25T20:09:05.739Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/awesel-common-ground/locations/-/functions {}
+[debug] [2025-05-25T20:09:05.739Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:05.739Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:05.739Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/awesel-common-ground/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2025-05-25T20:09:06.293Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/awesel-common-ground/locations/-/functions 200
+[debug] [2025-05-25T20:09:06.293Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/awesel-common-ground/locations/-/functions {"functions":[{"name":"projects/awesel-common-ground/locations/us-central1/functions/incrementTagCount","buildConfig":{"build":"projects/35559389165/locations/us-central1/builds/7605bbac-43ad-4543-8302-d55336b1e07f","runtime":"nodejs18","entryPoint":"incrementTagCount","source":{"storageSource":{"bucket":"gcf-v2-sources-35559389165-us-central1","object":"incrementTagCount/function-source.zip","generation":"1748119969076916"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/awesel-common-ground/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-35559389165-us-central1","object":"incrementTagCount/function-source.zip","generation":"1748119969076916"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/awesel-common-ground/serviceAccounts/35559389165-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/awesel-common-ground/locations/us-central1/services/incrementtagcount","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"awesel-common-ground\",\"storageBucket\":\"awesel-common-ground.firebasestorage.app\"}","GCLOUD_PROJECT":"awesel-common-ground","EVENTARC_CLOUD_EVENT_SOURCE":"projects/awesel-common-ground/locations/us-central1/services/incrementTagCount","FUNCTION_SIGNATURE_TYPE":"cloudevent","FUNCTION_TARGET":"incrementTagCount","LOG_EXECUTION_ID":"true"},"maxInstanceCount":40,"ingressSettings":"ALLOW_ALL","uri":"https://incrementtagcount-orneo6u5fq-uc.a.run.app","serviceAccountEmail":"35559389165-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"revision":"incrementtagcount-00004-rik","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"eventTrigger":{"trigger":"projects/awesel-common-ground/locations/nam5/triggers/incrementtagcount-127796","triggerRegion":"nam5","eventType":"google.cloud.firestore.document.v1.written","eventFilters":[{"attribute":"database","value":"(default)"},{"attribute":"namespace","value":"(default)"},{"attribute":"document","value":"users/{uid}","operator":"match-path-pattern"}],"pubsubTopic":"projects/awesel-common-ground/topics/eventarc-nam5-incrementtagcount-127796-925","serviceAccountEmail":"35559389165-compute@developer.gserviceaccount.com","retryPolicy":"RETRY_POLICY_DO_NOT_RETRY"},"state":"ACTIVE","updateTime":"2025-05-24T20:53:51.539133427Z","labels":{"deployment-tool":"cli-firebase","firebase-functions-hash":"e70138fa6ae76523b0c4bbfe8e1ca1c40895607d"},"environment":"GEN_2","url":"https://us-central1-awesel-common-ground.cloudfunctions.net/incrementTagCount","createTime":"2025-05-21T04:59:02.661326431Z","satisfiesPzi":true},{"name":"projects/awesel-common-ground/locations/us-central1/functions/getUserChats","buildConfig":{"build":"projects/35559389165/locations/us-central1/builds/7605bbac-43ad-4543-8302-d55336b1e07f","runtime":"nodejs18","entryPoint":"getUserChats","source":{"storageSource":{"bucket":"gcf-v2-sources-35559389165-us-central1","object":"getUserChats/function-source.zip","generation":"1748120028377521"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/awesel-common-ground/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-35559389165-us-central1","object":"getUserChats/function-source.zip","generation":"1748120028377521"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/awesel-common-ground/serviceAccounts/35559389165-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/awesel-common-ground/locations/us-central1/services/getuserchats","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"awesel-common-ground\",\"storageBucket\":\"awesel-common-ground.firebasestorage.app\"}","GCLOUD_PROJECT":"awesel-common-ground","EVENTARC_CLOUD_EVENT_SOURCE":"projects/awesel-common-ground/locations/us-central1/services/getUserChats","FUNCTION_TARGET":"getUserChats","LOG_EXECUTION_ID":"true","FUNCTION_SIGNATURE_TYPE":"http"},"maxInstanceCount":40,"ingressSettings":"ALLOW_ALL","uri":"https://getuserchats-orneo6u5fq-uc.a.run.app","serviceAccountEmail":"35559389165-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"revision":"getuserchats-00004-pip","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"state":"ACTIVE","updateTime":"2025-05-24T20:53:57.658760885Z","labels":{"deployment-callable":"true","firebase-functions-hash":"e70138fa6ae76523b0c4bbfe8e1ca1c40895607d","deployment-tool":"cli-firebase"},"environment":"GEN_2","url":"https://us-central1-awesel-common-ground.cloudfunctions.net/getUserChats","createTime":"2025-05-21T04:55:41.099030421Z","satisfiesPzi":true},{"name":"projects/awesel-common-ground/locations/us-central1/functions/generateMatches","buildConfig":{"build":"projects/35559389165/locations/us-central1/builds/7605bbac-43ad-4543-8302-d55336b1e07f","runtime":"nodejs18","entryPoint":"generateMatches","source":{"storageSource":{"bucket":"gcf-v2-sources-35559389165-us-central1","object":"generateMatches/function-source.zip","generation":"1748120028092618"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/awesel-common-ground/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-35559389165-us-central1","object":"generateMatches/function-source.zip","generation":"1748120028092618"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/awesel-common-ground/serviceAccounts/35559389165-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"serviceConfig":{"service":"projects/awesel-common-ground/locations/us-central1/services/generatematches","timeoutSeconds":60,"environmentVariables":{"FIREBASE_CONFIG":"{\"projectId\":\"awesel-common-ground\",\"storageBucket\":\"awesel-common-ground.firebasestorage.app\"}","GCLOUD_PROJECT":"awesel-common-ground","EVENTARC_CLOUD_EVENT_SOURCE":"projects/awesel-common-ground/locations/us-central1/services/generateMatches","FUNCTION_SIGNATURE_TYPE":"cloudevent","FUNCTION_TARGET":"generateMatches","LOG_EXECUTION_ID":"true"},"maxInstanceCount":40,"ingressSettings":"ALLOW_ALL","uri":"https://generatematches-orneo6u5fq-uc.a.run.app","serviceAccountEmail":"35559389165-compute@developer.gserviceaccount.com","availableMemory":"256Mi","allTrafficOnLatestRevision":true,"revision":"generatematches-00004-leq","maxInstanceRequestConcurrency":80,"availableCpu":"1"},"eventTrigger":{"trigger":"projects/awesel-common-ground/locations/nam5/triggers/generatematches-712511","triggerRegion":"nam5","eventType":"google.cloud.firestore.document.v1.written","eventFilters":[{"attribute":"database","value":"(default)"},{"attribute":"namespace","value":"(default)"},{"attribute":"document","value":"users/{uid}","operator":"match-path-pattern"}],"pubsubTopic":"projects/awesel-common-ground/topics/eventarc-nam5-generatematches-712511-801","serviceAccountEmail":"35559389165-compute@developer.gserviceaccount.com","retryPolicy":"RETRY_POLICY_DO_NOT_RETRY"},"state":"ACTIVE","updateTime":"2025-05-24T20:53:54.588346114Z","labels":{"deployment-tool":"cli-firebase","firebase-functions-hash":"e70138fa6ae76523b0c4bbfe8e1ca1c40895607d"},"environment":"GEN_2","url":"https://us-central1-awesel-common-ground.cloudfunctions.net/generateMatches","createTime":"2025-05-21T05:00:02.730077885Z","satisfiesPzi":true}]}
+[debug] [2025-05-25T20:09:06.294Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:06.294Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:06.294Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:06.294Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:06.294Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/awesel-common-ground/databases/(default) [none]
+[debug] [2025-05-25T20:09:06.295Z] >>> [apiv2][query] GET https://firestore.googleapis.com/v1/projects/awesel-common-ground/databases/(default) [none]
+[debug] [2025-05-25T20:09:06.662Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/awesel-common-ground/databases/(default) 200
+[debug] [2025-05-25T20:09:06.663Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/awesel-common-ground/databases/(default) {"name":"projects/awesel-common-ground/databases/(default)","uid":"961bde35-608c-4cdd-bcd4-2181ddcd6bf3","createTime":"2025-05-20T21:05:20.827099Z","updateTime":"2025-05-20T21:05:20.827099Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2025-05-25T19:09:06.654893Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"etag":"IOrwwbq2v40DMI2Nk+f5so0D"}
+[debug] [2025-05-25T20:09:06.997Z] <<< [apiv2][status] GET https://firestore.googleapis.com/v1/projects/awesel-common-ground/databases/(default) 200
+[debug] [2025-05-25T20:09:06.998Z] <<< [apiv2][body] GET https://firestore.googleapis.com/v1/projects/awesel-common-ground/databases/(default) {"name":"projects/awesel-common-ground/databases/(default)","uid":"961bde35-608c-4cdd-bcd4-2181ddcd6bf3","createTime":"2025-05-20T21:05:20.827099Z","updateTime":"2025-05-20T21:05:20.827099Z","locationId":"nam5","type":"FIRESTORE_NATIVE","concurrencyMode":"PESSIMISTIC","versionRetentionPeriod":"3600s","earliestVersionTime":"2025-05-25T19:09:06.979693Z","appEngineIntegrationMode":"DISABLED","keyPrefix":"s","pointInTimeRecoveryEnablement":"POINT_IN_TIME_RECOVERY_DISABLED","deleteProtectionState":"DELETE_PROTECTION_DISABLED","databaseEdition":"STANDARD","freeTier":true,"etag":"INXZ1bq2v40DMI2Nk+f5so0D"}
+[info] i  functions: ensuring required API cloudscheduler.googleapis.com is enabled... 
+[debug] [2025-05-25T20:09:07.001Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:07.001Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:07.001Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com [none]
+[debug] [2025-05-25T20:09:07.001Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com x-goog-quota-user=projects/35559389165
+[debug] [2025-05-25T20:09:07.325Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com 200
+[debug] [2025-05-25T20:09:07.325Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com [omitted]
+[warn] ⚠  functions: missing required API cloudscheduler.googleapis.com. Enabling now... 
+[debug] [2025-05-25T20:09:07.326Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:07.326Z] Checked if tokens are valid: true, expires at: 1748207330336
+[debug] [2025-05-25T20:09:07.327Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com:enable [none]
+[debug] [2025-05-25T20:09:07.327Z] >>> [apiv2][(partial)header] POST https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com:enable x-goog-quota-user=projects/35559389165
+[debug] [2025-05-25T20:09:07.596Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com:enable 200
+[debug] [2025-05-25T20:09:07.596Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1/projects/35559389165/services/cloudscheduler.googleapis.com:enable [omitted]
