@@ -15,6 +15,8 @@ import * as admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
 // import * as functionsV1 from "firebase-functions";
 import Fuse from "fuse.js";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { sendUnrespondedMessagesEmail } from "./email";
 
 admin.initializeApp();
 
@@ -557,6 +559,67 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
       "internal",
       "Unable to fetch chats.",
     );
+  }
+});
+
+export const checkUnrespondedMessages = onSchedule({
+  schedule: "every 24 hours",
+  timeZone: "America/Los_Angeles",
+}, async () => {
+  const db = admin.firestore();
+  const usersSnapshot = await db.collection("users").get();
+
+  for (const userDoc of usersSnapshot.docs) {
+    const userId = userDoc.id;
+    const userData = userDoc.data();
+
+    if (!userData.email) continue;
+
+    // Get all chats where user is a participant
+    const chatsSnapshot = await db.collection("chats")
+      .where("users", "array-contains", userId)
+      .get();
+
+    const unrespondedChats = [];
+
+    for (const chatDoc of chatsSnapshot.docs) {
+      const chatData = chatDoc.data();
+      const lastMessage = await db.collection("chats")
+        .doc(chatDoc.id)
+        .collection("messages")
+        .orderBy("timestamp", "desc")
+        .limit(1)
+        .get();
+
+      if (lastMessage.empty) continue;
+
+      const lastMessageData = lastMessage.docs[0].data();
+      const lastMessageTime = lastMessageData.timestamp.toDate();
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      // If last message is from other user and older than 24 hours
+      if (lastMessageData.sender !== userId && lastMessageTime < oneDayAgo) {
+        const otherUserId = chatData.users.find((id: string) => id !== userId);
+        const otherUserDoc = await db.collection("users").doc(otherUserId).get();
+        const otherUserName = otherUserDoc.data()?.displayName || "Someone";
+
+        unrespondedChats.push({
+          chatId: chatDoc.id,
+          otherUserName,
+          lastMessage: lastMessageData.text,
+          lastMessageTime,
+        });
+      }
+    }
+
+    if (unrespondedChats.length > 0) {
+      try {
+        await sendUnrespondedMessagesEmail(userData.email, unrespondedChats);
+        logger.info(`Sent unresponded messages email to ${userData.email}`);
+      } catch (error) {
+        logger.error(`Failed to send email to ${userData.email}:`, error);
+      }
+    }
   }
 });
 
