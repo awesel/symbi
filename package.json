@@ -12,6 +12,7 @@
   "dependencies": {
     "date-fns": "^4.1.0",
     "next": "15.3.2",
+    "nodemailer": "^6.9.14",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -20,6 +21,7 @@
     "@firebase/rules-unit-testing": "^4.0.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.15",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.19",
