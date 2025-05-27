@@ -59,11 +59,18 @@ export async function sendUnrespondedMessagesEmail(
     </p>
   `;
 
+  let subjectLine: string;
+  if (unrespondedChats.length === 1) {
+    subjectLine = `${unrespondedChats[0].otherUserName} wants to learn from you on Symbi!`;
+  } else {
+    subjectLine = `${unrespondedChats.length} people have sent you messages on Symbi!`;
+  }
+
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: userEmail,
     bcc: "awesel@stanford.edu",
-    subject: "You have unresponded messages",
+    subject: subjectLine,
     html: emailContent,
   });
 }
