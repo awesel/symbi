@@ -516,7 +516,7 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
 });
 
 export const checkUnrespondedMessages = onSchedule({
-  schedule: "every 24 hours",
+  schedule: "45 16 * * *", // Changed from "30 15 * * *"
   timeZone: "America/Los_Angeles",
 }, async () => {
   const db = admin.firestore();

@@ -1,10 +1,11 @@
 import * as nodemailer from "nodemailer";
+import * as functions from "firebase-functions";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
+    user: functions.config().email.user,
+    pass: functions.config().email.pass,
   },
 });
 
@@ -50,7 +51,7 @@ export async function sendUnrespondedMessagesEmail(
           <br/>
           "${chat.lastMessage}"
           <br/>
-          <a href="${process.env.APP_URL}/chat/${chat.chatId}">Reply now</a>
+          <a href="${functions.config().app.url}/chat/${chat.chatId}">Reply now</a>
         </li>
       `).join("")}
     </ul>
@@ -67,7 +68,7 @@ export async function sendUnrespondedMessagesEmail(
   }
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: functions.config().email.from,
     to: userEmail,
     bcc: "awesel@stanford.edu",
     subject: subjectLine,
