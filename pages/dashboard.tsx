@@ -51,6 +51,11 @@ const DashboardPage: React.FC = () => {
       <SymbiMatchBanner variant="dashboard" />
 
       <div className="action-buttons">
+        <Link href="/discover" legacyBehavior>
+          <a className="btn btn-primary">
+            Discover New Interests
+          </a>
+        </Link>
         <button 
           className="btn btn-danger"
           onClick={async () => {
