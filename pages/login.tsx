@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -56,23 +55,6 @@ const LoginPage: React.FC = () => {
     return <p>Loading...</p>;
   }
 
-  let buttonHref = "/login";
-  let buttonText = "Sign In";
-  let buttonClassName = styles.navButton;
-  let showHeaderButton = true;
-
-  if (user) {
-    if (userProfile?.onboardingCompleted) {
-      showHeaderButton = false;
-    } else {
-      buttonHref = "/onboarding";
-      buttonText = "Complete Onboarding";
-      showHeaderButton = true;
-    }
-  } else {
-    showHeaderButton = true;
-  }
-
   return (
     <div className={styles.container}>
       <Head>
@@ -102,7 +84,7 @@ const LoginPage: React.FC = () => {
           </div>
 
           <div className={styles.heroSignUpContainer}>
-             <p className={styles.heroSignUpText}>Don't have an account?</p>
+             <p className={styles.heroSignUpText}>Don&apos;t have an account?</p>
              <button 
                onClick={signInWithGoogle}
                className={styles.heroSignUpLink}
@@ -113,8 +95,11 @@ const LoginPage: React.FC = () => {
 
           <div className={styles.trustBadgeContainer}>
              <div className={styles.avatarPlaceholder}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://i.pravatar.cc/150?img=3" alt="User Avatar" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://i.pravatar.cc/150?img=8" alt="User Avatar" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="https://i.pravatar.cc/150?img=1" alt="User Avatar" />
              </div>
             <p className={styles.trustBadge}>
@@ -128,7 +113,7 @@ const LoginPage: React.FC = () => {
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>Add What Interests You 🎯</h2>
               <p className={styles.sectionContent}>
-                Pick a few things you're passionate about—and a few you're curious to explore. That's all we need to get started.
+                Pick a few things you&apos;re passionate about—and a few you&apos;re curious to explore. That&apos;s all we need to get started.
               </p>
             </div>
             
@@ -197,7 +182,7 @@ const LoginPage: React.FC = () => {
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Start a Conversation 💬</h2>
                   <p className={styles.sectionContent}>
-                    Emmuage your matches. Everyone's here to share, ask, and learn.
+                    Emmuage your matches. Everyone&apos;s here to share, ask, and learn.
                   </p>
                 </div>
                <Image
@@ -215,7 +200,7 @@ const LoginPage: React.FC = () => {
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Meet Up IRL 📍</h2>
                   <p className={styles.sectionContent}>
-                    When your chat wraps up, we'll suggest a time to meet in person. You're already nearby.
+                    When your chat wraps up, we&apos;ll suggest a time to meet in person. You&apos;re already nearby.
                   </p>
                 </div>
                <Image

@@ -26,7 +26,7 @@ const WelcomePage: React.FC = () => {
         maxWidth: 400
       }}>
         <div style={{ fontSize: 40, fontWeight: 800, color: '#3B82F6', marginBottom: 8 }}>Symbi</div>
-        <div style={{ fontSize: 18, color: '#374151', marginBottom: 32 }}>Stanford's playful social app for finding your people.</div>
+        <div style={{ fontSize: 18, color: '#374151', marginBottom: 32 }}>Stanford&apos;s playful social app for finding your people.</div>
         <button
           style={{
             width: '100%',
@@ -84,6 +84,7 @@ const WelcomePage: React.FC = () => {
           onClick={signInWithGoogle}
           disabled={loading}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: 22, height: 22 }} />
           Sign in with Google
         </button>

@@ -115,7 +115,7 @@ const OnboardingChat: React.FC = () => {
     const userMsg = { id: `user-${Date.now()}`, sender: 'user', text: inputValue };
     setMessages(prev => [...prev, userMsg]);
     let nextStepIdx = stepIdx;
-    let newAnswers = { ...answers };
+    const newAnswers = { ...answers };
     
     if (currentStep === 'interests') {
       newAnswers.interests = tags;
