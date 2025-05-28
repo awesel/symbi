@@ -516,8 +516,9 @@ export const getUserChats = onCall(async (request: CallableRequest<unknown>) => 
 });
 
 export const checkUnrespondedMessages = onSchedule({
-  schedule: "45 16 * * *", // Changed from "30 15 * * *"
+  schedule: "40 17 * * *", // Changed from "30 15 * * *"
   timeZone: "America/Los_Angeles",
+  // secrets: ["EMAIL_USER", "EMAIL_PASS", "EMAIL_FROM", "APP_URL"], // Temporarily removed for deployment
 }, async () => {
   const db = admin.firestore();
   const usersSnapshot = await db.collection("users").get();

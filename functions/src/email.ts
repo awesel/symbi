@@ -1,13 +1,37 @@
 import * as nodemailer from "nodemailer";
-import * as functions from "firebase-functions";
+// import * as functions from "firebase-functions";
+// import * as dotenv from "dotenv";
+// dotenv.config(); // Load .env into process.env
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: functions.config().email.user,
-    pass: functions.config().email.pass,
-  },
-});
+// Default values, can be overridden by environment variables
+const DEFAULT_EMAIL_FROM = "\"Symbi\" <no-reply@symbi.club>";
+const DEFAULT_APP_URL = "https://symbi.club";
+
+let transporterInstance: nodemailer.Transporter | null = null;
+
+/**
+ * Gets or creates a nodemailer transporter instance using environment variables
+ * @return {nodemailer.Transporter} A configured nodemailer transporter
+ * @throws {Error} If EMAIL_USER or EMAIL_PASS environment variables are missing
+ */
+function getTransporter(): nodemailer.Transporter {
+  if (transporterInstance) {
+    return transporterInstance;
+  }
+
+  const { EMAIL_USER, EMAIL_PASS } = process.env;
+
+  if (!EMAIL_USER || !EMAIL_PASS) {
+    console.error("CRITICAL: Missing EMAIL_USER or EMAIL_PASS environment variables for nodemailer transporter. Ensure secrets are set and deployed correctly.");
+    throw new Error("Missing EMAIL_USER or EMAIL_PASS for email service.");
+  }
+
+  transporterInstance = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+  });
+  return transporterInstance;
+}
 
 interface UnrespondedChat {
   chatId: string;
@@ -41,6 +65,13 @@ export async function sendUnrespondedMessagesEmail(
   userEmail: string,
   unrespondedChats: UnrespondedChat[]
 ) {
+  const {
+    EMAIL_FROM = DEFAULT_EMAIL_FROM,
+    APP_URL = DEFAULT_APP_URL,
+  } = process.env;
+
+  const transporter = getTransporter();
+
   const emailContent = `
     <h2>You have unresponded messages!</h2>
     <p>You have ${unrespondedChats.length} conversations waiting for your response:</p>
@@ -51,7 +82,7 @@ export async function sendUnrespondedMessagesEmail(
           <br/>
           "${chat.lastMessage}"
           <br/>
-          <a href="${functions.config().app.url}/chat/${chat.chatId}">Reply now</a>
+          <a href="${APP_URL}/chat/${chat.chatId}">Reply now</a>
         </li>
       `).join("")}
     </ul>
@@ -68,7 +99,7 @@ export async function sendUnrespondedMessagesEmail(
   }
 
   await transporter.sendMail({
-    from: functions.config().email.from,
+    from: EMAIL_FROM,
     to: userEmail,
     bcc: "awesel@stanford.edu",
     subject: subjectLine,
