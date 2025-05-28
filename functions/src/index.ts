@@ -535,6 +535,7 @@ export const checkUnrespondedMessages = onSchedule({
       .get();
 
     const unrespondedChats = [];
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     for (const chatDoc of chatsSnapshot.docs) {
       const chatData = chatDoc.data();
@@ -550,8 +551,8 @@ export const checkUnrespondedMessages = onSchedule({
       const lastMessageData = lastMessage.docs[0].data();
       const lastMessageTime = lastMessageData.timestamp.toDate();
 
-      // If last message is from other user
-      if (lastMessageData.sender !== userId) {
+      // If last message is from other user AND it was sent in the last 24 hours
+      if (lastMessageData.sender !== userId && lastMessageTime > twentyFourHoursAgo) {
         const otherUserId = chatData.users.find((id: string) => id !== userId);
         const otherUserDoc = await db.collection("users").doc(otherUserId).get();
         const otherUserName = otherUserDoc.data()?.displayName || "Someone";
