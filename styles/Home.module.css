@@ -1,120 +1,1128 @@
 .container {
-  font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
-  padding: 20px;
-  text-align: center;
-  background-color: #f0f2f5; /* Light gray background */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: linear-gradient(180deg, #4C0D0D 0%, #8A1A1A 100%);
+  font-family: 'Inter', sans-serif;
+  color: #1a202c;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0; /* Subtle border */
+  padding: 0.75rem 2rem;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.logo {
-  /* Styles for the logo, if any, can be added here */
+.logoIcon {
+  object-fit: contain;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+.logoIcon:hover {
+  transform: scale(1.1);
+  animation: lightMove 2s infinite linear;
+}
+
+/* Define keyframe animation for light and moving background effect */
+@keyframes lightMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .navButton {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 600;
   text-decoration: none;
+  transition: all 0.2s ease;
+  background-color: #ff6600;
   color: white;
-  padding: 12px 24px; /* Slightly larger padding */
-  border-radius: 8px; /* More rounded corners */
-  font-size: 1em;
-  font-weight: 500; /* Medium font weight */
-  transition: background-color 0.2s ease, transform 0.1s ease; /* Added transform for click effect */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
 }
 
 .navButton:hover {
-  transform: translateY(-1px); /* Slight lift on hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+  background-color: #e65c00;
 }
 
-.mainContent {
-  max-width: 800px;
-  margin: 40px auto; /* Increased top/bottom margin */
-  flex-grow: 1;
-}
-
-.section {
-  margin-bottom: 50px; /* Increased spacing between sections */
-  background-color: #ffffff; /* White background for sections */
-  padding: 30px; /* Padding within sections */
-  border-radius: 12px; /* Rounded corners for sections */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer, more diffused shadow */
-}
-
-.section h1 {
-  font-size: 2.5em; /* Larger heading */
-  color: #333; /* Darker text color */
-  margin-bottom: 20px; /* Spacing below heading */
-  font-weight: 600; /* Bolder heading */
-}
-
-.section p, .section ol {
-  line-height: 1.8; /* Increased line height for readability */
-  font-size: 1.1em;
-  color: #555; /* Slightly lighter text color for paragraphs */
-}
-
-.rulesList {
-  padding-left: 20px;
-  display: inline-block;
-  text-align: left;
-}
-
-.rulesList li {
-  margin-bottom: 15px; /* Increased spacing between list items */
-}
-
-.howItWorksList {
-  text-align: left;
-  padding-left: 40px; /* Standard padding to show list numbers */
-  margin-left: auto; /* Adjust if centering of the block is desired */
-  margin-right: auto; /* Adjust if centering of the block is desired */
-  max-width: fit-content; /* Or a specific max-width if preferred */
-  list-style-type: decimal; /* Explicitly set numbering */
-  list-style-position: outside; /* Ensure numbers are outside the text flow */
-}
-
-.howItWorksList li {
-  margin-bottom: 10px; /* Spacing between "How it Works" items */
-}
-
-.footer {
-  margin-top: auto; /* Pushes footer to the bottom */
-  padding-top: 30px; /* Spacing above footer */
-  text-align: center;
-  color: #888; /* Lighter footer text */
-  border-top: 1px solid #e0e0e0; /* Subtle border above footer */
-  font-size: 0.9em;
-}
-
-/* Example of how to use dynamic button colors if you still need them */
-/* You would apply these classes dynamically in your component */
 .signInButton {
-  background-color: #007bff; /* Blue */
+  background-color: #007bff;
+  color: white;
 }
+
 .signInButton:hover {
-  background-color: #0056b3; /* Darker Blue */
+  background-color: #0056b3;
 }
 
 .dashboardButton {
-  background-color: #28a745; /* Green */
+  background-color: #28a745;
+  color: white;
 }
+
 .dashboardButton:hover {
-  background-color: #1e7e34; /* Darker Green */
+  background-color: #218838;
 }
 
 .onboardingButton {
-  background-color: #007bff; /* Blue, or choose another like #ffc107 for warning/orange */
+  background-color: #ffc107;
+  color: #000;
 }
+
 .onboardingButton:hover {
-  background-color: #0056b3; /* Darker Blue */
-} 
+  background-color: #e0a800;
+}
+
+.mainContent {
+  flex: 1;
+  width: 100%;
+}
+
+.section {
+  margin: 4rem auto;
+  max-width: 1000px;
+  padding: 0 2rem;
+}
+
+.sectionTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.sectionSubtitle {
+  font-size: 1.125rem;
+  color: #4a5568;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 2.5rem auto;
+  line-height: 1.6;
+}
+
+.heroSection {
+  background: linear-gradient(180deg, #4C0D0D 0%, #8A1A1A 100%);
+  color: white;
+  text-align: center;
+  padding: 10rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.heroLogoIcon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s ease-in-out;
+}
+
+.heroLogoIcon:hover {
+  transform: scale(1.1);
+  animation: lightMove 2s infinite linear;
+}
+
+.heroTitle {
+  font-size: 112px;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  background: linear-gradient(to right, #FF9A8B, #FF6A88, #FF99AC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #FF9A8B;
+}
+
+.heroSubtitle {
+  font-size: 24px;
+  font-weight: 500;
+  max-width: 700px;
+  margin: 0 auto 3.5rem auto;
+  line-height: 1.5;
+  color: #FFFFFFE0;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+}
+
+.heroCTAForm {
+  display: flex;
+  gap: 0;
+  margin-top: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  justify-content: center;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 2px solid #FFFFFF60;
+  background-color: #FFFFFF20;
+}
+
+.heroEmailInput {
+  flex-grow: 1;
+  padding: 16px 20px;
+  border-radius: 0;
+  border: none;
+  background-color: transparent;
+  color: white;
+  font-size: 16px;
+  box-shadow: none;
+  outline: none;
+}
+
+.heroEmailInput::placeholder {
+  color: #FFFFFF99;
+}
+
+.heroCTAButton {
+  padding: 16px 20px;
+  border-radius: 9999px;
+  background-color: #FF4B2B;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.heroCTAButton:hover {
+  background-color: #E53E3E;
+  transform: scale(1.02);
+}
+
+.trustBadgeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 3rem;
+  gap: 1rem;
+}
+
+.avatarPlaceholder {
+  display: flex;
+  gap: -10px;
+}
+
+.avatarPlaceholder img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 3px solid #4C0D0D;
+  object-fit: cover;
+}
+
+.trustBadge {
+  font-size: 16px;
+  color: #FFFFFFC0;
+  margin-top: 0;
+}
+
+.discoverySection {
+  margin: 4rem auto;
+  max-width: 1000px;
+  padding: 0 2rem;
+}
+
+.discoverySection .sectionTitle {
+  margin-bottom: 2.5rem;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.card {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.cardLabel {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.cardContent {
+  font-size: 1.25rem;
+  color: #1a202c;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.howItWorksList {
+  list-style-type: none;
+  padding: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.howItWorksList li {
+  background-color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  border-left: 5px solid #007bff;
+}
+
+.howItWorksList li:last-child {
+  margin-bottom: 0;
+}
+
+.stepNumber {
+  background-color: #ff6600;
+  color: white;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  margin-bottom: 0.5rem;
+}
+
+.stepContent h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.4rem 0;
+}
+
+.stepContent p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.footer {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: #f1f1f1;
+  color: #718096;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 1rem;
+  }
+
+  .logoIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .navButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .mainContent {
+    padding: 1rem;
+  }
+
+  .heroSection {
+    padding: 6rem 1rem;
+    min-height: 70vh;
+  }
+
+  .heroTitle {
+    font-size: 36px;
+    margin-bottom: 0.8rem;
+  }
+
+  .heroSubtitle {
+    font-size: 16px;
+    max-width: 90%;
+    margin: 0 auto 1.2rem auto;
+  }
+
+  .heroCTAForm {
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 300px;
+  }
+
+  .trustBadge {
+    margin-top: 1rem;
+    font-size: 12px;
+  }
+
+  .section,
+  .discoverySection {
+    margin: 2.5rem auto;
+    padding: 0 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .cardGrid,
+  .howItWorksList {
+    gap: 1rem;
+  }
+
+  .card,
+  .howItWorksList li {
+    padding: 1.2rem;
+  }
+
+  .howItWorksList li {
+    gap: 0.6rem;
+    border-left-width: 4px;
+  }
+
+  .stepNumber {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .stepContent h3 {
+    font-size: 1.125rem;
+  }
+
+  .stepContent p {
+    font-size: 0.9rem;
+  }
+
+  .cardLabel {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .cardContent {
+    font-size: 1.125rem;
+  }
+
+  .footer {
+    padding: 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Styles for the new 'What We Do' Section */
+.whatWeDoSection {
+  background-color: #F8F2EC; /* Light reddish background */
+  padding: 4rem 2rem; /* Padding */
+  text-align: center;
+}
+
+.whatWeDoTitle {
+  font-size: 40px; /* Title font size */
+  font-weight: 800; /* Title font weight */
+  color: #1A202C; /* Dark text color */
+  margin-bottom: 1rem;
+}
+
+.whatWeDoSubtitle {
+  font-size: 18px; /* Subtitle font size */
+  color: #4A5568; /* Grayish text color */
+  margin-bottom: 3rem;
+  line-height: 1.6;
+}
+
+.cardContainer {
+  display: flex;
+  justify-content: center;
+  gap: 2rem; /* Space between cards */
+  flex-wrap: wrap; /* Allow cards to wrap on smaller screens */
+}
+
+.whatWeDoCard {
+  background-color: #FFFFFF; /* White card background */
+  border-radius: 0.75rem; /* Rounded corners */
+  padding: 2rem; /* Card padding */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  text-align: left;
+  max-width: 350px; /* Maximum width for cards */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.cardTitle {
+  font-size: 24px; /* Card title font size */
+  font-weight: 700; /* Card title font weight */
+  color: #1A202C; /* Dark text color */
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.cardImagePlaceholder {
+  display: none; /* Hide the placeholder */
+}
+
+.cardImage {
+  border-radius: 0.5rem; /* Apply rounded corners */
+  object-fit: cover; /* Ensure the image covers the area without distortion */
+  margin-bottom: 1.5rem; /* Keep the margin below the image */
+  width: 100%; /* Ensure image takes the full width of the card */
+  height: auto; /* Allow height to adjust based on aspect ratio */
+}
+
+.iconListPlaceholder {
+  /* This style is no longer needed */
+}
+
+.iconListPlaceholder li {
+  /* This style is no longer needed */
+}
+
+.interactiveChecklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  width: 100%; /* Make checklist take full width of card */
+}
+
+.checklistItem {
+  font-size: 16px; /* Checklist item font size */
+  color: #4A5568; /* Default color for unchecked items */
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  position: relative; /* Needed for absolute positioning of pseudo-element */
+  padding-left: 25px; /* Space for the custom icon */
+}
+
+/* Style for checkbox icons */
+.checklistItem::before {
+    content: ''; /* Start with empty content, checkmark added when checked */
+    position: absolute; /* Position absolutely within the list item */
+    left: 0; /* Align to the left */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%);
+    width: 18px; /* Size of the circle */
+    height: 18px; /* Size of the circle */
+    border: 2px solid #D1D5DA; /* Grey border for unchecked state (adjust color to match image) */
+    border-radius: 50%; /* Make it round */
+    background-color: transparent;
+    display: flex; /* Use flex to center checkmark */
+    justify-content: center;
+    align-items: center;
+    font-size: 12px; /* Size for the checkmark */
+    color: transparent; /* Hide checkmark initially */
+    transition: all 0.2s ease; /* Smooth transition for visual changes */
+}
+
+/* Style for checked checklist items */
+.checklistItem.checked {
+  color: #1A202C; /* Darker text color when checked */
+  text-decoration: line-through; /* Add line-through to the text */
+}
+
+.checklistItem.checked::before {
+    border-color: #EF4444; /* Red border when checked */
+    background-color: #EF4444; /* Red background when checked */
+    content: '\2714'; /* Unicode for checkmark */
+    color: white; /* White checkmark */
+}
+
+/* Styles for the separator line */
+.checklistSeparator {
+  border: none;
+  height: 1px;
+  background-color: #E2E8F0;
+  margin: 0;
+  margin-bottom: 16px; /* Spacing between separator and footer */
+}
+
+/* Styles for the footer tag */
+.footerTag {
+  font-size: 14px; /* Footer font size */
+  color: #777; /* Footer color */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text in footer */
+}
+
+/* Styles for the Cultural Foresight image placeholder */
+.culturalForesightImagePlaceholder {
+    /* This is for the first section placeholder, keeping for now but will remove */
+    display: none; /* Hide the placeholder */
+}
+
+/* Styles for images within sections */
+.sectionImage {
+  width: 100%; /* Image takes full width of its container */
+  height: 180px; /* Set a consistent fixed height for all images */
+  border-radius: 16px; /* Rounded corners on all 4 sides */
+  object-fit: cover; /* Crop the image while maintaining aspect ratio */
+  margin-bottom: 20px; /* Add space below the image before the text header */
+}
+
+/* Narrative Systems Icon Placeholder (removed) */
+/* .narrativeSystemsIconPlaceholder { display: none; } */
+
+/* Styles for the phone placeholder */
+.conceptIncubationPhonePlaceholder {
+    width: 100%; /* Placeholder takes full width */
+    height: 180px; /* Match the height of the images */
+    background-color: #FF6B88; /* Placeholder color */
+    border-radius: 16px; /* Rounded corners on all 4 sides */
+    object-fit: cover; /* Ensure placeholder behaves like an image */
+    margin-top: 0; /* Remove top margin, handled by gap or container */
+    margin-bottom: 20px; /* Add space below the placeholder before the text header */
+    flex-grow: 0; /* Prevent placeholder from growing and taking extra space */
+    flex-shrink: 0; /* Prevent placeholder from shrinking */
+}
+
+/* Styles for New Sections */
+.newSection1,
+.newSection2,
+.newSection3 {
+  padding: 4rem 2rem; /* Add padding to sections */
+  text-align: center; /* Center align content */
+}
+
+.newSection1 {
+  background-color: #F8F9FA; /* Light background for first section */
+}
+
+.newSection2 {
+  background-color: #E9ECEF; /* Slightly darker background for second section */
+}
+
+.newSection3 {
+  background-color: #DEE2E6; /* Another background color for third section */
+}
+
+.newSectionTitle {
+  font-size: 36px; /* Font size for section titles */
+  font-weight: 700; /* Bold font weight */
+  color: #1A202C; /* Dark text color */
+  margin-bottom: 1.5rem;
+}
+
+.newSectionContent {
+  font-size: 18px; /* Font size for section content */
+  color: #4A5568; /* Grayish text color */
+  line-height: 1.6;
+  max-width: 800px; /* Limit content width */
+  margin: 0 auto; /* Center content block */
+}
+
+/* Styles for New Sections (adjusting for horizontal layout) */
+.culturalForesightSection,
+.experienceInnovationSection,
+.narrativeSystemsSection,
+.conceptIncubationSection {
+  flex: 1 1 250px;
+  min-width: 240px;
+  padding: 0; /* Remove padding from the section, handled by content container or card padding */
+  text-align: left; /* Default left alignment */
+  background-color: #FFFFFF; /* Default white background for cards */
+  border-radius: 16px; /* Rounded corners on all 4 sides */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column; /* Arrange content vertically */
+}
+
+/* culturalForesightSection now styled as a card */
+.culturalForesightSection {
+  border-radius: 16px; /* Rounded card container on all 4 sides */
+  padding: 24px; /* Padding inside the card */
+  background-color: #FFFFFF; /* Explicitly white background */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  display: flex;
+  flex-direction: column; /* Arrange content vertically */
+  flex: 1 1 250px; /* Ensure it respects flex container and has a base width */
+  min-width: 240px; /* Ensure a minimum width */
+  /* No padding here, handled by content below */
+}
+
+.experienceInnovationSection {
+  background-color: #FFFFFF; /* Set background to white explicitly for clarity */
+  border-radius: 16px; /* Rounded corners on all 4 sides */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  display: flex;
+  flex-direction: column; /* Arrange content vertically */
+  flex: 1 1 250px; /* Ensure it respects flex container and has a base width */
+  min-width: 240px; /* Ensure a minimum width */
+  /* No padding here, handled by content below */
+}
+
+.narrativeSystemsSection {
+  background-color: #FFFFFF; /* Change background to white */
+  color: #1A202C; /* Change default text color to dark for white background */
+  border-radius: 16px; /* Rounded corners on all 4 sides */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  display: flex;
+  flex-direction: column; /* Arrange content vertically */
+  flex: 1 1 250px; /* Ensure it respects flex container and has a base width */
+  min-width: 240px; /* Ensure a minimum width */
+  /* No padding here, handled by content below */
+}
+
+.narrativeSystemsSection .sectionTitle,
+.narrativeSystemsSection .sectionContent {
+  color: #1A202C; /* Ensure title is dark on white background */
+}
+
+.narrativeSystemsIconPlaceholder {
+  width: 150px; /* Increased placeholder size */
+  height: 150px; /* Increased placeholder size */
+  background-color: #FF4B2B;
+  border-radius: 50%;
+  /* Add icon styling later */
+}
+
+.conceptIncubationSection {
+  background-color: #FFFFFF; /* Change background to white */
+  border-radius: 16px; /* Rounded corners on all 4 sides */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  display: flex;
+  flex-direction: column; /* Arrange content vertically */
+  flex: 1 1 250px; /* Ensure it respects flex container and has a base width */
+  min-width: 240px; /* Ensure a minimum width */
+  /* No padding here, handled by content below */
+}
+
+.conceptIncubationPhonePlaceholder {
+  width: 250px; /* Increased placeholder width */
+  height: 500px; /* Increased placeholder height */
+  background-color: #FF6B88;
+  border-radius: 1rem;
+  /* Add image or phone frame styling later */
+}
+
+/* Container for Horizontal Sections */
+.horizontalSectionsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px; /* Consistent spacing between sections */
+  padding: 3rem 1rem; /* Keep padding around the container */
+  justify-content: center;
+  align-items: stretch; /* Ensure sections stretch to equal height */
+  margin-top: -150px; /* Move the container upwards to intersect more with hero section */
+  position: relative; /* Needed to ensure z-index works if content overlaps */
+  z-index: 1; /* Ensure the sections appear above the hero section background */
+}
+
+.sectionContentContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Default alignment, can be overridden */
+  max-width: none;
+  margin: 0;
+  padding: 24px; /* Padding inside each section's content area */
+  flex-grow: 1; /* Allow content container to grow and fill space */
+}
+
+/* Remove specific spacing for culturalForesightSection content as it's now a single card */
+.culturalForesightSection .sectionContentContainer {
+    /* No longer needed */
+}
+
+/* Specific spacing for experienceInnovationSection content (now Get Matched) */
+.experienceInnovationSection .sectionContentContainer {
+    padding: 24px; /* Padding for Get Matched content */
+}
+
+/* Specific spacing and styling for narrativeSystemsSection content (now Start a Conversation) */
+.narrativeSystemsSection .sectionContentContainer {
+    padding: 24px; /* Padding for Start a Conversation content */
+}
+
+/* Specific spacing for conceptIncubationSection content (now Meet Up IRL) */
+.conceptIncubationSection .sectionContentContainer {
+    padding: 24px; /* Padding for Meet Up IRL content */
+}
+
+@media (min-width: 768px) {
+  .sectionContentContainer {
+    flex-direction: column;
+    text-align: left;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .culturalForesightSection .sectionContentContainer,
+  .experienceInnovationSection .sectionContentContainer,
+  .narrativeSystemsSection .sectionContentContainer,
+  .conceptIncubationSection .sectionContentContainer {
+    flex-direction: column;
+    align-items: flex-start; /* Align text left within the card content area */
+  }
+
+   .culturalForesightSection .sectionContentContainer .textContainer,
+   .experienceInnovationSection .sectionContentContainer .textContainer,
+   .narrativeSystemsSection .sectionContentContainer .textContainer,
+   .conceptIncubationSection .sectionContentContainer .textContainer {
+       width: 100%;
+   }
+
+  .sectionImage {
+    width: 100%; /* Image takes full width of its container */
+    height: auto; /* Allow height to be determined by flex grow */
+    border-radius: 16px; /* Rounded corners on all 4 sides */
+    object-fit: cover; /* Crop the image while maintaining aspect ratio */
+    margin-bottom: 0; /* Remove bottom margin, gap handled by container */
+    flex-grow: 1; /* Allow image to grow and fill space */
+  }
+
+  .narrativeSystemsIconPlaceholder {
+    width: 150px; /* Increased placeholder size */
+    height: 150px; /* Increased placeholder size */
+    background-color: #FF4B2B;
+    border-radius: 50%;
+    /* Add icon styling later */
+  }
+
+  .conceptIncubationPhonePlaceholder {
+    width: 100%; /* Placeholder takes full width */
+    height: auto; /* Allow height to be determined by flex grow */
+    background-color: #FF6B88; /* Placeholder color */
+    border-radius: 16px; /* Rounded corners on all 4 sides */
+    object-fit: cover; /* Ensure placeholder behaves like an image */
+    margin-top: 0; /* Remove top margin, handled by gap or container */
+    margin-bottom: 0; /* Remove bottom margin, handled by gap or container */
+    flex-grow: 1; /* Allow placeholder to grow */
+    flex-shrink: 0; /* Prevent placeholder from shrinking */
+    display: flex; /* Use flex to center placeholder content if needed */
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* Styles for the section header (title and description) */
+.sectionHeader {
+    text-align: center; /* Center align text */
+    margin-bottom: 20px; /* Space between header and content below */
+    flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.textContainer {
+  flex: none;
+  width: 100%;
+}
+
+.sectionContent {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.5;
+  max-width: none;
+  margin: 0;
+}
+
+.narrativeSystemsSection .sectionContent {
+    color: #4A5568; /* Ensure description is dark on white background, use a standard gray */
+}
+
+/* Remove old Flow Polish block styles */
+.flowPolishBlock {
+  display: none;
+}
+
+.flowPolishTitle {
+  display: none;
+}
+
+.flowChecklistItem {
+  display: none;
+}
+
+.flowChecklistItem::before {
+  display: none;
+}
+
+.flowChecklistItem.checked {
+  display: none;
+}
+
+.flowChecklistItem.checked::before {
+  display: none;
+}
+
+.flowChecklistSeparator {
+  display: none;
+}
+
+.flowOngoingDesign {
+  display: none;
+}
+
+/* Styles for the new Interests Checklist */
+.interestsChecklist {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Increase spacing between each checklist item */
+  width: 100%;
+  margin-bottom: 0; /* Remove bottom margin, handled by gap or container */
+  flex-grow: 1; /* Allow checklist to grow and fill space */
+}
+
+.checklistItem {
+  font-size: 20px; /* Increase Checklist item font size */
+  color: #4A5568; /* Default color for unchecked items */
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  position: relative; /* Needed for absolute positioning of pseudo-element */
+  padding-left: 30px; /* Adjust space for the custom icon */
+  padding-right: 10px; /* Adjust right padding */
+  cursor: pointer; /* Add cursor pointer to indicate interactivity */
+}
+
+/* Style for checkbox icons */
+.checklistItem::before {
+    content: ''; /* Start with empty content, checkmark added when checked */
+    position: absolute; /* Position absolutely within the list item */
+    left: 0; /* Align to the left */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%);
+    width: 18px; /* Size of the circle */
+    height: 18px; /* Size of the circle */
+    border: 2px solid #D1D5DA; /* Grey border for unchecked state */
+    border-radius: 50%; /* Make it round */
+    background-color: transparent;
+    display: flex; /* Use flex to center checkmark */
+    justify-content: center;
+    align-items: center;
+    font-size: 12px; /* Size for the checkmark */
+    color: transparent; /* Hide checkmark initially */
+    transition: all 0.2s ease; /* Smooth transition for visual changes */
+}
+
+/* Style for checked checklist items */
+.checklistItem.checked {
+  color: #1A202C; /* Darker text color when checked */
+  text-decoration: line-through; /* Add line-through to the text */
+}
+
+.checklistItem.checked::before {
+    border-color: #EF4444; /* Red border when checked */
+    background-color: #EF4444; /* Red background when checked */
+    content: '\2714'; /* Unicode for checkmark */
+    color: white; /* White checkmark */
+}
+
+/* Styles for the remove button (x) */
+.removeChecklistItem {
+    margin-left: auto; /* Push the x to the right */
+    color: #EF4444; /* Red color for the x */
+    font-size: 20px; /* Size of the x */
+    cursor: pointer; /* Indicate clickable */
+    opacity: 0; /* Hide by default */
+    transition: opacity 0.2s ease; /* Smooth fade in/out */
+}
+
+.checklistItem:hover .removeChecklistItem {
+    opacity: 1; /* Show on hover */
+}
+
+/* Styles for the separator line */
+.checklistSeparator {
+  border: none;
+  height: 1px;
+  background-color: #E2E8F0;
+  margin: 20px auto; /* Center the separator and add margin */
+  width: calc(100% - 48px); /* Adjust width to account for padding */
+}
+
+/* Styles for the footer tag */
+.footerTag {
+  font-size: 14px; /* Footer font size */
+  color: #777; /* Footer color */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and text in footer */
+  justify-content: center; /* Center the footer content */
+  margin-top: 16px; /* Space between separator and footer */
+}
+
+/* Styles for the Cultural Foresight image placeholder */
+.culturalForesightImagePlaceholder {
+    /* This is for the first section placeholder, keeping for now but will remove */
+    display: none; /* Hide the placeholder */
+}
+
+/* Narrative Systems Icon Placeholder (removed) */
+/* .narrativeSystemsIconPlaceholder { display: none; } */
+
+.conceptIncubationPhonePlaceholder {
+    width: 100%; /* Placeholder takes full width */
+    height: 200px; /* Adjust height as needed */
+    background-color: #FF6B88; /* Placeholder color */
+    border-radius: 1rem;
+    object-fit: cover;
+    margin-top: 0; /* Remove top margin, handled by gap or container */
+    flex-grow: 1; /* Allow placeholder to grow */
+}
+
+/* Styles for the inner section box for the interactive checklist */
+.innerChecklistSection {
+    background-color: #FFFFFF; /* White background for the inner box */
+    border-radius: 12px; /* Rounded corners for the inner box */
+    padding: 30px; /* Increase padding inside the inner box */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* Subtle shadow for the inner box */
+    margin-top: 20px; /* Space between the header and the inner box */
+    /* Ensure it takes appropriate width, likely full width of parent */
+    width: 100%;
+    display: flex;
+    flex-direction: column; /* Arrange content vertically inside */
+    gap: 20px; /* Adjust space between checklist, separator, and footer inside the inner box */
+    flex-grow: 1; /* Allow inner checklist section to grow and fill space */
+}
+
+/* Styles for the add new checklist item section */
+.addChecklistItemContainer {
+    display: flex; /* Arrange input and button horizontally */
+    gap: 10px; /* Space between input and button */
+    margin-top: 20px; /* Space above the add item section */
+    /* Ensure it takes appropriate width, likely full width of parent */
+    width: 100%;
+}
+
+.addChecklistItemInput {
+    flex-grow: 1; /* Allow input to take up remaining space */
+    padding: 12px; /* Padding inside the input */
+    border: 1px solid #D1D5DA; /* Light grey border */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 16px;
+    color: #1A202C; /* Dark text color */
+    /* Remove default outline/box shadow on focus */
+    outline: none;
+    box-shadow: none;
+}
+
+.addChecklistItemInput::placeholder {
+    color: #909193; /* Placeholder text color */
+}
+
+.addChecklistItemButton {
+    padding: 12px 20px; /* Padding inside the button */
+    background-color: #FF4B2B; /* Change background color to reddish */
+    color: white; /* White text color */
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Prevent button from shrinking */
+}
+
+.addChecklistItemButton:hover {
+    background-color: #E53E3E; /* Darker reddish on hover */
+}
+
+/* Styles for the Sign Up section below the form */
+.heroSignUpContainer {
+    display: flex; /* Arrange text and link horizontally */
+    justify-content: center; /* Center the content */
+    align-items: center; /* Vertically align text and link */
+    margin-top: 1rem; /* Space above the sign up section */
+    gap: 0.5rem; /* Space between text and link */
+}
+
+.heroSignUpText {
+    font-size: 1rem;
+    color: #FFFFFFC0; /* Lighter white color */
+    margin: 0;
+}
+
+.heroSignUpLink {
+    font-size: 1rem;
+    color: white; /* White color for the link */
+    text-decoration: underline; /* Underline the link */
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.heroSignUpLink:hover {
+    color: #FF99AC; /* Highlight color on hover */
+}
+
+.googleSignInContainer {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  justify-content: center;
+}
+
+.googleSignInButton {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.googleSignInButton:hover {
+  background: #f3f4f6;
+}
+
+.googleSignInButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.googleIcon {
+  width: 22px;
+  height: 22px;
+}

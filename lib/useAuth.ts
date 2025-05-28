@@ -157,6 +157,8 @@ export function useAuth() {
   const logOut = async () => {
     try {
       await signOut(auth);
+      // Redirect to homepage after successful sign out
+      window.location.href = '/';
     } catch (err: unknown) {
       console.error("Sign out error:", err);
       if (err instanceof Error) {
