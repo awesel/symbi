@@ -26,6 +26,17 @@ const DashboardPage: React.FC = () => {
   const [displayedSkills, setDisplayedSkills] = useState<SkillData[]>([]);
   const [skillsLoading, setSkillsLoading] = useState(true);
   const [userInterests, setUserInterests] = useState<string[]>([]); // State to hold current user's interests
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Effect to detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // Using 768px as a common breakpoint for mobile/tablet
+    };
+    checkMobile(); // Initial check
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Fetch user profile and interests
   useEffect(() => {
@@ -201,83 +212,123 @@ const DashboardPage: React.FC = () => {
         <title>Your Dashboard - Symbi</title>
       </Head>
 
-      {/* Left Sidebar - Simplified */}
-      <div className="w-64 bg-white text-gray-800 flex flex-col shadow-lg">{/* Sidebar container with light background */}
-        {/* Profile Section */}
-        <div className="p-4 border-b border-gray-200 flex items-center">
-          {/* Profile Picture/Initials */}
-          <div className="w-10 h-10 rounded-full bg-purple-200 text-purple-800 flex items-center justify-center text-lg font-semibold mr-3">
-            {userProfile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
-          </div>
-          {/* User Name */}
-          <span className="text-lg font-semibold text-gray-900">{userProfile?.displayName || user.email}</span>
-        </div>
-
-        {/* Simplified Menu Options */}
-        <nav className="flex flex-col p-4 space-y-2">
-           <Link href="/onboarding-again" legacyBehavior><a className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700"><span className="mr-3">📄</span>Edit Profile</a></Link>{/* Edit Profile Link */}
-           {/* Log Out Button styled as a link */}
-           <button
-             className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700 w-full text-left"
-             onClick={async () => {
-               await logOut();
-               router.push('/login');
-             }}
-           >
-             <span className="mr-3">🚪</span>Log Out
-           </button>{/* Log Out Button */}
-        </nav>
-
-        {/* Chats Section (Inbox) */}
-        <div className="flex-grow overflow-y-auto p-4 border-t border-gray-200">{/* Container for scrollable chats */}
-          {/* <h3 className="text-lg font-semibold text-gray-900 mb-3">Chats</h3> */}{/* Chats Title */}
-          <Inbox />{/* Integrated Inbox component */}
-        </div>
-      </div>
-
-      {/* Main Content Area - Discover Feed */}
-      <div className="flex-1 p-10">{/* Main content area with padding */}
-
-        <div className="w-full max-w-4xl mx-auto">{/* Container to center content */}
-
-          {/* Discover Feed Header */}
-          <div className="mb-8 text-center">{/* Centered text */}
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover other people&apos;s skills</h1>
-            <p className="text-lg text-gray-600">See what your classmates know—and what they&apos;re excited to learn.</p>
-          </div>
-
-          {/* "What is a Symbi Match?" Section */}
-          <div className="bg-purple-100 border border-purple-300 rounded-lg p-4 mb-8 shadow-sm text-center">{/* Styled banner/box with centered text */}
-            <h2 className="text-lg font-semibold text-purple-800 mb-2">What&apos;s a Symbi Match?</h2>{/* Title */}
-            <p className="text-purple-700 leading-relaxed mb-3">⭐ Symbi Matches are mutual learning connections. You and another student both have something to learn—and something to teach.</p>{/* Body */}
-            <div className="bg-purple-200 rounded-md p-3 text-purple-900 text-sm">{/* Example box */}
-              <p><span className="font-semibold">John knows:</span> AI art<br/><span className="font-semibold">Wants to learn:</span> Photography</p>
-              <p className="mt-2"><span className="font-semibold">Maya knows:</span> Photography<br/><span className="font-semibold">Wants to learn:</span> AI art</p>
-              <p className="mt-2 font-semibold">⭐ That&apos;s a Symbi Match.</p>
+      {isMobile ? (
+        // Mobile View: Inbox, Controls, and Symbi Match Explanation
+        <div className="w-full p-4 flex flex-col">
+          {/* Profile Section (Minimal for Mobile) */}
+          <div className="p-4 border-b border-gray-200 flex items-center mb-4">
+            <div className="w-10 h-10 rounded-full bg-purple-200 text-purple-800 flex items-center justify-center text-lg font-semibold mr-3">
+              {userProfile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
             </div>
-             {/* Optional: Add a "View all Symbi Matches" button here if needed */}
+            <span className="text-lg font-semibold text-gray-900">{userProfile?.displayName || user.email}</span>
           </div>
 
-          {/* Discover Skill Tiles Container */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">{/* Grid for 2 tiles per row on desktop, 1 on mobile */}
-            {skillsLoading ? (
-              <div className="col-span-full text-center text-gray-600">Loading skills...</div>
-            ) : (
-              displayedSkills.map((skillData) => (
-                <DiscoverTile
-                  key={skillData.skill} // Using skill name as key
-                  skill={skillData.skill}
-                  onAddInterest={addSkillToInterests}
-                  isAdded={userInterests.includes(skillData.skill)} // Pass if the skill is already an interest
-                />
-              ))
-            )}
+          {/* Simplified Menu Options */}
+          <nav className="flex flex-col p-4 space-y-2 mb-4 border-b border-gray-200">
+            <Link href="/onboarding-again" legacyBehavior><a className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700"><span className="mr-3">📄</span>Edit Profile</a></Link>
+            <button
+              className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700 w-full text-left"
+              onClick={async () => {
+                await logOut();
+                router.push('/login');
+              }}
+            >
+              <span className="mr-3">🚪</span>Log Out
+            </button>
+          </nav>
+
+          {/* "What is a Symbi Match?" Section - Brief for Mobile */}
+          <div className="bg-purple-100 border border-purple-300 rounded-lg p-4 mb-6 shadow-sm text-center">
+            <h2 className="text-lg font-semibold text-purple-800 mb-2">What&apos;s a Symbi Match?</h2>
+            <p className="text-purple-700 leading-relaxed text-sm">⭐ Symbi Matches are mutual learning connections. You and another student both have something to learn—and something to teach.</p>
           </div>
 
-          {/* Search Bar Placeholder */}
+          <div className="flex-grow overflow-y-auto">
+            <Inbox />
+          </div>
+        </div>
+      ) : (
+        // Desktop View: Original Two-Column Layout
+        <>
+          {/* Left Sidebar - Simplified */}
+          <div className="w-64 bg-white text-gray-800 flex flex-col shadow-lg">{/* Sidebar container with light background */}
+            {/* Profile Section */}
+            <div className="p-4 border-b border-gray-200 flex items-center">
+              {/* Profile Picture/Initials */}
+              <div className="w-10 h-10 rounded-full bg-purple-200 text-purple-800 flex items-center justify-center text-lg font-semibold mr-3">
+                {userProfile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+              </div>
+              {/* User Name */}
+              <span className="text-lg font-semibold text-gray-900">{userProfile?.displayName || user.email}</span>
+            </div>
 
-        </div>{/* End of centered content container */}
-      </div>{/* End of Main Content Area */}
+            {/* Simplified Menu Options */}
+            <nav className="flex flex-col p-4 space-y-2">
+               <Link href="/onboarding-again" legacyBehavior><a className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700"><span className="mr-3">📄</span>Edit Profile</a></Link>{/* Edit Profile Link */}
+               {/* Log Out Button styled as a link */}
+               <button
+                 className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700 w-full text-left"
+                 onClick={async () => {
+                   await logOut();
+                   router.push('/login');
+                 }}
+               >
+                 <span className="mr-3">🚪</span>Log Out
+               </button>{/* Log Out Button */}
+            </nav>
+
+            {/* Chats Section (Inbox) */}
+            <div className="flex-grow overflow-y-auto p-4 border-t border-gray-200">{/* Container for scrollable chats */}
+              {/* <h3 className="text-lg font-semibold text-gray-900 mb-3">Chats</h3> */}{/* Chats Title */}
+              <Inbox />{/* Integrated Inbox component */}
+            </div>
+          </div>
+
+          {/* Main Content Area - Discover Feed */}
+          <div className="flex-1 p-10">{/* Main content area with padding */}
+
+            <div className="w-full max-w-4xl mx-auto">{/* Container to center content */}
+
+              {/* Discover Feed Header */}
+              <div className="mb-8 text-center">{/* Centered text */}
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover other people&apos;s skills</h1>
+                <p className="text-lg text-gray-600">See what your classmates know—and what they&apos;re excited to learn.</p>
+              </div>
+
+              {/* "What is a Symbi Match?" Section */}
+              <div className="bg-purple-100 border border-purple-300 rounded-lg p-4 mb-8 shadow-sm text-center">{/* Styled banner/box with centered text */}
+                <h2 className="text-lg font-semibold text-purple-800 mb-2">What&apos;s a Symbi Match?</h2>{/* Title */}
+                <p className="text-purple-700 leading-relaxed mb-3">⭐ Symbi Matches are mutual learning connections. You and another student both have something to learn—and something to teach.</p>{/* Body */}
+                <div className="bg-purple-200 rounded-md p-3 text-purple-900 text-sm">{/* Example box */}
+                  <p><span className="font-semibold">John knows:</span> AI art<br/><span className="font-semibold">Wants to learn:</span> Photography</p>
+                  <p className="mt-2"><span className="font-semibold">Maya knows:</span> Photography<br/><span className="font-semibold">Wants to learn:</span> AI art</p>
+                  <p className="mt-2 font-semibold">⭐ That&apos;s a Symbi Match.</p>
+                </div>
+                 {/* Optional: Add a "View all Symbi Matches" button here if needed */}
+              </div>
+
+              {/* Discover Skill Tiles Container */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">{/* Grid for 2 tiles per row on desktop, 1 on mobile */}
+                {skillsLoading ? (
+                  <div className="col-span-full text-center text-gray-600">Loading skills...</div>
+                ) : (
+                  displayedSkills.map((skillData) => (
+                    <DiscoverTile
+                      key={skillData.skill} // Using skill name as key
+                      skill={skillData.skill}
+                      onAddInterest={addSkillToInterests}
+                      isAdded={userInterests.includes(skillData.skill)} // Pass if the skill is already an interest
+                    />
+                  ))
+                )}
+              </div>
+
+              {/* Search Bar Placeholder */}
+
+            </div>{/* End of centered content container */}
+          </div>{/* End of Main Content Area */}
+        </>
+      )}
     </div> // End of Main container for 2-column layout
   );
 };

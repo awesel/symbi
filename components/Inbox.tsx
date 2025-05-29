@@ -247,44 +247,57 @@ const Inbox: React.FC = () => {
     <div className="inbox-container">
       {/* Combined Chat List */}
       {allChats.length > 0 && <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">Chats</h3>}{/* Chats Title - Conditionally rendered and centered */}
-      <ul className="space-y-3 px-4 pt-4">{/* Use the existing chat-list styling */}
-        {allChats.map((chat) => (
-          <li
-            key={chat.id}
-            className={
-              `flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-purple-100 dark:hover:bg-purple-400 transition border-2 border-purple-800 ` +
-              (chat.lastTimestamp === null || (chat.lastSenderId !== user?.uid && chat.lastTimestamp !== null) ? 'awaiting-response-indicator' : '')
-            }
-          >
-            <Link href={`/chat/${chat.id}`} legacyBehavior>
-              <a style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }} className="text-purple-800 dark:text-purple-400">
-                {/* Avatar or Initials */}
-                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-semibold overflow-hidden">
-                  {chat.otherUserPhotoURL ? (
-                    <Image
-                      src={chat.otherUserPhotoURL}
-                      alt={chat.otherUserName || 'User avatar'}
-                      width={40}
-                      height={40}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <span>{chat.otherUserName?.charAt(0).toUpperCase() || '?'}</span>
-                  )}
-                </div>
-                <div className="flex flex-col text-sm flex-grow">
-                  <span className="font-medium">
-                    {formatName(chat.otherUserName || 'Unknown User')}
-                    {chat.matchStatus === 'symbi' && <span style={{ marginLeft: '8px' }}>⭐</span>}
-                  </span>
-                  <span className="italic">
-                    {/* !chat.lastMessage && <i>No messages yet</i> */}
-                  </span>
-                </div>
-              </a>
-            </Link>
-          </li>
-        ))}
+      <ul className="space-y-3 px-4 pt-4"> {/* Use the existing chat-list styling */}
+        {allChats.map((chat) => {
+          const isLastMessageNotByUser = chat.lastSenderId && chat.lastSenderId !== user?.uid;
+          const chatLink = chat.matchStatus === 'symbi' ? `/symbi-chat/${chat.id}` : `/chat/${chat.id}`;
+          const displayName = chat.otherUserName ? formatName(chat.otherUserName) : 'Chat';
+          
+          return (
+            <li key={chat.id} className="bg-white shadow overflow-hidden rounded-md">
+              <Link href={chatLink} legacyBehavior>
+                <a className="block hover:bg-gray-50">
+                  <div className="flex items-center px-4 py-4 sm:px-6">
+                    <div className="flex-shrink-0">
+                      {chat.otherUserPhotoURL ? (
+                        <Image
+                          src={chat.otherUserPhotoURL}
+                          alt={`${displayName}'s profile`}
+                          width={40} // Adjust size as needed
+                          height={40} // Adjust size as needed
+                          className="rounded-full"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                          <span className="text-sm font-medium text-gray-600">{displayName.substring(0, 1)}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between ml-4">
+                      <div>
+                        <div className="text-sm font-medium text-indigo-600 truncate">
+                          {displayName}
+                          {isLastMessageNotByUser && (
+                            <span className="ml-2 inline-block h-2 w-2 rounded-full bg-red-500"></span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500 truncate">
+                          {chat.lastMessage || 'No messages yet'}
+                        </p>
+                      </div>
+                      <div className="ml-5 flex-shrink-0">
+                        {/* Chevron or other indicator */}
+                        <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
       <style>{`
         .inbox-container {
