@@ -98,7 +98,7 @@ const LoginPage: React.FC = () => {
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>Add Your Interests 🎯</h2>
               <p className={styles.sectionContent}>
-                Choose what you're curious to explore and share what you're expertise.
+                Choose what you are curious to explore and share what you have expertise in.
               </p>
             </div>
             

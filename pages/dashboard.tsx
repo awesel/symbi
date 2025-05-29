@@ -15,22 +15,17 @@ interface SkillData {
   context?: string; // Make context optional if it's not always present or used
 }
 
+interface SkillItem {
+  name: string;
+  type: 'know' | 'learn';
+}
+
 const DashboardPage: React.FC = () => {
   const { user, userProfile, loading, logOut } = useAuth();
   const router = useRouter();
   const [displayedSkills, setDisplayedSkills] = useState<SkillData[]>([]);
   const [skillsLoading, setSkillsLoading] = useState(true);
   const [userInterests, setUserInterests] = useState<string[]>([]); // State to hold current user's interests
-
-  // Fallback skills if not enough real data
-  const FALLBACK_SKILLS: SkillData[] = [
-    { skill: 'Graphic Design' },
-    { skill: 'Creative Writing' },
-    { skill: 'Data Analysis' },
-    { skill: 'Public Speaking' },
-    { skill: 'Web Development' },
-    { skill: 'Digital Marketing' },
-  ];
 
   // Fetch user profile and interests
   useEffect(() => {
@@ -50,6 +45,16 @@ const DashboardPage: React.FC = () => {
 
   // Fetch and filter skills from other users
   useEffect(() => {
+    // Fallback skills if not enough real data
+    const FALLBACK_SKILLS: SkillData[] = [
+      { skill: 'Graphic Design' },
+      { skill: 'Creative Writing' },
+      { skill: 'Data Analysis' },
+      { skill: 'Public Speaking' },
+      { skill: 'Web Development' },
+      { skill: 'Digital Marketing' },
+    ];
+
     const fetchAndSetSkills = async () => {
       // Only proceed if user and userProfile are loaded and userInterests state is initialized (not undefined)
       if (!user || !userProfile || userInterests === undefined) {
@@ -72,7 +77,7 @@ const DashboardPage: React.FC = () => {
           // Assuming skills are stored in a 'skills' field as an array of objects like { name: string, type: 'know' | 'learn' }
           // Filter for skills they 'know'
           if (userData.skills && Array.isArray(userData.skills)) {
-            userData.skills.forEach((skillItem: any) => {
+            userData.skills.forEach((skillItem: SkillItem) => {
               if (skillItem.name && skillItem.type === 'know') { // Assuming 'type' indicates if they 'know' or 'want to learn'
                 allOtherUserSkills.push({
                   skill: skillItem.name,
@@ -237,18 +242,18 @@ const DashboardPage: React.FC = () => {
 
           {/* Discover Feed Header */}
           <div className="mb-8 text-center">{/* Centered text */}
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover other people's skills</h1>
-            <p className="text-lg text-gray-600">See what your classmates know—and what they're excited to learn.</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover other people&apos;s skills</h1>
+            <p className="text-lg text-gray-600">See what your classmates know—and what they&apos;re excited to learn.</p>
           </div>
 
           {/* "What is a Symbi Match?" Section */}
           <div className="bg-purple-100 border border-purple-300 rounded-lg p-4 mb-8 shadow-sm text-center">{/* Styled banner/box with centered text */}
-            <h2 className="text-lg font-semibold text-purple-800 mb-2">What's a Symbi Match?</h2>{/* Title */}
+            <h2 className="text-lg font-semibold text-purple-800 mb-2">What&apos;s a Symbi Match?</h2>{/* Title */}
             <p className="text-purple-700 leading-relaxed mb-3">⭐ Symbi Matches are mutual learning connections. You and another student both have something to learn—and something to teach.</p>{/* Body */}
             <div className="bg-purple-200 rounded-md p-3 text-purple-900 text-sm">{/* Example box */}
               <p><span className="font-semibold">John knows:</span> AI art<br/><span className="font-semibold">Wants to learn:</span> Photography</p>
               <p className="mt-2"><span className="font-semibold">Maya knows:</span> Photography<br/><span className="font-semibold">Wants to learn:</span> AI art</p>
-              <p className="mt-2 font-semibold">⭐ That's a Symbi Match.</p>
+              <p className="mt-2 font-semibold">⭐ That&apos;s a Symbi Match.</p>
             </div>
              {/* Optional: Add a "View all Symbi Matches" button here if needed */}
           </div>

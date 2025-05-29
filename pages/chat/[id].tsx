@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import ChatRoom from '../../app/components/ChatRoom';
 import { useAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
@@ -16,22 +16,22 @@ const ChatPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user, error, authReady } = useAuth();
-  const [isSymbiMatch, setIsSymbiMatch] = useState(false);
+  // const [isSymbiMatch, setIsSymbiMatch] = useState(false);
 
   useEffect(() => {
     const fetchMatchStatus = async () => {
       if (!id || !user) return;
 
       try {
-        const matchesRef = collection(db, 'matches');
-        const qUserA = query(
-          matchesRef,
-          where('chatId', '==', id),
-          where('status', '==', 'symbi')
-        );
-        const matchSnapshot = await getDocs(qUserA);
-        
-        setIsSymbiMatch(!matchSnapshot.empty);
+        if (user && typeof id === 'string') {
+          // Check if a match document exists with userA = currentUser and userB = chatPartnerId
+          const qUserA = query(collection(db, 'matches'), where('userA', '==', user.uid), where('userB', '==', id));
+          // const matchSnapshot = await getDocs(qUserA);
+          await getDocs(qUserA);
+
+          // Similarly, check if a match document exists with userA = chatPartnerId and userB = currentUser
+          // const isSymbiMatch = router.pathname.startsWith('/symbi');
+        }
       } catch (err) {
         console.error('Error fetching match status:', err);
       }

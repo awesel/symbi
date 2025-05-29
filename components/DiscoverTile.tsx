@@ -2,13 +2,15 @@ import React from 'react';
 
 interface DiscoverTileProps {
   skill: string;
-  context?: string;
-  onAddInterest: (skillToAdd: string) => Promise<void>;
+  // context?: string; // Context can be optional or removed if not used
+  onAddInterest: (skill: string) => void;
   isAdded: boolean;
   // Add prop for gradient color or style if needed
 }
 
-const DiscoverTile: React.FC<DiscoverTileProps> = ({ skill, context, onAddInterest, isAdded }) => {
+const DiscoverTile: React.FC<DiscoverTileProps> = ({ skill, /*context,*/ onAddInterest, isAdded }) => {
+  // const [showTooltip, setShowTooltip] = useState(false);
+
   // Function to remove leading emojis and whitespace
   const cleanSkillTitle = (title: string): string => {
     // Regex to match leading emojis and whitespace
