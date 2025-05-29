@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, Timestamp, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { useRouter } from 'next/router';
 
 export interface UserProfile {
   uid: string;
@@ -22,6 +23,7 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authReady, setAuthReady] = useState(false);
+  const router = useRouter();
 
   const errorRef = useRef(error);
   useEffect(() => {
@@ -35,6 +37,10 @@ export function useAuth() {
     return onSnapshot(userDocRef, (docSnap) => {
       if (docSnap.exists()) {
         setUserProfile(docSnap.data() as UserProfile);
+      } else {
+        // Handle case where user exists in auth but not in Firestore
+        setUserProfile(null); 
+        // setError("User profile data not found."); // Optionally set an error
       }
     });
   };
@@ -42,7 +48,7 @@ export function useAuth() {
   useEffect(() => {
     let unsubscribeProfile: (() => void) | undefined;
 
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
       setUser(currentUser);
       if (currentUser) {
@@ -53,8 +59,7 @@ export function useAuth() {
             // signInPromiseRef should have already set an error if one occurred
           }
         }
-
-        // Set up real-time listener for profile updates
+        if (unsubscribeProfile) unsubscribeProfile(); // Unsubscribe from previous profile listener
         unsubscribeProfile = await updateUserProfile(currentUser.uid);
       } else {
         setUserProfile(null);
@@ -63,22 +68,42 @@ export function useAuth() {
         }
       }
       setLoading(false);
-      setAuthReady(true);
+      setAuthReady(true); 
     });
 
-    // Cleanup function
     return () => {
-      unsubscribe();
+      unsubscribeAuth();
       if (unsubscribeProfile) {
         unsubscribeProfile();
       }
     };
-  }, []);
+  }, []); // Removed userProfile from dependencies
+
+  // Handles redirection logic based on auth state and user profile
+  useEffect(() => {
+    if (!loading && authReady) {
+      if (user && userProfile) {
+        if (!userProfile.onboardingCompleted) {
+          if (router.pathname !== '/onboarding') {
+            router.push('/onboarding');
+          }
+        } else if (router.pathname === '/onboarding' || router.pathname === '/signin') {
+          // If onboarding is completed and user is on onboarding or signin page, redirect to home
+          router.push('/');
+        }
+      } else if (!user && router.pathname.startsWith('/app')) { // Or any protected route prefix
+        // If no user and trying to access a protected route, redirect to sign-in
+        router.push('/signin');
+      }
+    }
+  }, [user, userProfile, loading, authReady, router]);
+
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ hd: 'stanford.edu' });
     setError(null);
+    // setLoading(true); // Potentially set loading true at the start of sign-in attempt
 
     const signInProcess = async () => {
       try {
@@ -88,9 +113,9 @@ export function useAuth() {
           const userDocRef = doc(db, 'users', result.user.uid);
           const userDocSnap = await getDoc(userDocRef);
 
-          let currentProfile: UserProfile;
+          let currentProfileData: UserProfile;
           if (!userDocSnap.exists()) {
-            const newUserProfileData: UserProfile = {
+            currentProfileData = {
               uid: result.user.uid,
               email: result.user.email,
               displayName: result.user.displayName,
@@ -99,18 +124,18 @@ export function useAuth() {
               createdAt: serverTimestamp() as Timestamp,
               lastLoginAt: serverTimestamp() as Timestamp,
             };
-            await setDoc(userDocRef, newUserProfileData);
-            currentProfile = newUserProfileData;
+            await setDoc(userDocRef, currentProfileData);
           } else {
             await setDoc(userDocRef, { lastLoginAt: serverTimestamp() }, { merge: true });
-            currentProfile = { ...userDocSnap.data(), lastLoginAt: serverTimestamp() } as UserProfile;
+            currentProfileData = { ...userDocSnap.data(), lastLoginAt: serverTimestamp() } as UserProfile;
           }
-          setUserProfile(currentProfile);
+          // setUserProfile(currentProfileData); // This will be handled by onSnapshot
           setError(null);
+          // Redirection will be handled by the useEffect watching userProfile
         } else {
-          await signOut(auth);
+          await signOut(auth); // Sign out the user if not @stanford.edu
           setError('Please sign in with your @stanford.edu email address.');
-          setUserProfile(null);
+          // setUserProfile(null); // This will be handled by onAuthStateChanged
         }
       } catch (err: unknown) {
         console.error("Authentication error in signInProcess:", err);
@@ -123,7 +148,7 @@ export function useAuth() {
         if (typeof err === 'object' && err !== null && 'code' in err) {
           const errorCode = (err as { code: string }).code;
           if (errorCode === 'auth/popup-closed-by-user' || errorCode === 'auth/cancelled-popup-request') {
-            errorMessage = '';
+            errorMessage = ''; // No error message for user-cancelled popups
           } else if (errorCode === 'auth/account-exists-with-different-credential') {
             errorMessage = 'An account already exists with the same email address but different sign-in credentials. Try signing in using a provider associated with this email address.';
           } else if (errorCode === 'auth/hd-not-allowed') {
@@ -134,9 +159,12 @@ export function useAuth() {
         if (errorMessage) {
             setError(errorMessage);
         } else {
-            setError(null);
+            // Ensure error is cleared if no specific message is set (e.g. popup closed)
+            setError(null); 
         }
-        setUserProfile(null);
+        // setUserProfile(null); // This will be handled by onAuthStateChanged
+      } finally {
+        // setLoading(false); // Set loading to false once process is complete or fails
       }
     };
 
@@ -146,7 +174,7 @@ export function useAuth() {
       await signInPromiseRef.current;
     } catch (e) {
       console.warn("Error awaiting signInPromiseRef.current:", e);
-      if (errorRef.current === null) {
+      if (errorRef.current === null && !(e instanceof Error && e.message === '')) { // Avoid overwriting specific errors
           setError('An unexpected issue occurred during sign-in preparation.');
       }
     } finally {
@@ -157,8 +185,9 @@ export function useAuth() {
   const logOut = async () => {
     try {
       await signOut(auth);
-      // Redirect to homepage after successful sign out
-      window.location.href = '/';
+      // setUser(null); // Handled by onAuthStateChanged
+      // setUserProfile(null); // Handled by onAuthStateChanged
+      // router.push('/'); // Redirection can be handled by the useEffect or explicitly here if needed
     } catch (err: unknown) {
       console.error("Sign out error:", err);
       if (err instanceof Error) {
