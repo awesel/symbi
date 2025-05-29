@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { collection, query, where, getDocs, doc, getDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, Timestamp, orderBy, limit } from 'firebase/firestore';
 import { db } from '../lib/firebase'; // Assuming you have this path
 import { useAuth } from '../lib/useAuth'; // Assuming you have this path
 import Image from 'next/image'; // Import Image
@@ -20,7 +20,8 @@ interface Chat {
   users: string[];
   lastMessage: string | null;
   lastTimestamp: Timestamp | null;
-  lastSenderId?: string;
+  lastSenderId?: string; // This might be stale or missing
+  actualLastSenderId?: string; // To be populated from the messages subcollection
   otherUserName?: string;
   otherUserPhotoURL?: string;
   matchStatus?: string;
@@ -110,7 +111,7 @@ const Inbox: React.FC = () => {
                 id: chatDocSnap.id, 
                 ...chatDocSnap.data(),
                 matchStatus: match.status,
-                lastSenderId: chatDocSnap.data()?.lastSenderId
+                // lastSenderId: chatDocSnap.data()?.lastSenderId // We will fetch this fresh
               } as Partial<Chat>;
               const otherUserId = match.userA === user.uid ? match.userB : match.userA;
 
@@ -127,6 +128,24 @@ const Inbox: React.FC = () => {
               } else {
                 chatData.otherUserName = 'N/A';
               }
+
+              // Fetch the last message from the subcollection to get the actual lastSenderId
+              const messagesRef = collection(db, 'chats', match.chatId, 'messages');
+              const lastMessageQuery = query(messagesRef, orderBy('timestamp', 'desc'), limit(1));
+              const lastMessageSnapshot = await getDocs(lastMessageQuery);
+
+              if (!lastMessageSnapshot.empty) {
+                const lastMessageData = lastMessageSnapshot.docs[0].data();
+                chatData.actualLastSenderId = lastMessageData.sender;
+                // Optionally, update lastMessage and lastTimestamp from this actual last message if needed
+                // chatData.lastMessage = lastMessageData.text;
+                // chatData.lastTimestamp = lastMessageData.timestamp;
+              } else {
+                // No messages in the chat, so no last sender.
+                // Or handle as per your app's logic if chat.lastMessage/lastTimestamp from parent doc is preferred here.
+                chatData.actualLastSenderId = undefined; 
+              }
+
               return chatData as Chat;
             }
             return null; // Chat doc doesn't exist
@@ -249,7 +268,9 @@ const Inbox: React.FC = () => {
       {allChats.length > 0 && <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">Chats</h3>}{/* Chats Title - Conditionally rendered and centered */}
       <ul className="space-y-3 px-4 pt-4"> {/* Use the existing chat-list styling */}
         {allChats.map((chat) => {
-          const isLastMessageNotByUser = chat.lastSenderId && chat.lastSenderId !== user?.uid;
+          // Use actualLastSenderId if available, otherwise fallback to the potentially stale one (or handle as needed)
+          const lastSenderToCompare = chat.actualLastSenderId !== undefined ? chat.actualLastSenderId : chat.lastSenderId;
+          const isLastMessageNotByUser = lastSenderToCompare && lastSenderToCompare !== user?.uid;
           const chatLink = chat.matchStatus === 'symbi' ? `/symbi-chat/${chat.id}` : `/chat/${chat.id}`;
           const displayName = chat.otherUserName ? formatName(chat.otherUserName) : 'Chat';
           
@@ -276,6 +297,7 @@ const Inbox: React.FC = () => {
                     <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between ml-4">
                       <div>
                         <div className="text-sm font-medium text-indigo-600 truncate">
+                          {chat.matchStatus === 'symbi' && '⭐ '}
                           {displayName}
                           {isLastMessageNotByUser && (
                             <span className="ml-2 inline-block h-2 w-2 rounded-full bg-red-500"></span>
