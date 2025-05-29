@@ -20,6 +20,7 @@ interface Chat {
   users: string[];
   lastMessage: string | null;
   lastTimestamp: Timestamp | null;
+  lastSenderId?: string;
   otherUserName?: string;
   otherUserPhotoURL?: string;
   matchStatus?: string;
@@ -108,7 +109,8 @@ const Inbox: React.FC = () => {
               const chatData = { 
                 id: chatDocSnap.id, 
                 ...chatDocSnap.data(),
-                matchStatus: match.status
+                matchStatus: match.status,
+                lastSenderId: chatDocSnap.data()?.lastSenderId
               } as Partial<Chat>;
               const otherUserId = match.userA === user.uid ? match.userB : match.userA;
 
@@ -139,26 +141,23 @@ const Inbox: React.FC = () => {
 
         // Sort chats: no messages first, then by lastTimestamp
         resolvedChatsData.sort((a, b) => {
-          const aHasNoTimestamp = !a.lastTimestamp;
-          const bHasNoTimestamp = !b.lastTimestamp;
+          const isAwaitingResponseA = a.lastSenderId === user.uid && a.lastTimestamp !== null;
+          const isAwaitingResponseB = b.lastSenderId === user.uid && b.lastTimestamp !== null;
 
-          if (aHasNoTimestamp && !bHasNoTimestamp) {
-            return -1; // a (no timestamp/message) comes before b (has timestamp/message)
-          }
-          if (!aHasNoTimestamp && bHasNoTimestamp) {
-            return 1;  // b (no timestamp/message) comes before a (has timestamp/message)
-          }
+          const aHasNoMessages = !a.lastTimestamp;
+          const bHasNoMessages = !b.lastTimestamp;
 
-          // If both are in the same category (both have no timestamp OR both have a timestamp)
-          if (aHasNoTimestamp && bHasNoTimestamp) {
-            // Both have no timestamp/message, their relative order doesn't matter for this sorting pass
-            return 0;
-          }
+          // Prioritize chats where current user sent the last message and is awaiting response
+          if (isAwaitingResponseA && !isAwaitingResponseB) return -1;
+          if (!isAwaitingResponseA && isAwaitingResponseB) return 1;
 
-          // Both have timestamps (implies a.lastTimestamp and b.lastTimestamp are valid)
-          // This case is when !aHasNoTimestamp && !bHasNoTimestamp
+          // Then prioritize chats with no messages
+          if (aHasNoMessages && !bHasNoMessages) return -1;
+          if (!aHasNoMessages && bHasNoMessages) return 1;
+
+          // For all other cases (both awaiting response, both no messages, or neither), sort by last timestamp
           if (a.lastTimestamp && b.lastTimestamp) {
-            return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
+            return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis(); // Most recent first
           }
 
           // Fallback, though ideally not reached if data is consistent
@@ -219,123 +218,88 @@ const Inbox: React.FC = () => {
     );
   }
 
-  const renderChatList = (chatList: Chat[], sectionTitle: string) => {
-    if (chatList.length === 0) return null;
-    
-    return (
-      <div className="chat-section">
-        <h3 className="section-title">{sectionTitle}</h3>
-        <ul className="chat-list">
-          {chatList.map((chat) => (
-            <li key={chat.id} className="chat-preview-card">
-              <Link href={`/chat/${chat.id}`} legacyBehavior>
-                <a style={{ textDecoration: 'none', color: 'inherit' }}>
-                  <div className="chat-info">
-                    <Image 
-                      src={chat.otherUserPhotoURL || 'https://via.placeholder.com/50'} 
-                      alt={chat.otherUserName || 'User avatar'} 
-                      className="avatar" 
-                      width={50} height={50}
-                      style={{ borderRadius: '50%', marginRight: '15px'}}
-                    />
-                    <div>
-                      <h3>
-                        {formatName(chat.otherUserName || 'Unknown User')}
-                        {chat.matchStatus === 'symbi' && <span style={{ marginLeft: '8px', color: 'gold' }}>⭐</span>}
-                      </h3>
-                      <p className="last-message">
-                        {chat.lastMessage ? 
-                          (chat.lastMessage.length > 30 ? chat.lastMessage.substring(0, 27) + '...' : chat.lastMessage) 
-                          : <i>No messages yet</i>}
-                      </p>
-                    </div>
-                  </div>
-                  {chat.lastTimestamp && (
-                    <span className="timestamp">
-                      {new Date(chat.lastTimestamp?.toDate()).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
-                    </span>
-                  )}
-                </a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
+  // Combine and sort chats before rendering
+  const allChats = [...chats.symbi, ...chats.accepted].sort((a, b) => {
+    const isAwaitingResponseA = a.lastSenderId === user.uid && a.lastTimestamp !== null;
+    const isAwaitingResponseB = b.lastSenderId === user.uid && b.lastTimestamp !== null;
+
+    const aHasNoMessages = !a.lastTimestamp;
+    const bHasNoMessages = !b.lastTimestamp;
+
+    // Prioritize chats where current user sent the last message and is awaiting response
+    if (isAwaitingResponseA && !isAwaitingResponseB) return -1;
+    if (!isAwaitingResponseA && isAwaitingResponseB) return 1;
+
+    // Then prioritize chats with no messages
+    if (aHasNoMessages && !bHasNoMessages) return -1;
+    if (!aHasNoMessages && bHasNoMessages) return 1;
+
+    // For all other cases (both awaiting response, both no messages, or neither), sort by last timestamp
+    if (a.lastTimestamp && b.lastTimestamp) {
+      return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis(); // Most recent first
+    }
+
+    // Fallback, though ideally not reached if data is consistent
+    return 0;
+  });
 
   return (
     <div className="inbox-container">
-      <h2>Inbox</h2>
-      {renderChatList(chats.symbi, "Symbi Matches")}
-      {renderChatList(chats.accepted, "Other Matches")}
+      {/* Combined Chat List */}
+      {allChats.length > 0 && <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">Chats</h3>}{/* Chats Title - Conditionally rendered and centered */}
+      <ul className="space-y-3 px-4 pt-4">{/* Use the existing chat-list styling */}
+        {allChats.map((chat) => (
+          <li
+            key={chat.id}
+            className={
+              `flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm hover:bg-purple-100 dark:hover:bg-purple-400 transition border-2 border-purple-800 ` +
+              (chat.lastTimestamp === null || (chat.lastSenderId !== user?.uid && chat.lastTimestamp !== null) ? 'awaiting-response-indicator' : '')
+            }
+          >
+            <Link href={`/chat/${chat.id}`} legacyBehavior>
+              <a style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }} className="text-purple-800 dark:text-purple-400">
+                {/* Avatar or Initials */}
+                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-white text-lg font-semibold overflow-hidden">
+                  {chat.otherUserPhotoURL ? (
+                    <Image
+                      src={chat.otherUserPhotoURL}
+                      alt={chat.otherUserName || 'User avatar'}
+                      width={40}
+                      height={40}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <span>{chat.otherUserName?.charAt(0).toUpperCase() || '?'}</span>
+                  )}
+                </div>
+                <div className="flex flex-col text-sm flex-grow">
+                  <span className="font-medium">
+                    {formatName(chat.otherUserName || 'Unknown User')}
+                    {chat.matchStatus === 'symbi' && <span style={{ marginLeft: '8px' }}>⭐</span>}
+                  </span>
+                  <span className="italic">
+                    {/* !chat.lastMessage && <i>No messages yet</i> */}
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </li>
+        ))}
+      </ul>
       <style>{`
         .inbox-container {
-          max-width: 600px;
-          margin: -10px auto 20px;
-          padding: 20px;
+          max-width: none; /* Remove max-width */
+          margin: 0; /* Remove margin */
+          padding: 0; /* Remove padding */
           font-family: Arial, sans-serif;
-        }
-        .inbox-container h2 {
-          font-size: 2em;
-          font-weight: bold;
-          margin-bottom: 25px;
-        }
-        .chat-section {
-          margin-bottom: 30px;
-        }
-        .section-title {
-          font-size: 1em;
-          color: #666;
-          margin-bottom: 15px;
-          padding-bottom: 8px;
-          border-bottom: 2px solid #eee;
         }
         .chat-list {
           list-style: none;
-          padding: 0;
+          padding: 0; /* Ensure padding is 0 as we added padding to the ul */
         }
-        .chat-preview-card {
-          border: 1px solid #eee;
-          border-radius: 8px;
-          margin-bottom: 10px;
-          transition: background-color 0.2s ease-in-out;
-        }
-        .chat-preview-card:hover {
-          background-color: #f9f9f9;
-        }
-        .chat-preview-card a {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 15px;
-          text-decoration: none;
-          color: inherit;
-        }
-        .chat-info {
-          display: flex;
-          align-items: center;
-        }
-        .chat-info h3 {
-          margin: 0 0 5px 0;
-          font-size: 1.1em;
-        }
-        .last-message {
-          margin: 0;
-          font-size: 0.9em;
-          color: #555;
-        }
-        .timestamp {
-          font-size: 0.8em;
-          color: #777;
-          white-space: nowrap;
-        }
-        .avatar {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          margin-right: 15px;
-          object-fit: cover;
+        .chat-list .awaiting-response-indicator {
+          border: 2px solid #39ff14; /* Neon green border */
+          background-color: rgba(57, 255, 20, 0.2); /* Semi-transparent neon green highlight (rgba of #39ff14 with 0.2 opacity) */
         }
       `}</style>
     </div>

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import SymbiMatchBanner from '../../app/components/SymbiMatchBanner';
 
 // Consistent styling for messages
 const MESSAGE_CONTAINER_CLASSES = "flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4";
@@ -74,8 +73,7 @@ const ChatPage = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 py-6">
-      {isSymbiMatch && <SymbiMatchBanner variant="chat" />}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-900 to-blue-900 py-6">
       <ChatRoom chatId={id} />
     </div>
   );

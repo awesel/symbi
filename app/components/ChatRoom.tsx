@@ -257,43 +257,52 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
 
   /* ──────────────── render ──────────────── */
   return (
-    <div className="flex flex-col h-[85vh] max-h-[720px] w-full max-w-2xl mx-auto bg-white shadow-xl rounded-lg">
+    <div className="flex flex-col h-screen bg-gray-900 w-full max-w-3xl mx-auto">
       {/* header */}
-      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">{otherName}</h2>
+      <div className="p-4 border-b border-gray-700 flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-gray-100">{otherName}</h2>
         <Link href="/dashboard" legacyBehavior>
-          <a className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
+          <a className="px-4 py-2 bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium">
             Back to Dashboard
           </a>
         </Link>
       </div>
 
       {/* message list */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-2">
+      <div className="flex-1 overflow-y-auto p-6 space-y-2" style={{ scrollbarWidth: 'none' }}>
         {loadingSysMsg && (
-          <div className="my-2 p-3 text-center text-sm text-gray-500">Loading chat information…</div>
+          <div className="my-2 p-3 text-center text-sm text-gray-400">Loading chat information…</div>
         )}
         {!loadingSysMsg && sysMsg && (
-          <div className="my-2 p-3 bg-gray-100 rounded-lg text-center text-sm text-gray-700 shadow whitespace-pre-line">
+          <div className="my-2 p-4 bg-gray-700 rounded-lg text-center text-sm text-gray-300 shadow-md whitespace-pre-line">
             {sysMsg}
           </div>
         )}
 
         {messages.map((m) => {
           const mine = m.sender === user?.uid;
-          const ts = m.timestamp?.toDate ? format(m.timestamp.toDate(), "Pp") : "Sending…";
+          const ts = m.timestamp?.toDate ? format(m.timestamp.toDate(), "HH:mm") : "Sending…";
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"} mb-2`}>
+            <div key={m.id} className={`flex flex-col ${mine ? "items-end" : "items-start"} mb-2`}>
+              {!mine && m.displayName && (
+                <div className="text-xs text-gray-400 mb-1 flex items-center">
+                  <span>{m.displayName}</span>
+                  {ts !== "Sending…" && <span className="ml-2 text-gray-500">{ts}</span>}
+                </div>
+              )}
               <div
-                className={`max-w-[70%] p-3 rounded-lg shadow-md ${
+                className={`max-w-[75%] py-2 px-4 rounded-full shadow ${
                   mine
-                    ? "bg-blue-500 text-white rounded-br-none"
-                    : "bg-gray-200 text-gray-800 rounded-bl-none"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-700 text-gray-200"
                 }`}
               >
-                <p className="text-sm">{m.text}</p>
-                <p className={`text-xs mt-1 ${mine ? "text-blue-200" : "text-gray-500"} text-right`}>{ts}</p>
+                <p className="text-sm leading-relaxed">{m.text}</p>
+                {mine && ts !== "Sending…" && (
+                   <p className="text-xs mt-0.5 text-blue-200 text-right">{ts}</p>
+                )}
               </div>
+              {/* Reactions/options placeholder removed */}
             </div>
           );
         })}
@@ -306,20 +315,20 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
           e.preventDefault();
           sendMessage();
         }}
-        className="p-4 border-t border-gray-200 flex items-center gap-3 bg-gray-50"
+        className="p-3 border border-gray-600 rounded-xl flex items-center gap-2 bg-gray-800 mx-4 mb-4 w-full max-w-xl"
       >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-          placeholder="Type a message…"
-        />
+          className="flex-1 border-none rounded-full px-4 py-3 bg-gray-700 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-0 resize-none overflow-hidden leading-relaxed text-base"
+          placeholder='Example : &quot;Explain quantum computing in simple terms&quot;'>
+        </input>
         <button
           type="submit"
           disabled={!input.trim()}
-          className="px-6 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+          className="bg-green-600 text-white p-3 rounded-lg disabled:opacity-50"
         >
-          Send
+          ➤
         </button>
       </form>
     </div>

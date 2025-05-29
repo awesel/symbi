@@ -171,71 +171,138 @@ const OnboardingChat: React.FC = () => {
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5', fontFamily: 'Arial, sans-serif', padding: 20
+      display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', background: '#202123', fontFamily: 'Arial, sans-serif', padding: 20,
+      color: '#e0e0e0', // Lighter text color for dark background
     }}>
-      <div style={{ width: '100%', maxWidth: 600, background: 'white', border: '1px solid #ddd', borderRadius: 8, padding: 20, boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', flexDirection: 'column', height: 'calc(100vh - 40px)', maxHeight: 700 }}>
-        <h2 style={{ textAlign: 'center', color: '#333', marginBottom: 20 }}>Welcome to Symbi!</h2>
-        <div style={{ flexGrow: 1, overflowY: 'auto', marginBottom: 20, paddingRight: 10, borderBottom: '1px solid #eee' }}>
+      <div style={{
+        width: '100%%',
+        maxWidth: 768, // Increased max width to better match the image
+        background: '#343541', // Darker background for the chat container
+        border: '1px solid #555', // Slightly lighter border
+        borderRadius: 8,
+        padding: 20,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)', // More prominent shadow
+        display: 'flex',
+        flexDirection: 'column',
+        height: 'calc(100vh - 40px)',
+        maxHeight: 800, // Adjusted max height
+        overflow: 'hidden', // Hide scrollbar for main container
+      }}>
+        <div style={{
+          flexGrow: 1,
+          overflowY: 'auto', // Keep scroll for messages
+          marginBottom: 20,
+          paddingRight: 10,
+          paddingLeft: 10, // Add padding for message alignment
+          // Removed borderBottom as it's not in the image
+        }}>
           {messages.map((msg) => (
-            <div key={msg.id} style={{ marginBottom: 12, display: 'flex', justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start' }}>
-              <span style={{ backgroundColor: msg.sender === 'user' ? '#007bff' : '#e9ecef', color: msg.sender === 'user' ? 'white' : '#333', padding: '10px 15px', borderRadius: 18, maxWidth: '75%', lineHeight: '1.4' }}>
+            <div key={msg.id} style={{
+              marginBottom: 15, // Increased space between messages
+              display: 'flex',
+              justifyContent: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+              wordBreak: 'break-word', // Prevent long words from overflowing
+            }}>
+              <span style={{
+                backgroundColor: msg.sender === 'user' ? '#007bff' : '#444654', // Blue for user, darker grey for system
+                color: msg.sender === 'user' ? 'white' : '#e0e0e0', // White text for user, light grey for system
+                padding: '12px 16px', // Adjusted padding
+                borderRadius: 20, // More rounded corners
+                maxWidth: '75%%',
+                lineHeight: '1.5',
+                whiteSpace: 'pre-wrap', // Preserve line breaks in text
+              }}>
                 {msg.text}
               </span>
             </div>
           ))}
+          {/* Add a loading indicator if waiting for response */}
+          {waitingForResponse && (
+             <div style={{ marginBottom: 15, display: 'flex', justifyContent: 'flex-start' }}>
+               <span style={{ backgroundColor: '#444654', color: '#e0e0e0', padding: '12px 16px', borderRadius: 20, maxWidth: '75%%', lineHeight: '1.5', fontStyle: 'italic' }}>
+                 Typing...
+               </span>
+             </div>
+          )}
         </div>
         {error && (
-          <div style={{ color: '#dc3545', marginBottom: 10, textAlign: 'center' }}>
+          <div style={{ color: '#ff6b6b', marginBottom: 10, textAlign: 'center' }}>
             {error}
           </div>
         )}
         {/* Input for each step except availability/completed */}
         {stepIdx < 4 && !waitingForResponse && (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', marginTop: 'auto' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', marginTop: 'auto', alignItems: 'center' }}>
+            {/* Add paperclip icon placeholder */}
+            <div style={{ color: '#888', fontSize: 24, marginRight: 10 }}>📎</div>
             <input
               type="text"
               value={inputValue}
               onChange={handleInputChange}
-              placeholder={SYSTEM_PROMPTS[stepIdx].step === 'interests' ? 'Enter interests (e.g., hiking, coding)' : SYSTEM_PROMPTS[stepIdx].step === 'skillsWanted' ? 'Enter skills you want to learn' : 'Enter hot takes'}
-              style={{ flexGrow: 1, padding: 12, marginRight: 10, borderRadius: 20, border: '1px solid #ccc', fontSize: '1rem' }}
+              placeholder={'Message ChatGPT'} // Updated placeholder text
+              style={{
+                flexGrow: 1,
+                padding: 12,
+                marginRight: 10,
+                borderRadius: 20,
+                border: 'none', // Remove border
+                backgroundColor: '#444654', // Dark background for input
+                color: '#e0e0e0', // Light text color
+                fontSize: '1rem',
+                outline: 'none', // Remove outline on focus
+                paddingLeft: 15, // Add padding to the left
+              }}
               disabled={isSubmitting}
             />
-            <button type="submit" style={{ padding: '12px 20px', borderRadius: 20, border: 'none', backgroundColor: '#007bff', color: 'white', cursor: 'pointer', fontSize: '1rem', transition: 'background-color 0.2s' }} disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Send'}
+            <button type="submit" style={{
+              padding: '12px 15px', // Adjusted padding for icon-like button
+              borderRadius: 20,
+              border: 'none',
+              backgroundColor: '#1e90ff', // Blue send button
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '1rem',
+              transition: 'background-color 0.2s',
+              display: 'flex', // Use flex to center content (if icon added later)
+              alignItems: 'center',
+              justifyContent: 'center',
+            }} disabled={isSubmitting}>
+              {/* Using text for now, could be replaced with an icon */}
+              {isSubmitting ? '...' : '▲'} {/* Use triangle up for send icon look */}
             </button>
           </form>
         )}
         {/* Autosuggestions */}
         {suggestions.length > 0 && (
-          <div style={{ marginTop: 10, border: '1px solid #eee', borderRadius: 8, maxHeight: 150, overflowY: 'auto' }}>
+          <div style={{ marginTop: 10, border: '1px solid #555', borderRadius: 8, maxHeight: 150, overflowY: 'auto', background: '#343541' }}>
             {suggestions.map(s => (
-              <div key={s} onClick={() => addSuggestionToInput(s)} style={{ padding: 10, cursor: 'pointer', borderBottom: '1px solid #f7f7f7' }}>
+              <div key={s} onClick={() => addSuggestionToInput(s)} style={{ padding: 10, cursor: 'pointer', borderBottom: '1px solid #555', color: '#e0e0e0' }}>
                 {s}
               </div>
             ))}
           </div>
         )}
-        {/* Availability grid */}
+        {/* Availability grid (kept for functionality, hidden if not step 4) */}
         {stepIdx === 4 && (
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 20, color: '#e0e0e0' }}>
             <div style={{ marginBottom: 10, fontWeight: 600 }}>Select your availability:</div>
-            <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+            <table style={{ borderCollapse: 'collapse', width: '100%%', color: '#e0e0e0' }}>
               <thead>
                 <tr>
-                  <th></th>
+                  <th style={{ padding: 4, fontWeight: 500 }}></th> {/* Empty header for row titles */}
                   {AVAIL_DAYS.map(day => <th key={day} style={{ padding: 4, fontWeight: 500 }}>{day}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {AVAIL_BLOCKS.map(block => (
                   <tr key={block}>
-                    <td style={{ fontWeight: 500 }}>{block}</td>
+                    <td style={{ fontWeight: 500, padding: '4px 8px' }}>{block}</td> {/* Padding for row titles */}
                     {AVAIL_DAYS.map(day => (
                       <td key={day} style={{ textAlign: 'center', padding: 4 }}>
                         <button
                           type="button"
                           style={{
-                            width: 28, height: 28, borderRadius: 8, border: '1px solid #ccc', background: (availability[day] || []).includes(block) ? '#007bff' : '#fff', color: (availability[day] || []).includes(block) ? 'white' : '#333', cursor: 'pointer', fontWeight: 600
+                            width: 32, height: 32, borderRadius: 8, border: '1px solid #ccc', background: (availability[day] || []).includes(block) ? '#007bff' : '#fff', color: (availability[day] || []).includes(block) ? 'white' : '#333', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem' // Slightly larger buttons
                           }}
                           onClick={() => handleToggleBlock(day, block)}
                         >
@@ -251,6 +318,13 @@ const OnboardingChat: React.FC = () => {
               Save Availability
             </button>
           </div>
+        )}
+
+        {/* Disclaimer Text */}
+        {!waitingForResponse && stepIdx < 5 && ( // Show disclaimer until the final completion message
+           <div style={{ textAlign: 'center', fontSize: '0.8rem', color: '#888', marginTop: 15 }}>
+             ChatGPT can make mistakes. Consider checking important information.
+           </div>
         )}
       </div>
     </div>

@@ -12,15 +12,13 @@ const LoginPage: React.FC = () => {
   // State to manage checklist item checked status
   const [checklistItems, setChecklistItems] = useState([
     { text: '3D printing custom designs', checked: true },
-    { text: 'Freestyle rapping with friends', checked: true },
-    { text: 'Modding mechanical keyboards', checked: true },
-    { text: 'Shooting film photography', checked: true },
-    { text: 'Editing videos for fun', checked: false },
-    { text: 'Learning card tricks', checked: false },
+    { text: 'Freestyle wrapping', checked: true },
+    { text: 'Website design', checked: false },
+    { text: 'Shooting film photography', checked: false },
+    { text: 'F1 driving', checked: false },
+    { text: 'Ocean robotics', checked: false },
+    { text: 'Cooking steaks', checked: false },
   ]);
-
-  // State to manage new checklist item text
-  const [newItemText, setNewItemText] = useState('');
 
   // Function to handle checklist item click
   const handleChecklistItemClick = (index: number) => {
@@ -29,19 +27,6 @@ const LoginPage: React.FC = () => {
         i === index ? { ...item, checked: !item.checked } : item
       )
     );
-  };
-
-  // Function to handle adding a new checklist item
-  const handleAddItem = () => {
-    if (newItemText.trim() !== '') {
-      setChecklistItems(prevItems => [...prevItems, { text: newItemText, checked: false }]);
-      setNewItemText('');
-    }
-  };
-
-  // Function to handle removing a checklist item
-  const handleRemoveItem = (indexToRemove: number) => {
-    setChecklistItems(prevItems => prevItems.filter((_, index) => index !== indexToRemove));
   };
 
   // Redirect logged in and onboarded users to dashboard
@@ -111,9 +96,9 @@ const LoginPage: React.FC = () => {
         <div className={styles.horizontalSectionsContainer}>
           <section className={styles.culturalForesightSection}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Add What Interests You 🎯</h2>
+              <h2 className={styles.sectionTitle}>Add Your Interests 🎯</h2>
               <p className={styles.sectionContent}>
-                Pick a few things you&apos;re passionate about—and a few you&apos;re curious to explore. That&apos;s all we need to get started.
+                Choose what you're curious to explore and share what you're expertise.
               </p>
             </div>
             
@@ -126,35 +111,8 @@ const LoginPage: React.FC = () => {
                      onClick={() => handleChecklistItemClick(index)}
                    >
                      {item.text}
-                     <span
-                       className={styles.removeChecklistItem}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         handleRemoveItem(index);
-                       }}
-                     >
-                       &times;
-                     </span>
                    </div>
                  ))}
-              </div>
-
-              <hr className={styles.checklistSeparator}/>
-
-              <div className={styles.addChecklistItemContainer}>
-                  <input
-                      type="text"
-                      placeholder="Add new interest..."
-                      className={styles.addChecklistItemInput}
-                      value={newItemText}
-                      onChange={(e) => setNewItemText(e.target.value)}
-                      onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                              handleAddItem();
-                          }
-                      }}
-                  />
-                  <button onClick={handleAddItem} className={styles.addChecklistItemButton}>Add</button>
               </div>
             </div>
           </section>
@@ -180,7 +138,7 @@ const LoginPage: React.FC = () => {
           <section className={styles.narrativeSystemsSection}>
             <div className={styles.sectionContentContainer}>
                 <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionTitle}>Start a Conversation 💬</h2>
+                  <h2 className={styles.sectionTitle}>Talk to Peers 💬</h2>
                   <p className={styles.sectionContent}>
                     Emmuage your matches. Everyone&apos;s here to share, ask, and learn.
                   </p>
@@ -200,7 +158,7 @@ const LoginPage: React.FC = () => {
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Meet Up IRL 📍</h2>
                   <p className={styles.sectionContent}>
-                    When your chat wraps up, we&apos;ll suggest a time to meet in person. You&apos;re already nearby.
+                    When your chat wraps up, we&apos;ll suggest a time to meet in person.
                   </p>
                 </div>
                <Image

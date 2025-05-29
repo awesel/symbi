@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #4C0D0D 0%, #8A1A1A 100%);
+  background: linear-gradient(180deg, #FF6B2B 0%, #FF8C42 100%);
   font-family: 'Inter', sans-serif;
   color: #1a202c;
 }
@@ -411,6 +411,11 @@
   .cardGrid,
   .howItWorksList {
     gap: 1rem;
+  }
+
+  .horizontalSectionsContainer {
+    margin-top: 0; /* Remove negative margin on mobile to prevent overlap */
+    padding-top: 1rem; /* Add some padding to the top */
   }
 
   .card,
@@ -951,59 +956,6 @@
     color: white; /* White checkmark */
 }
 
-/* Styles for the remove button (x) */
-.removeChecklistItem {
-    margin-left: auto; /* Push the x to the right */
-    color: #EF4444; /* Red color for the x */
-    font-size: 20px; /* Size of the x */
-    cursor: pointer; /* Indicate clickable */
-    opacity: 0; /* Hide by default */
-    transition: opacity 0.2s ease; /* Smooth fade in/out */
-}
-
-.checklistItem:hover .removeChecklistItem {
-    opacity: 1; /* Show on hover */
-}
-
-/* Styles for the separator line */
-.checklistSeparator {
-  border: none;
-  height: 1px;
-  background-color: #E2E8F0;
-  margin: 20px auto; /* Center the separator and add margin */
-  width: calc(100% - 48px); /* Adjust width to account for padding */
-}
-
-/* Styles for the footer tag */
-.footerTag {
-  font-size: 14px; /* Footer font size */
-  color: #777; /* Footer color */
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Space between icon and text in footer */
-  justify-content: center; /* Center the footer content */
-  margin-top: 16px; /* Space between separator and footer */
-}
-
-/* Styles for the Cultural Foresight image placeholder */
-.culturalForesightImagePlaceholder {
-    /* This is for the first section placeholder, keeping for now but will remove */
-    display: none; /* Hide the placeholder */
-}
-
-/* Narrative Systems Icon Placeholder (removed) */
-/* .narrativeSystemsIconPlaceholder { display: none; } */
-
-.conceptIncubationPhonePlaceholder {
-    width: 100%; /* Placeholder takes full width */
-    height: 200px; /* Adjust height as needed */
-    background-color: #FF6B88; /* Placeholder color */
-    border-radius: 1rem;
-    object-fit: cover;
-    margin-top: 0; /* Remove top margin, handled by gap or container */
-    flex-grow: 1; /* Allow placeholder to grow */
-}
-
 /* Styles for the inner section box for the interactive checklist */
 .innerChecklistSection {
     background-color: #FFFFFF; /* White background for the inner box */
@@ -1017,48 +969,6 @@
     flex-direction: column; /* Arrange content vertically inside */
     gap: 20px; /* Adjust space between checklist, separator, and footer inside the inner box */
     flex-grow: 1; /* Allow inner checklist section to grow and fill space */
-}
-
-/* Styles for the add new checklist item section */
-.addChecklistItemContainer {
-    display: flex; /* Arrange input and button horizontally */
-    gap: 10px; /* Space between input and button */
-    margin-top: 20px; /* Space above the add item section */
-    /* Ensure it takes appropriate width, likely full width of parent */
-    width: 100%;
-}
-
-.addChecklistItemInput {
-    flex-grow: 1; /* Allow input to take up remaining space */
-    padding: 12px; /* Padding inside the input */
-    border: 1px solid #D1D5DA; /* Light grey border */
-    border-radius: 8px; /* Rounded corners */
-    font-size: 16px;
-    color: #1A202C; /* Dark text color */
-    /* Remove default outline/box shadow on focus */
-    outline: none;
-    box-shadow: none;
-}
-
-.addChecklistItemInput::placeholder {
-    color: #909193; /* Placeholder text color */
-}
-
-.addChecklistItemButton {
-    padding: 12px 20px; /* Padding inside the button */
-    background-color: #FF4B2B; /* Change background color to reddish */
-    color: white; /* White text color */
-    border: none;
-    border-radius: 8px; /* Rounded corners */
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    flex-shrink: 0; /* Prevent button from shrinking */
-}
-
-.addChecklistItemButton:hover {
-    background-color: #E53E3E; /* Darker reddish on hover */
 }
 
 /* Styles for the Sign Up section below the form */
