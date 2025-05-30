@@ -156,7 +156,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div style={{ background: 'linear-gradient(180deg, #2D1B69 0%, #4B2A9D 100%)', minHeight: '100vh' }}>{/* Main container with deep purple gradient background */}
+    <div style={{ background: 'linear-gradient(180deg, #2D1B69 0%, #4B2A9D 100%)', minHeight: '100vh' }}>
       <Head>
         <title>Your Dashboard - Symbi</title>
       </Head>
@@ -187,9 +187,30 @@ const DashboardPage: React.FC = () => {
           </nav>
 
           {/* "What is a Symbi Match?" Section - Brief for Mobile */}
-          <div className="bg-purple-100 border border-purple-300 rounded-lg p-4 mb-6 shadow-sm text-center">
-            <h2 className="text-lg font-semibold text-purple-800 mb-2">What&apos;s a Symbi Match?</h2>
-            <p className="text-purple-700 leading-relaxed text-sm">⭐ Symbi Matches are mutual learning connections. You and another student both have something to learn—and something to teach.</p>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.06)',
+            padding: '16px 20px',
+            borderRadius: '12px',
+            fontSize: '14px',
+            lineHeight: '1.4',
+            width: '100%',
+            maxWidth: '850px',
+            margin: '0 auto 24px'
+          }}>
+            <div style={{ color: 'white' }}>
+              <span style={{ fontSize: '18px', marginRight: '8px' }}>✨</span>
+              <strong>What&apos;s a Symbi Match?</strong> A Symbi Match happens when you and another classmate can both teach and learn.<br/><br/>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                <div>
+                  <strong>John</strong>: AI Art <span style={{ fontSize: '16px', marginLeft: '4px' }}>🎨</span> → wants Photography <span style={{ fontSize: '16px', marginLeft: '4px' }}>📸</span>
+                </div>
+                <span style={{ fontSize: '24px', color: '#dcd6f5' }}>↔️</span>
+                <div>
+                  <strong>Maya</strong>: Photography <span style={{ fontSize: '16px', marginLeft: '4px' }}>📸</span> → wants AI Art <span style={{ fontSize: '16px', marginLeft: '4px' }}>🎨</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="flex-grow overflow-y-auto">
@@ -202,13 +223,13 @@ const DashboardPage: React.FC = () => {
           width: '100%',
           maxWidth: '1100px',
           margin: '0 auto',
-          padding: '48px 32px',
+          padding: '32px 24px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '48px'
+          gap: '24px'
         }}>
           {/* Discover Feed Header */}
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
             <h1 style={{ fontSize: '40px', fontWeight: '700', color: 'white', textAlign: 'center', margin: 0 }}>
               Discover other people&apos;s skills
             </h1>
@@ -219,32 +240,35 @@ const DashboardPage: React.FC = () => {
 
           {/* "What is a Symbi Match?" Section */}
           <div style={{
-            background: 'rgba(255, 255, 255, 0.05)',
-            padding: '20px 24px',
-            borderRadius: '16px',
+            background: 'rgba(255, 255, 255, 0.06)',
+            padding: '16px 20px',
+            borderRadius: '12px',
             fontSize: '14px',
             lineHeight: '1.4',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
             width: '100%',
-            maxWidth: '600px',
+            maxWidth: '850px',
             margin: '0 auto'
           }}>
             <div style={{ color: 'white' }}>
               <span style={{ fontSize: '18px', marginRight: '8px' }}>✨</span>
-              <strong>What&apos;s a Symbi Match?</strong><br/>
-              A Symbi Match is when two classmates can both teach and learn from each other.<br/><br/>
+              <strong>What&apos;s a Symbi Match?</strong> A Symbi Match happens when you and another classmate can both teach and learn.<br/><br/>
 
-              Example:<br/>
-              <span style={{ fontSize: '16px', marginRight: '4px' }}>🧠</span> <strong>John</strong>: knows AI Art → wants Photography<br/>
-              <span style={{ fontSize: '16px', marginRight: '4px' }}>📸</span> <strong>Maya</strong>: knows Photography → wants AI Art<br/>
-              <span style={{ fontSize: '16px', marginRight: '4px' }}>🔁</span> That&apos;s a Symbi Match.
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                <div>
+                  <strong>John</strong>: AI Art <span style={{ fontSize: '16px', marginLeft: '4px' }}>🎨</span> → wants Photography <span style={{ fontSize: '16px', marginLeft: '4px' }}>📸</span>
+                </div>
+                <span style={{ fontSize: '24px', color: '#dcd6f5' }}>↔️</span>
+                <div>
+                  <strong>Maya</strong>: Photography <span style={{ fontSize: '16px', marginLeft: '4px' }}>📸</span> → wants AI Art <span style={{ fontSize: '16px', marginLeft: '4px' }}>🎨</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Skills Grid Header */}
           <div style={{ textAlign: 'center' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '600', color: 'white', margin: 0 }}>
-              Learn from other member&apos;s skills
+            <h2 style={{ fontSize: '20px', fontWeight: '600', color: 'white', margin: '0 0 16px 0' }}>
+              Explore What You Can Learn
             </h2>
           </div>
 
@@ -252,8 +276,10 @@ const DashboardPage: React.FC = () => {
           <div style={{ 
             width: '100%',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '20px'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+            gap: '16px',
+            maxWidth: '900px',
+            margin: '0 auto'
           }}>
             {skillsLoading ? (
               <div style={{ 
@@ -286,14 +312,11 @@ const DashboardPage: React.FC = () => {
           </div>
 
           {/* Inbox Component */}
-          {/* The Inbox component now needs to be placed here, inside the main container */}
-          {/* It will inherit the max-width and horizontal padding from this container */}
-          {/* Vertical spacing is handled by the container's gap */} 
-          <Inbox /> 
+          <div style={{ marginTop: '40px' }}>
+            <Inbox />
+          </div>
         </div>
       )}
-      
-      {/* The outer container div is no longer needed for Inbox */} 
     </div>
   );
 };
