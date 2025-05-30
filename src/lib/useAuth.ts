@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp, Timestamp, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, Timestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { useRouter } from 'next/router';
 

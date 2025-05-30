@@ -478,8 +478,6 @@ const Inbox: React.FC = () => {
 
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {filteredChats.map((chat) => {
-          const lastSenderToCompare = chat.actualLastSenderId !== undefined ? chat.actualLastSenderId : chat.lastSenderId;
-          const isLastMessageNotByUser = lastSenderToCompare && lastSenderToCompare !== user?.uid;
           const chatLink = `/chat/${chat.id}`;
           const displayName = chat.otherUserName ? formatName(chat.otherUserName) : 'Chat';
           

@@ -365,7 +365,7 @@ const DashboardPage: React.FC = () => {
                 }!`}
               </h1>
               <p style={{ textAlign: 'center', fontSize: '18px', color: '#dcd6f5', marginTop: '8px' }}>
-                See what your classmates know—and what they're excited to learn.
+                See what your classmates know—and what they&apos;re excited to learn.
               </p>
             </div>
           </div>

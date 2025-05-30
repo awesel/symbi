@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '../contexts/AuthContext';
+import Image from 'next/image';
 
 interface Match {
   id: string;
@@ -15,7 +15,6 @@ interface Match {
 }
 
 const Inbox: React.FC = () => {
-  const { user } = useAuth();
   const [matches, setMatches] = React.useState<Match[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -57,10 +56,12 @@ const Inbox: React.FC = () => {
             className="block p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
           >
             <div className="flex items-center space-x-4">
-              <img
+              <Image
                 src={match.user.photoURL}
                 alt={match.user.displayName}
                 className="w-12 h-12 rounded-full"
+                width={48}
+                height={48}
               />
               <div className="flex-1">
                 <h3 className="text-white font-medium">{match.user.displayName}</h3>

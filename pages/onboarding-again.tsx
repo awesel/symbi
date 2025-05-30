@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent, KeyboardEvent } from 'react';
+import React, { useState, useEffect, KeyboardEvent } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext'; // Assuming this is the correct path for your AuthContext
 import { db } from '../lib/firebase';

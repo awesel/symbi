@@ -16,6 +16,7 @@ import { db } from "../../lib/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { format } from "date-fns";
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 interface MatchData {
   partnerName: string;
@@ -49,7 +50,6 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
   const [messages, setMessages] = useState<({ id: string } & MessageData)[]>([]);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const [otherName, setOtherName] = useState<string>("Chat partner");
   const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [loadingMatch, setLoadingMatch] = useState(true);
 
@@ -77,7 +77,6 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
         const partnerName = userDocSnap.exists() ? userDocSnap.data().displayName || "Your Match" : "Your Match";
         const partnerPhotoURL = userDocSnap.exists() ? userDocSnap.data().photoURL || "" : "";
         
-        setOtherName(partnerName);
         setMatchData({
           partnerName,
           partnerFirstName: match.partnerFirstName || partnerName.split(" ")[0] || "Partner",
@@ -146,7 +145,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
     <div className="flex flex-col h-full bg-gradient-to-b from-gray-900 to-blue-900 min-h-screen">
       <header className="flex items-center justify-between px-6 pt-6 pb-2">
         <div className="flex items-center gap-3">
-          <img src={matchData.partnerPhotoURL} className="w-12 h-12 rounded-full bg-brand-purple object-cover" alt={matchData.partnerName} />
+          <Image src={matchData.partnerPhotoURL} className="w-12 h-12 rounded-full bg-brand-purple object-cover" alt={matchData.partnerName} width={48} height={48} />
           <h2 className="text-xl font-semibold text-white">{matchData.partnerName}</h2>
           <span className="text-2xl ml-2">{emoji}</span>
         </div>
@@ -157,7 +156,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
 
       <div className="w-full flex justify-center mt-2 mb-4">
         <div className="match-card bg-surface-100 rounded-card shadow-card px-8 py-6 max-w-xl w-full">
-          <h3 className="font-semibold text-white mb-1 text-lg flex items-center gap-2">{emoji} You've been matched!</h3>
+          <h3 className="font-semibold text-white mb-1 text-lg flex items-center gap-2">{emoji} You&apos;ve been matched!</h3>
           <p className="text-white/90 text-base mb-1">{summary}</p>
           {matchData.isSymbiMatch && (
             <p className="text-white/90 text-base mb-1">

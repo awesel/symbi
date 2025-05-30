@@ -14,14 +14,6 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 
-interface MatchData {
-  id: string;
-  user1: string;
-  user2: string;
-  status: 'pending' | 'accepted' | 'rejected';
-  createdAt: number;
-}
-
 interface MessageData {
   id: string;
   text: string;
@@ -37,7 +29,6 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ chatId }) => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<MessageData[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [matchData, setMatchData] = useState<MatchData | null>(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +40,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ chatId }) => {
       try {
         const matchDoc = await getDoc(doc(db, 'matches', chatId));
         if (matchDoc.exists()) {
-          setMatchData(matchDoc.data() as MatchData);
+          // setMatchData(matchDoc.data() as MatchData);
         }
       } catch (error) {
         console.error('Error fetching match data:', error);
