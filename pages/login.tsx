@@ -140,7 +140,7 @@ const LoginPage: React.FC = () => {
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Talk to Peers 💬</h2>
                   <p className={styles.sectionContent}>
-                    Emmuage your matches. Everyone&apos;s here to share, ask, and learn.
+                    Message your matches. Everyone&apos;s here to share, ask, and learn.
                   </p>
                 </div>
                <Image
