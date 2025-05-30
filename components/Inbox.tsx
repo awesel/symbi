@@ -203,35 +203,163 @@ const Inbox: React.FC = () => {
   }, [user]);
 
   if (loading) {
-    return <div>Loading chats...</div>;
+    return (
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '768px', 
+        margin: '0 auto', 
+        padding: '32px 16px',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px'
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            border: '3px solid #4B2A9D',
+            borderTop: '3px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+          <p style={{ color: 'white', fontSize: '16px' }}>Loading your conversations...</p>
+        </div>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '768px', 
+        margin: '0 auto', 
+        padding: '32px 16px',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          padding: '24px',
+          borderRadius: '16px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ color: '#FF6B6B', fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+          <h3 style={{ color: 'white', fontSize: '20px', marginBottom: '8px' }}>Oops! Something went wrong</h3>
+          <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '16px' }}>{error}</p>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
-    return <div>Please log in to see your chats.</div>;
+    return (
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '768px', 
+        margin: '0 auto', 
+        padding: '32px 16px',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          padding: '24px',
+          borderRadius: '16px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ color: '#A78BFA', fontSize: '48px', marginBottom: '16px' }}>🔒</div>
+          <h3 style={{ color: 'white', fontSize: '20px', marginBottom: '8px' }}>Please Log In</h3>
+          <p style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '16px' }}>You need to be logged in to view your chats.</p>
+        </div>
+      </div>
+    );
   }
 
   const totalChats = chats.symbi.length + chats.accepted.length;
   if (totalChats === 0) {
     return (
-      <div style={{ textAlign: 'center', marginTop: '50px' }}>
-        <h2>No chats yet.</h2>
-        <p>Get started by inviting friends or refining your profile!</p>
-        <div style={{ marginTop: '20px' }}>
-          <button 
-            onClick={() => alert('Go ask them! You know them better than we do!')}
-            style={{ marginRight: '10px', padding: '10px 20px', cursor: 'pointer' }}
-          >
-            Invite Your Friends
-          </button>
-          <Link href="/onboarding-again" legacyBehavior>
-            <a style={{ padding: '10px 20px', textDecoration: 'none', backgroundColor: '#f0f0f0', color: '#333', border: '1px solid #ccc', borderRadius: '4px' }}>
-              Add More Interests/Expertise
-            </a>
-          </Link>
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '768px', 
+        margin: '0 auto', 
+        padding: '32px 16px',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          padding: '32px',
+          borderRadius: '16px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ color: '#A78BFA', fontSize: '64px', marginBottom: '24px' }}>💭</div>
+          <h2 style={{ 
+            color: 'white', 
+            fontSize: '24px', 
+            fontWeight: '600', 
+            marginBottom: '16px' 
+          }}>No chats yet</h2>
+          <p style={{ 
+            color: 'rgba(255, 255, 255, 0.8)', 
+            fontSize: '16px', 
+            marginBottom: '32px',
+            maxWidth: '400px',
+            margin: '0 auto 32px'
+          }}>
+            Get started by inviting friends or refining your profile to find your perfect learning match!
+          </p>
+          <div style={{ 
+            display: 'flex', 
+            gap: '16px', 
+            justifyContent: 'center',
+            flexWrap: 'wrap'
+          }}>
+            <button 
+              onClick={() => alert('Go ask them! You know them better than we do!')}
+              style={{ 
+                padding: '12px 24px',
+                backgroundColor: '#4B2A9D',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 12px rgba(75, 42, 157, 0.2)'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              Invite Your Friends
+            </button>
+            <Link href="/onboarding-again" legacyBehavior>
+              <a style={{ 
+                padding: '12px 24px',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '500',
+                textDecoration: 'none',
+                transition: 'all 0.2s ease',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                Add More Interests
+              </a>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -263,57 +391,159 @@ const Inbox: React.FC = () => {
   });
 
   return (
-    <div className="inbox-container">
-      {/* Combined Chat List */}
-      {allChats.length > 0 && <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">Chats</h3>}{/* Chats Title - Conditionally rendered and centered */}
-      <ul className="space-y-3 px-4 pt-4"> {/* Use the existing chat-list styling */}
+    <div style={{ 
+      width: '100%', 
+      maxWidth: '768px', 
+      margin: '0 auto',
+      padding: '0',
+      animation: 'fadeIn 0.3s ease-in'
+    }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        marginBottom: '24px',
+        color: 'white',
+        fontSize: '22px',
+        fontWeight: '600'
+      }}>
+        <h2>Chats</h2>
+        <span style={{
+          fontSize: '13px',
+          backgroundColor: '#a884ff',
+          color: 'white',
+          borderRadius: '999px',
+          padding: '4px 10px',
+          fontWeight: '500'
+        }}>
+          {totalChats} {totalChats === 1 ? 'chat' : 'chats'}
+        </span>
+      </div>
+
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {allChats.map((chat) => {
-          // Use actualLastSenderId if available, otherwise fallback to the potentially stale one (or handle as needed)
           const lastSenderToCompare = chat.actualLastSenderId !== undefined ? chat.actualLastSenderId : chat.lastSenderId;
           const isLastMessageNotByUser = lastSenderToCompare && lastSenderToCompare !== user?.uid;
-          const chatLink = chat.matchStatus === 'symbi' ? `/symbi-chat/${chat.id}` : `/chat/${chat.id}`;
+          const chatLink = `/chat/${chat.id}`;
           const displayName = chat.otherUserName ? formatName(chat.otherUserName) : 'Chat';
           
           return (
-            <li key={chat.id} className="bg-white shadow overflow-hidden rounded-md">
+            <li key={chat.id} style={{
+              backgroundColor: 'white',
+              borderRadius: '14px',
+              padding: '16px 24px',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              position: 'relative',
+              overflow: 'hidden'
+            }} className="chat-card">
+              {chat.matchStatus === 'symbi' && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  width: '0',
+                  height: '0',
+                  borderStyle: 'solid',
+                  borderWidth: '0 48px 48px 0',
+                  borderColor: 'transparent #4B2A9D transparent transparent',
+                  opacity: 0.15
+                }} />
+              )}
               <Link href={chatLink} legacyBehavior>
-                <a className="block hover:bg-gray-50">
-                  <div className="flex items-center px-4 py-4 sm:px-6">
-                    <div className="flex-shrink-0">
-                      {chat.otherUserPhotoURL ? (
-                        <Image
-                          src={chat.otherUserPhotoURL}
-                          alt={`${displayName}'s profile`}
-                          width={40} // Adjust size as needed
-                          height={40} // Adjust size as needed
-                          className="rounded-full"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                          <span className="text-sm font-medium text-gray-600">{displayName.substring(0, 1)}</span>
-                        </div>
+                <a style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  width: '100%', 
+                  textDecoration: 'none',
+                  color: 'inherit'
+                }}>
+                  <div style={{ 
+                    width: '48px', 
+                    height: '48px', 
+                    marginRight: '16px',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    backgroundColor: '#A78BFA',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#1A202C',
+                    fontWeight: '600',
+                    boxShadow: '0 2px 8px rgba(167, 139, 250, 0.3)'
+                  }}>
+                    {chat.otherUserPhotoURL ? (
+                      <Image
+                        src={chat.otherUserPhotoURL}
+                        alt={`${displayName}'s profile`}
+                        width={48}
+                        height={48}
+                        style={{ borderRadius: '50%' }}
+                      />
+                    ) : (
+                      <span style={{ fontSize: '18px' }}>{displayName.substring(0, 1)}</span>
+                    )}
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      marginBottom: '4px'
+                    }}>
+                      <span style={{ 
+                        fontWeight: '600', 
+                        fontSize: '16px', 
+                        color: '#2d2d2d',
+                        marginRight: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        {chat.matchStatus === 'symbi' && (
+                          <span style={{ color: '#4B2A9D' }}>⭐</span>
+                        )}
+                        {displayName}
+                      </span>
+                      {isLastMessageNotByUser && (
+                        <span style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          backgroundColor: '#4B2A9D',
+                          marginLeft: '8px',
+                          boxShadow: '0 0 8px rgba(75, 42, 157, 0.4)'
+                        }} />
                       )}
                     </div>
-                    <div className="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between ml-4">
-                      <div>
-                        <div className="text-sm font-medium text-indigo-600 truncate">
-                          {chat.matchStatus === 'symbi' && '⭐ '}
-                          {displayName}
-                          {isLastMessageNotByUser && (
-                            <span className="ml-2 inline-block h-2 w-2 rounded-full bg-red-500"></span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-500 truncate">
-                          {chat.lastMessage || 'No messages yet'}
-                        </p>
-                      </div>
-                      <div className="ml-5 flex-shrink-0">
-                        {/* Chevron or other indicator */}
-                        <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
+                    <div style={{ 
+                      fontSize: '14px', 
+                      color: '#777',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      maxWidth: '100%'
+                    }}>
+                      {chat.lastMessage || 'No messages yet'}
                     </div>
+                  </div>
+
+                  <div style={{ 
+                    color: '#bbb', 
+                    fontSize: '18px',
+                    marginLeft: 'auto',
+                    paddingLeft: '16px',
+                    transition: 'transform 0.2s ease',
+                    flexShrink: 0
+                  }} className="chevron">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                   </div>
                 </a>
               </Link>
@@ -321,20 +551,20 @@ const Inbox: React.FC = () => {
           );
         })}
       </ul>
-      <style>{`
-        .inbox-container {
-          max-width: none; /* Remove max-width */
-          margin: 0; /* Remove margin */
-          padding: 0; /* Remove padding */
-          font-family: Arial, sans-serif;
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-        .chat-list {
-          list-style: none;
-          padding: 0; /* Ensure padding is 0 as we added padding to the ul */
+        
+        .chat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.06);
         }
-        .chat-list .awaiting-response-indicator {
-          border: 2px solid #39ff14; /* Neon green border */
-          background-color: rgba(57, 255, 20, 0.2); /* Semi-transparent neon green highlight (rgba of #39ff14 with 0.2 opacity) */
+
+        .chat-card:hover .chevron {
+          transform: translateX(4px);
         }
       `}</style>
     </div>

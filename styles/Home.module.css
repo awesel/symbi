@@ -1083,3 +1083,20 @@
   width: 22px;
   height: 22px;
 }
+
+/* Styles for the main dashboard header */
+.dashboardTitle {
+  font-size: 28px; /* Adjust as needed between 28-32px */
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  margin-bottom: 0.8rem; /* Space below title */
+}
+
+.dashboardSubtitle {
+  font-size: 16px;
+  color: #e2d7f9; /* Light purple color */
+  font-weight: 400; /* Lighter weight */
+  text-align: center;
+  margin-bottom: 2.5rem; /* Space below subtitle before next section */
+}

@@ -7,6 +7,7 @@ import DiscoverTile from '../components/DiscoverTile';
 import { db } from '../lib/firebase';
 import { collection, getDocs, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import Inbox from '../components/Inbox'; // Import Inbox component to display chats
+import styles from '../styles/Dashboard.module.css';
 
 // import SymbiMatchBanner from '../app/components/SymbiMatchBanner';
 
@@ -89,14 +90,14 @@ const DashboardPage: React.FC = () => {
         });
         const uniqueSkills = Array.from(uniqueSkillsMap.values());
 
-        // Sort by count (popularity) and select top 4
+        // Sort by count (popularity) and select top 3
         const sortedSkills = uniqueSkills.sort((a, b) => {
           const countA = querySnapshot.docs.find(doc => doc.data().tag === a.skill)?.data().count || 0;
           const countB = querySnapshot.docs.find(doc => doc.data().tag === b.skill)?.data().count || 0;
           return countB - countA;
         });
 
-        const selectedSkills = sortedSkills.slice(0, 4);
+        const selectedSkills = sortedSkills.slice(0, 3);
         setDisplayedSkills(selectedSkills);
 
       } catch (error) {
@@ -155,7 +156,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen" style={{ background: 'linear-gradient(to bottom, #f2f0ff, #e2d7f7)' }}>{/* Main container with new background gradient and flex layout */}
+    <div style={{ background: 'linear-gradient(180deg, #2D1B69 0%, #4B2A9D 100%)', minHeight: '100vh' }}>{/* Main container with deep purple gradient background */}
       <Head>
         <title>Your Dashboard - Symbi</title>
       </Head>
@@ -165,7 +166,7 @@ const DashboardPage: React.FC = () => {
         <div className="w-full p-4 flex flex-col">
           {/* Profile Section (Minimal for Mobile) */}
           <div className="p-4 border-b border-gray-200 flex items-center mb-4">
-            <div className="w-10 h-10 rounded-full bg-purple-200 text-purple-800 flex items-center justify-center text-lg font-semibold mr-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold mr-3" style={{ backgroundColor: '#A78BFA', color: '#1A202C' }}>
               {userProfile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
             </div>
             <span className="text-lg font-semibold text-gray-900">{userProfile?.displayName || user.email}</span>
@@ -196,92 +197,104 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
       ) : (
-        // Desktop View: Original Two-Column Layout
-        <>
-          {/* Left Sidebar - Simplified */}
-          <div className="w-1/2 text-gray-800 flex flex-col shadow-lg" style={{ background: 'linear-gradient(to bottom, #f2f0ff, #e2d7f7)' }}>{/* Sidebar container with light background */}
-            {/* Profile Section */}
-            <div className="p-4 border-b border-gray-200 flex items-center">
-              {/* Profile Picture/Initials */}
-              <div className="w-10 h-10 rounded-full bg-purple-200 text-purple-800 flex items-center justify-center text-lg font-semibold mr-3">
-                {userProfile?.displayName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase()}
-              </div>
-              {/* User Name */}
-              <span className="text-lg font-semibold text-gray-900">{userProfile?.displayName || user.email}</span>
-            </div>
+        // Desktop View: Single-Column Layout
+        <div style={{ 
+          width: '100%',
+          maxWidth: '1100px',
+          margin: '0 auto',
+          padding: '48px 32px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '48px'
+        }}>
+          {/* Discover Feed Header */}
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '40px', fontWeight: '700', color: 'white', textAlign: 'center', margin: 0 }}>
+              Discover other people&apos;s skills
+            </h1>
+            <p style={{ textAlign: 'center', fontSize: '18px', color: '#dcd6f5', marginTop: '8px' }}>
+              See what your classmates know—and what they&apos;re excited to learn.
+            </p>
+          </div>
 
-            {/* Simplified Menu Options */}
-            <nav className="flex flex-col p-4 space-y-2">
-               <Link 
-                 href="/onboarding-again"
-                 className="p-3 rounded-lg bg-white hover:bg-purple-50 flex items-center text-gray-800 border border-purple-200 shadow-sm transition-colors"
-               >
-                 <span className="mr-3">📄</span>Edit Profile
-               </Link>
-               <button
-                 className="p-3 rounded-lg bg-white hover:bg-purple-50 flex items-center text-gray-800 border border-purple-200 shadow-sm transition-colors w-full text-left"
-                 onClick={async () => {
-                   await logOut();
-                   router.push('/login');
-                 }}
-               >
-                 <span className="mr-3">🚪</span>Log Out
-               </button>
-            </nav>
+          {/* "What is a Symbi Match?" Section */}
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            padding: '20px 24px',
+            borderRadius: '16px',
+            fontSize: '14px',
+            lineHeight: '1.4',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            width: '100%',
+            maxWidth: '600px',
+            margin: '0 auto'
+          }}>
+            <div style={{ color: 'white' }}>
+              <span style={{ fontSize: '18px', marginRight: '8px' }}>✨</span>
+              <strong>What&apos;s a Symbi Match?</strong><br/>
+              A Symbi Match is when two classmates can both teach and learn from each other.<br/><br/>
 
-            {/* Chats Section (Inbox) */}
-            <div className="flex-grow overflow-y-auto p-4 border-t border-gray-200">{/* Container for scrollable chats */}
-              {/* <h3 className="text-lg font-semibold text-gray-900 mb-3">Chats</h3> */}{/* Chats Title */}
-              <Inbox />{/* Integrated Inbox component */}
+              Example:<br/>
+              <span style={{ fontSize: '16px', marginRight: '4px' }}>🧠</span> <strong>John</strong>: knows AI Art → wants Photography<br/>
+              <span style={{ fontSize: '16px', marginRight: '4px' }}>📸</span> <strong>Maya</strong>: knows Photography → wants AI Art<br/>
+              <span style={{ fontSize: '16px', marginRight: '4px' }}>🔁</span> That&apos;s a Symbi Match.
             </div>
           </div>
 
-          {/* Main Content Area - Discover Feed */}
-          <div className="w-1/2 p-10">{/* Main content area with padding */}
+          {/* Skills Grid Header */}
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '600', color: 'white', margin: 0 }}>
+              Learn from other member&apos;s skills
+            </h2>
+          </div>
 
-            <div className="w-full max-w-4xl mx-auto">{/* Container to center content */}
-
-              {/* Discover Feed Header */}
-              <div className="mb-8 text-center">{/* Centered text */}
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Discover other people&apos;s skills</h1>
-                <p className="text-lg text-gray-600">See what your classmates know—and what they&apos;re excited to learn.</p>
+          {/* Skills Grid */}
+          <div style={{ 
+            width: '100%',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '20px'
+          }}>
+            {skillsLoading ? (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '24px',
+                color: 'white',
+                gridColumn: '1 / -1'
+              }}>
+                Loading skills...
               </div>
-
-              {/* "What is a Symbi Match?" Section */}
-              <div className="bg-purple-100 border border-purple-300 rounded-lg p-4 mb-8 shadow-sm text-center">{/* Styled banner/box with centered text */}
-                <h2 className="text-lg font-semibold text-purple-800 mb-2">What&apos;s a Symbi Match?</h2>{/* Title */}
-                <p className="text-purple-700 leading-relaxed mb-3">⭐ Symbi Matches are mutual learning connections. You and another student both have something to learn—and something to teach.</p>{/* Body */}
-                <div className="bg-purple-200 rounded-md p-3 text-purple-900 text-sm">{/* Example box */}
-                  <p><span className="font-semibold">John knows:</span> AI art<br/><span className="font-semibold">Wants to learn:</span> Photography</p>
-                  <p className="mt-2"><span className="font-semibold">Maya knows:</span> Photography<br/><span className="font-semibold">Wants to learn:</span> AI art</p>
-                  <p className="mt-2 font-semibold">⭐ That&apos;s a Symbi Match.</p>
-                </div>
-                 {/* Optional: Add a "View all Symbi Matches" button here if needed */}
+            ) : displayedSkills.length > 0 ? (
+              displayedSkills.map(skillData => (
+                <DiscoverTile
+                  key={skillData.skill}
+                  skill={skillData.skill}
+                  onAddInterest={addSkillToInterests}
+                  isAdded={userInterests.includes(skillData.skill)}
+                />
+              ))
+            ) : (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '24px',
+                color: 'white',
+                gridColumn: '1 / -1'
+              }}>
+                No skills to display at the moment.
               </div>
+            )}
+          </div>
 
-              {/* Discover Skill Tiles Container */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">{/* Grid for 2 tiles per row on desktop, 1 on mobile */}
-                {skillsLoading ? (
-                  <div className="col-span-full text-center text-gray-600">Loading skills...</div>
-                ) : (
-                  displayedSkills.map((skillData) => (
-                    <DiscoverTile
-                      key={skillData.skill} // Using skill name as key
-                      skill={skillData.skill}
-                      onAddInterest={addSkillToInterests}
-                      isAdded={userInterests.includes(skillData.skill)} // Pass if the skill is already an interest
-                    />
-                  ))
-                )}
-              </div>
-
-              {/* Search Bar Placeholder */}
-
-            </div>{/* End of centered content container */}
-          </div>{/* End of Main Content Area */}
-        </>
+          {/* Inbox Component */}
+          {/* The Inbox component now needs to be placed here, inside the main container */}
+          {/* It will inherit the max-width and horizontal padding from this container */}
+          {/* Vertical spacing is handled by the container's gap */} 
+          <Inbox /> 
+        </div>
       )}
-    </div> // End of Main container for 2-column layout
+      
+      {/* The outer container div is no longer needed for Inbox */} 
+    </div>
   );
 };
 

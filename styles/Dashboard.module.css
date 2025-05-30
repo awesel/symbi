@@ -1,0 +1,106 @@
+/* Styles for the main dashboard header */
+.dashboardTitle {
+  font-size: 28px; /* Adjust as needed between 28-32px */
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  margin-bottom: 0.8rem; /* Space below title */
+}
+
+.dashboardSubtitle {
+  font-size: 16px;
+  color: #e2d7f9; /* Light purple color */
+  font-weight: 400; /* Lighter weight */
+  text-align: center;
+  margin-bottom: 2.5rem; /* Space below subtitle before next section */
+}
+
+/* Styles for the Symbi Match Explanation Box */
+.symbiMatchBox {
+  border-radius: 20px;
+  padding: 24px;
+  background-color: rgba(255, 255, 255, 0.05); /* Semi-transparent white background */
+  margin-bottom: 2.5rem; /* Space below the box */
+}
+
+.symbiMatchBoxTitle {
+  font-weight: bold;
+  color: white;
+  margin-bottom: 0.8rem; /* Space below the title */
+  font-size: 1.125rem; /* Adjust font size if needed */
+}
+
+.symbiMatchBoxBody {
+  color: white;
+  font-size: 1rem; /* Adjust font size if needed */
+  line-height: 1.6;
+}
+
+/* Styles for the Skills Grid Container */
+.skillsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* Space between skill cards */
+  justify-content: center; /* Center the grid items */
+}
+
+/* Styles for Individual Skill Cards */
+.skillCard {
+  background-color: white;
+  border-radius: 18px; /* Specified border radius */
+  padding: 20px; /* Adjust padding as needed */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* Soft drop shadow */
+  display: flex;
+  flex-direction: column;
+  width: calc(50% - 8px); /* Two columns with gap on wider screens */
+  min-width: 280px; /* Minimum width for responsiveness */
+  flex-grow: 1;
+  text-align: center; /* Center the text */
+}
+
+@media (max-width: 768px) {
+  .skillCard {
+    width: 100%; /* Stack on mobile */
+  }
+}
+
+/* Styles for Skill Card Title */
+.skillCardTitle {
+  font-size: 1.125rem; /* Adjust font size if needed */
+  font-weight: bold;
+  color: #1a202c; /* Black text */
+  margin-bottom: 0.5rem; /* Space below title */
+}
+
+/* Styles for Skill Card Subtext (Optional) */
+.skillCardSubtext {
+  font-size: 0.9rem;
+  color: #4a5568; /* Grayish text */
+  margin-bottom: 1rem; /* Space below subtext */
+}
+
+/* Styles for Add to Interests Button */
+.addInterestButton {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px; /* Adjust border radius if needed */
+  background-color: #805AD5; /* Purple background color */
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: auto; /* Push button to the bottom of the card */
+}
+
+.addInterestButton:hover {
+  background-color: #6B46C1; /* Darker purple on hover */
+}
+
+.addInterestButton:disabled {
+  background-color: #cbd5e0; /* Gray background when disabled */
+  cursor: not-allowed;
+}
+
+/* Rest of your CSS */ 
