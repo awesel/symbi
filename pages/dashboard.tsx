@@ -7,7 +7,6 @@ import DiscoverTile from '../components/DiscoverTile';
 import { db } from '../lib/firebase';
 import { collection, getDocs, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import Inbox from '../components/Inbox'; // Import Inbox component to display chats
-import styles from '../styles/Dashboard.module.css';
 
 // import SymbiMatchBanner from '../app/components/SymbiMatchBanner';
 
