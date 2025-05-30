@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import DiscoverTile from '../components/DiscoverTile';
-import { db } from '../lib/firebase'; // Assuming firebase is used for data fetching
-import { collection, getDocs, query, where, doc, updateDoc, arrayUnion } from 'firebase/firestore'; // Assuming firestore is used
+import { db } from '../lib/firebase';
+import { collection, getDocs, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import Inbox from '../components/Inbox'; // Import Inbox component to display chats
 
 // import SymbiMatchBanner from '../app/components/SymbiMatchBanner';
@@ -13,11 +13,6 @@ import Inbox from '../components/Inbox'; // Import Inbox component to display ch
 interface SkillData {
   skill: string;
   context?: string; // Make context optional if it's not always present or used
-}
-
-interface SkillItem {
-  name: string;
-  type: 'know' | 'learn';
 }
 
 const DashboardPage: React.FC = () => {
@@ -56,50 +51,32 @@ const DashboardPage: React.FC = () => {
 
   // Fetch and filter skills from other users
   useEffect(() => {
-    // Fallback skills if not enough real data
-    const FALLBACK_SKILLS: SkillData[] = [
-      { skill: 'Graphic Design' },
-      { skill: 'Creative Writing' },
-      { skill: 'Data Analysis' },
-      { skill: 'Public Speaking' },
-      { skill: 'Web Development' },
-      { skill: 'Digital Marketing' },
-    ];
-
     const fetchAndSetSkills = async () => {
       // Only proceed if user and userProfile are loaded and userInterests state is initialized (not undefined)
       if (!user || !userProfile || userInterests === undefined) {
          setSkillsLoading(false);
-         // Optionally, clear skills while waiting, or show a loading state handled by the JSX
-         // setDisplayedSkills([]); 
          return;
       }
 
       setSkillsLoading(true);
       try {
-        const usersRef = collection(db, 'users');
-        // Fetch users excluding the current one
-        const q = query(usersRef, where('uid', '!=', user.uid));
-        const querySnapshot = await getDocs(q);
+        // Fetch tags from tags_used collection
+        const tagsRef = collection(db, 'tags_used');
+        const querySnapshot = await getDocs(tagsRef);
 
-        const allOtherUserSkills: SkillData[] = [];
+        const allTags: SkillData[] = [];
         querySnapshot.forEach(doc => {
-          const userData = doc.data();
-          // Assuming skills are stored in a 'skills' field as an array of objects like { name: string, type: 'know' | 'learn' }
-          // Filter for skills they 'know'
-          if (userData.skills && Array.isArray(userData.skills)) {
-            userData.skills.forEach((skillItem: SkillItem) => {
-              if (skillItem.name && skillItem.type === 'know') { // Assuming 'type' indicates if they 'know' or 'want to learn'
-                allOtherUserSkills.push({
-                  skill: skillItem.name,
-                });
-              }
+          const tagData = doc.data();
+          if (tagData.tag && tagData.count > 0) {
+            allTags.push({
+              skill: tagData.tag,
+              context: tagData.type?.includes('expertise') ? 'expertise' : 'interest'
             });
           }
         });
 
         // Filter out skills the current user already has as interests
-        const filteredSkills = allOtherUserSkills.filter(otherSkill =>
+        const filteredSkills = allTags.filter(otherSkill =>
           !userInterests.some(userInterest => userInterest === otherSkill.skill)
         );
 
@@ -112,54 +89,25 @@ const DashboardPage: React.FC = () => {
         });
         const uniqueSkills = Array.from(uniqueSkillsMap.values());
 
-        // Combine unique skills from others and fallback skills, then filter by user interests and select 4
-        const allPotentialSkills = [...uniqueSkills, ...FALLBACK_SKILLS];
-
-        const finalFilteredSkills = allPotentialSkills.filter(skill =>
-           !userInterests.some(userInterest => userInterest === skill.skill)
-        );
-
-        // Remove duplicates from the combined and filtered list
-        const finalUniqueSkillsMap = new Map<string, SkillData>();
-        finalFilteredSkills.forEach(skill => {
-          if (!finalUniqueSkillsMap.has(skill.skill)) {
-            finalUniqueSkillsMap.set(skill.skill, skill);
-          }
+        // Sort by count (popularity) and select top 4
+        const sortedSkills = uniqueSkills.sort((a, b) => {
+          const countA = querySnapshot.docs.find(doc => doc.data().tag === a.skill)?.data().count || 0;
+          const countB = querySnapshot.docs.find(doc => doc.data().tag === b.skill)?.data().count || 0;
+          return countB - countA;
         });
-        const finalUniqueSkills = Array.from(finalUniqueSkillsMap.values());
 
-        // Select up to 4 random skills from the final unique list
-        const shuffledFinalSkills = finalUniqueSkills.sort(() => 0.5 - Math.random());
-        let selectedFinalSkills = shuffledFinalSkills.slice(0, 4);
-
-        // If less than 4 skills are selected, supplement with fallback skills that are NOT in user interests
-        if (selectedFinalSkills.length < 4) {
-           const remainingSlots = 4 - selectedFinalSkills.length;
-           const existingSkillNames = new Set(selectedFinalSkills.map(s => s.skill));
-           const fallbackSupplementFiltered = FALLBACK_SKILLS.filter(fallbackSkill =>
-            !existingSkillNames.has(fallbackSkill.skill) &&
-            !userInterests.some(userInterest => userInterest === fallbackSkill.skill) // Strictly filter fallback by user interests
-          ).slice(0, remainingSlots);
-           selectedFinalSkills = [...selectedFinalSkills, ...fallbackSupplementFiltered];
-        }
-
-        setDisplayedSkills(selectedFinalSkills);
+        const selectedSkills = sortedSkills.slice(0, 4);
+        setDisplayedSkills(selectedSkills);
 
       } catch (error) {
         console.error('Error fetching skills:', error);
-        // Fallback in case of error, filtered strictly by user interests
-        const fallbackOnErr = FALLBACK_SKILLS.filter(fallbackSkill =>
-           !userInterests.some(userInterest => userInterest === fallbackSkill.skill)
-        ).slice(0, 4);
-        setDisplayedSkills(fallbackOnErr);
-
+        setDisplayedSkills([]);
       } finally {
         setSkillsLoading(false);
       }
     };
 
     // Fetch skills when user, userProfile, or userInterests change
-    // Explicitly check that userProfile and userInterests are not undefined before calling fetchAndSetSkills
     if (user && userProfile !== undefined && userInterests !== undefined) {
        fetchAndSetSkills();
     }
@@ -251,7 +199,7 @@ const DashboardPage: React.FC = () => {
         // Desktop View: Original Two-Column Layout
         <>
           {/* Left Sidebar - Simplified */}
-          <div className="w-64 bg-white text-gray-800 flex flex-col shadow-lg">{/* Sidebar container with light background */}
+          <div className="w-1/2 text-gray-800 flex flex-col shadow-lg" style={{ background: 'linear-gradient(to bottom, #f2f0ff, #e2d7f7)' }}>{/* Sidebar container with light background */}
             {/* Profile Section */}
             <div className="p-4 border-b border-gray-200 flex items-center">
               {/* Profile Picture/Initials */}
@@ -264,17 +212,21 @@ const DashboardPage: React.FC = () => {
 
             {/* Simplified Menu Options */}
             <nav className="flex flex-col p-4 space-y-2">
-               <Link href="/onboarding-again" legacyBehavior><a className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700"><span className="mr-3">📄</span>Edit Profile</a></Link>{/* Edit Profile Link */}
-               {/* Log Out Button styled as a link */}
+               <Link 
+                 href="/onboarding-again"
+                 className="p-3 rounded-lg bg-white hover:bg-purple-50 flex items-center text-gray-800 border border-purple-200 shadow-sm transition-colors"
+               >
+                 <span className="mr-3">📄</span>Edit Profile
+               </Link>
                <button
-                 className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700 w-full text-left"
+                 className="p-3 rounded-lg bg-white hover:bg-purple-50 flex items-center text-gray-800 border border-purple-200 shadow-sm transition-colors w-full text-left"
                  onClick={async () => {
                    await logOut();
                    router.push('/login');
                  }}
                >
                  <span className="mr-3">🚪</span>Log Out
-               </button>{/* Log Out Button */}
+               </button>
             </nav>
 
             {/* Chats Section (Inbox) */}
@@ -285,7 +237,7 @@ const DashboardPage: React.FC = () => {
           </div>
 
           {/* Main Content Area - Discover Feed */}
-          <div className="flex-1 p-10">{/* Main content area with padding */}
+          <div className="w-1/2 p-10">{/* Main content area with padding */}
 
             <div className="w-full max-w-4xl mx-auto">{/* Container to center content */}
 
