@@ -149,7 +149,9 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
   useEffect(() => {
     if (!chatId || !user) return;
 
-    (async () => {
+    let unsubscribeMatchListener: (() => void) | undefined;
+
+    const setupChat = async () => {
       setLoadingSysMsg(true);
       try {
         /* 1️⃣  who's in the chat? */
@@ -165,64 +167,71 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
         /* 2️⃣  load their display name */
         const themSnap = await getDoc(doc(db, "users", them));
         setOtherName(themSnap.exists() ? themSnap.data().displayName ?? "Chat partner" : "Chat partner");
-        // — names for the sentence builder —
         const currentUserDisplayName = user.displayName ?? "You";
         const actualOtherUserDisplayName =
           themSnap.exists()
             ? (themSnap.data().displayName ?? "Your chat partner")
             : "Your chat partner";
 
-        /* 3️⃣  load match explanation straight from back-end */
+        /* 3️⃣  load match explanation (now with real-time listener) */
         const matchId = getMatchId(me, them);
-        const matchSnap = await getDoc(doc(db, "matches", matchId));
+        const matchRef = doc(db, "matches", matchId);
 
-        if (matchSnap.exists()) {
-          const { matchedOn = [], status } = matchSnap.data();
-          console.log("MatchedOn from Firestore:", matchedOn); // Log matchedOn data
-          matchedOn.forEach((line: string) => { // Log parsing for each line
-            console.log("Parsing line:", line, "with currentUserId:", me);
-            const parsedLine = parseMatchedOn(line, me);
-            console.log("Parsed result for line:", parsedLine);
-          });
+        unsubscribeMatchListener = onSnapshot(matchRef, (matchSnap) => {
+          if (matchSnap.exists()) {
+            const { matchedOn = [], status } = matchSnap.data();
 
-          if (Array.isArray(matchedOn) && matchedOn.length) {
-            const sentence = buildTeachingSentence(
-              matchedOn,
-              currentUserDisplayName,
-              actualOtherUserDisplayName,
-              me
-            );
-            console.log("Built sentence:", sentence); // Log the final sentence
-        
-            // If we parsed at least one teaching pair, show it
-            if (sentence) {
-              setSysMsg(sentence);
-            } else {
-              // still fall back—rare edge-case
-              setSysMsg(
-                status === "symbi"
-                  ? "You have been bonnected due to symbiotic synergy!"
-                  : "You've been bonnected."
+            if (Array.isArray(matchedOn) && matchedOn.length > 0) {
+              const sentence = buildTeachingSentence(
+                matchedOn,
+                currentUserDisplayName,
+                actualOtherUserDisplayName,
+                me
               );
+              if (sentence) {
+                setSysMsg(sentence);
+              } else {
+                // Fallback if buildTeachingSentence returns empty despite matchedOn having items
+                setSysMsg(
+                  status === "symbi"
+                    ? "You have been bonnected due to symbiotic synergy!"
+                    : "You've been bonnected."
+                );
+              }
+            } else { // matchedOn is empty or not an array with length
+              if (status === "stale_interest") {
+                setSysMsg("This chat was originally matched based on interests or expertise that have since changed. You can continue chatting or start a new conversation based on current interests!");
+              } else if (status === "symbi") {
+                setSysMsg("You have been bonnected due to symbiotic synergy!");
+              } else {
+                setSysMsg("You've been bonnected. Start chatting!"); // Generic fallback
+              }
             }
           } else {
-            // matchedOn empty → fallback
-            setSysMsg(
-              status === "symbi"
-                ? "You have been bonnected due to symbiotic synergy!"
-                : "You've been bonnected."
-            );
+            setSysMsg("You've been matched! Start chatting."); // Match document doesn't exist
           }
-        } else {
-          setSysMsg("You've been matched! Start chatting.");
-        }
+          setLoadingSysMsg(false);
+        }, (error) => {
+          console.error("Error listening to match document:", error);
+          setSysMsg("Unable to load match details. Start chatting anyway!");
+          setLoadingSysMsg(false);
+        });
+
       } catch (err) {
         console.error(err);
-        setSysMsg("Unable to load match details. Start chatting anyway!");
-      } finally {
+        setSysMsg("Unable to load chat details. Start chatting anyway!");
         setLoadingSysMsg(false);
       }
-    })();
+    };
+
+    setupChat();
+
+    // Cleanup listener on component unmount or when dependencies change
+    return () => {
+      if (unsubscribeMatchListener) {
+        unsubscribeMatchListener();
+      }
+    };
   }, [chatId, user]);
 
   /* ──────────────── realtime listener ──────────────── */
