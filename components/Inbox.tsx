@@ -25,6 +25,7 @@ interface Chat {
   otherUserName?: string;
   otherUserPhotoURL?: string;
   matchStatus?: string;
+  unread?: boolean;
 }
 
 interface GroupedChats {
@@ -32,11 +33,14 @@ interface GroupedChats {
   accepted: Chat[];
 }
 
+type ChatFilter = 'all' | 'unread' | 'match';
+
 const Inbox: React.FC = () => {
   const { user } = useAuth();
   const [chats, setChats] = useState<GroupedChats>({ symbi: [], accepted: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chatFilter, setChatFilter] = useState<ChatFilter>('all');
 
   const formatName = (fullName: string): string => {
     const words = fullName.trim().split(/\s+/);
@@ -57,16 +61,15 @@ const Inbox: React.FC = () => {
       setError(null);
       try {
         const matchesRef = collection(db, 'matches');
-        // Query for matches where user is userA OR userB
         const qUserA = query(
           matchesRef,
           where('userA', '==', user.uid),
-          where('status', 'in', ['accepted', 'symbi']) // Ensure match is active or symbi
+          where('status', 'in', ['accepted', 'symbi'])
         );
         const qUserB = query(
           matchesRef,
           where('userB', '==', user.uid),
-          where('status', 'in', ['accepted', 'symbi']) // Ensure match is active or symbi
+          where('status', 'in', ['accepted', 'symbi'])
         );
 
         const [querySnapshotUserA, querySnapshotUserB] = await Promise.all([
@@ -75,7 +78,7 @@ const Inbox: React.FC = () => {
         ]);
 
         const userMatches: Match[] = [];
-        const matchIds = new Set<string>(); // To avoid duplicates if a user is somehow userA and userB in a bugged match doc
+        const matchIds = new Set<string>();
 
         querySnapshotUserA.forEach((matchDoc) => {
           if (!matchIds.has(matchDoc.id)) {
@@ -100,7 +103,7 @@ const Inbox: React.FC = () => {
         const chatsDataPromises = userMatches.map(async (match) => {
           if (!match.chatId) {
             console.warn(`Match ${match.id} is missing a chatId.`);
-            return null; // Skip if no chatId
+            return null;
           }
           try {
             const chatDocRef = doc(db, 'chats', match.chatId);
@@ -111,7 +114,6 @@ const Inbox: React.FC = () => {
                 id: chatDocSnap.id, 
                 ...chatDocSnap.data(),
                 matchStatus: match.status,
-                // lastSenderId: chatDocSnap.data()?.lastSenderId // We will fetch this fresh
               } as Partial<Chat>;
               const otherUserId = match.userA === user.uid ? match.userB : match.userA;
 
@@ -137,18 +139,17 @@ const Inbox: React.FC = () => {
               if (!lastMessageSnapshot.empty) {
                 const lastMessageData = lastMessageSnapshot.docs[0].data();
                 chatData.actualLastSenderId = lastMessageData.sender;
-                // Optionally, update lastMessage and lastTimestamp from this actual last message if needed
-                // chatData.lastMessage = lastMessageData.text;
-                // chatData.lastTimestamp = lastMessageData.timestamp;
+                
+                // Check if the last message is unread (not from current user)
+                chatData.unread = lastMessageData.sender !== user.uid;
               } else {
-                // No messages in the chat, so no last sender.
-                // Or handle as per your app's logic if chat.lastMessage/lastTimestamp from parent doc is preferred here.
-                chatData.actualLastSenderId = undefined; 
+                chatData.actualLastSenderId = undefined;
+                chatData.unread = false;
               }
 
               return chatData as Chat;
             }
-            return null; // Chat doc doesn't exist
+            return null;
           } catch (chatError) {
             console.error(`Error fetching chat ${match.chatId} for match ${match.id}:`, chatError);
             return null;
@@ -158,28 +159,28 @@ const Inbox: React.FC = () => {
         const resolvedChatsData = (await Promise.all(chatsDataPromises))
           .filter(chat => chat !== null) as Chat[];
 
-        // Sort chats: no messages first, then by lastTimestamp
+        // Sort chats: unread first, then by lastTimestamp
         resolvedChatsData.sort((a, b) => {
+          // Prioritize unread messages
+          if (a.unread && !b.unread) return -1;
+          if (!a.unread && b.unread) return 1;
+
           const isAwaitingResponseA = a.lastSenderId === user.uid && a.lastTimestamp !== null;
           const isAwaitingResponseB = b.lastSenderId === user.uid && b.lastTimestamp !== null;
 
           const aHasNoMessages = !a.lastTimestamp;
           const bHasNoMessages = !b.lastTimestamp;
 
-          // Prioritize chats where current user sent the last message and is awaiting response
           if (isAwaitingResponseA && !isAwaitingResponseB) return -1;
           if (!isAwaitingResponseA && isAwaitingResponseB) return 1;
 
-          // Then prioritize chats with no messages
           if (aHasNoMessages && !bHasNoMessages) return -1;
           if (!aHasNoMessages && bHasNoMessages) return 1;
 
-          // For all other cases (both awaiting response, both no messages, or neither), sort by last timestamp
           if (a.lastTimestamp && b.lastTimestamp) {
-            return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis(); // Most recent first
+            return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
           }
 
-          // Fallback, though ideally not reached if data is consistent
           return 0;
         });
 
@@ -367,28 +368,39 @@ const Inbox: React.FC = () => {
 
   // Combine and sort chats before rendering
   const allChats = [...chats.symbi, ...chats.accepted].sort((a, b) => {
+    // Prioritize unread messages
+    if (a.unread && !b.unread) return -1;
+    if (!a.unread && b.unread) return 1;
+
     const isAwaitingResponseA = a.lastSenderId === user.uid && a.lastTimestamp !== null;
     const isAwaitingResponseB = b.lastSenderId === user.uid && b.lastTimestamp !== null;
 
     const aHasNoMessages = !a.lastTimestamp;
     const bHasNoMessages = !b.lastTimestamp;
 
-    // Prioritize chats where current user sent the last message and is awaiting response
     if (isAwaitingResponseA && !isAwaitingResponseB) return -1;
     if (!isAwaitingResponseA && isAwaitingResponseB) return 1;
 
-    // Then prioritize chats with no messages
     if (aHasNoMessages && !bHasNoMessages) return -1;
     if (!aHasNoMessages && bHasNoMessages) return 1;
 
-    // For all other cases (both awaiting response, both no messages, or neither), sort by last timestamp
     if (a.lastTimestamp && b.lastTimestamp) {
-      return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis(); // Most recent first
+      return b.lastTimestamp.toMillis() - a.lastTimestamp.toMillis();
     }
 
-    // Fallback, though ideally not reached if data is consistent
     return 0;
   });
+
+  // Filter chats based on selected filter
+  const filteredChats = allChats.filter(chat => {
+    if (chatFilter === 'unread') return chat.unread;
+    if (chatFilter === 'match') return chat.matchStatus === 'symbi';
+    return true;
+  });
+
+  // Get counts for each filter
+  const unreadCount = allChats.filter(chat => chat.unread).length;
+  const matchCount = allChats.filter(chat => chat.matchStatus === 'symbi').length;
 
   return (
     <div style={{ 
@@ -408,20 +420,64 @@ const Inbox: React.FC = () => {
         fontWeight: '600'
       }}>
         <h2>Chats</h2>
-        <span style={{
-          fontSize: '13px',
-          backgroundColor: '#a884ff',
-          color: 'white',
-          borderRadius: '999px',
-          padding: '4px 10px',
-          fontWeight: '500'
-        }}>
-          {totalChats} {totalChats === 1 ? 'chat' : 'chats'}
-        </span>
+      </div>
+
+      {/* Chat Filter Bar */}
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        marginBottom: '24px',
+        flexWrap: 'wrap'
+      }}>
+        <button
+          onClick={() => setChatFilter('all')}
+          style={{
+            background: chatFilter === 'all' ? 'linear-gradient(to right, #b76cff, #6b3fff)' : 'transparent',
+            border: '2px solid #b76cff',
+            color: chatFilter === 'all' ? 'white' : '#b76cff',
+            fontWeight: '600',
+            padding: '6px 16px',
+            borderRadius: '9999px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          All Chats ({allChats.length})
+        </button>
+        <button
+          onClick={() => setChatFilter('unread')}
+          style={{
+            background: chatFilter === 'unread' ? 'linear-gradient(to right, #b76cff, #6b3fff)' : 'transparent',
+            border: '2px solid #b76cff',
+            color: chatFilter === 'unread' ? 'white' : '#b76cff',
+            fontWeight: '600',
+            padding: '6px 16px',
+            borderRadius: '9999px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Unread ({unreadCount})
+        </button>
+        <button
+          onClick={() => setChatFilter('match')}
+          style={{
+            background: chatFilter === 'match' ? 'linear-gradient(to right, #b76cff, #6b3fff)' : 'transparent',
+            border: '2px solid #b76cff',
+            color: chatFilter === 'match' ? 'white' : '#b76cff',
+            fontWeight: '600',
+            padding: '6px 16px',
+            borderRadius: '9999px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Symbi Matches ({matchCount})
+        </button>
       </div>
 
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {allChats.map((chat) => {
+        {filteredChats.map((chat) => {
           const lastSenderToCompare = chat.actualLastSenderId !== undefined ? chat.actualLastSenderId : chat.lastSenderId;
           const isLastMessageNotByUser = lastSenderToCompare && lastSenderToCompare !== user?.uid;
           const chatLink = `/chat/${chat.id}`;
@@ -440,7 +496,8 @@ const Inbox: React.FC = () => {
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              borderLeft: chat.unread ? '4px solid #4B2A9D' : 'none'
             }} className="chat-card">
               {chat.matchStatus === 'symbi' && (
                 <div style={{
@@ -510,7 +567,7 @@ const Inbox: React.FC = () => {
                         )}
                         {displayName}
                       </span>
-                      {isLastMessageNotByUser && (
+                      {chat.unread && (
                         <span style={{
                           width: '8px',
                           height: '8px',
@@ -523,11 +580,12 @@ const Inbox: React.FC = () => {
                     </div>
                     <div style={{ 
                       fontSize: '14px', 
-                      color: '#777',
+                      color: chat.unread ? '#4B2A9D' : '#777',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      maxWidth: '100%'
+                      maxWidth: '100%',
+                      fontWeight: chat.unread ? '500' : 'normal'
                     }}>
                       {chat.lastMessage || 'No messages yet'}
                     </div>

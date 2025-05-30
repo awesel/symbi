@@ -173,9 +173,65 @@ const DashboardPage: React.FC = () => {
 
           {/* Simplified Menu Options */}
           <nav className="flex flex-col p-4 space-y-2 mb-4 border-b border-gray-200">
-            <Link href="/onboarding-again" legacyBehavior><a className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700"><span className="mr-3">📄</span>Edit Profile</a></Link>
+            <Link href="/onboarding-again" legacyBehavior>
+              <a
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 28px',
+                  borderRadius: '14px',
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  background: 'linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%)',
+                  color: '#fff',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                  transition: 'background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,1.3,.6,1), filter 0.18s cubic-bezier(.4,1.3,.6,1)',
+                  cursor: 'pointer',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'scale(1.06)';
+                  e.currentTarget.style.boxShadow = '0 6px 24px rgba(124,58,237,0.18)';
+                  e.currentTarget.style.filter = 'brightness(1.08)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                  e.currentTarget.style.filter = 'none';
+                }}
+              >
+                <span className="mr-3">📄</span>Edit Profile
+              </a>
+            </Link>
             <button
-              className="p-2 rounded hover:bg-gray-100 flex items-center text-gray-700 w-full text-left"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 28px',
+                borderRadius: '14px',
+                fontSize: '1.1rem',
+                fontWeight: 600,
+                border: 'none',
+                background: 'linear-gradient(90deg, #f43f5e 0%, #fb7185 100%)',
+                color: '#fff',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                transition: 'background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,1.3,.6,1), filter 0.18s cubic-bezier(.4,1.3,.6,1)',
+                cursor: 'pointer',
+                width: '100%',
+                textAlign: 'left',
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.transform = 'scale(1.06)';
+                e.currentTarget.style.boxShadow = '0 6px 24px rgba(244,63,94,0.18)';
+                e.currentTarget.style.filter = 'brightness(1.08)';
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                e.currentTarget.style.filter = 'none';
+              }}
               onClick={async () => {
                 await logOut();
                 router.push('/login');
@@ -229,10 +285,36 @@ const DashboardPage: React.FC = () => {
         }}>
           {/* Discover Feed Header */}
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', gap: '16px' }}>
               <Link href="/onboarding-again" legacyBehavior>
-                <a className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <a
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 28px',
+                    borderRadius: '14px',
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    border: 'none',
+                    background: 'linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%)',
+                    color: '#fff',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                    transition: 'background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,1.3,.6,1), filter 0.18s cubic-bezier(.4,1.3,.6,1)',
+                    cursor: 'pointer',
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'scale(1.06)';
+                    e.currentTarget.style.boxShadow = '0 6px 24px rgba(124,58,237,0.18)';
+                    e.currentTarget.style.filter = 'brightness(1.08)';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                    e.currentTarget.style.filter = 'none';
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style={{ color: 'white' }}>
                     <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                   </svg>
                   <span>Edit Profile</span>
@@ -243,9 +325,33 @@ const DashboardPage: React.FC = () => {
                   await logOut();
                   router.push('/login');
                 }}
-                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors flex items-center space-x-2"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '12px 28px',
+                  borderRadius: '14px',
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  border: 'none',
+                  background: 'linear-gradient(90deg, #f43f5e 0%, #fb7185 100%)',
+                  color: '#fff',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                  transition: 'background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,1.3,.6,1), filter 0.18s cubic-bezier(.4,1.3,.6,1)',
+                  cursor: 'pointer',
+                }}
+                onMouseOver={e => {
+                  e.currentTarget.style.transform = 'scale(1.06)';
+                  e.currentTarget.style.boxShadow = '0 6px 24px rgba(244,63,94,0.18)';
+                  e.currentTarget.style.filter = 'brightness(1.08)';
+                }}
+                onMouseOut={e => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                  e.currentTarget.style.filter = 'none';
+                }}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style={{ color: 'white' }}>
                   <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v3a1 1 0 102 0V9z" clipRule="evenodd" />
                 </svg>
                 <span>Logout</span>
