@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'; // Assuming this is the corre
 import { db } from '../lib/firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import Link from 'next/link';
+import Head from 'next/head';
 
 const OnboardingAgainPage: React.FC = () => {
   const { user, userProfile, loading: authLoading, error: authError } = useAuth();
@@ -63,8 +64,7 @@ const OnboardingAgainPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSaveAndNavigate = async () => {
     if (!user || isSubmitting) return;
     setIsSubmitting(true);
     setMessage(null);
@@ -81,12 +81,10 @@ const OnboardingAgainPage: React.FC = () => {
         expertise: expertiseArray,
         lastLoginAt: serverTimestamp() 
       });
-      setMessage('Profile updated successfully!');
-      // The onSnapshot listener in useAuth will automatically update the profile
+      router.push('/dashboard');
     } catch (error) {
       console.error("Error updating profile:", error);
       setMessage('Failed to update profile. Please try again.');
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -108,130 +106,288 @@ const OnboardingAgainPage: React.FC = () => {
   }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '50px auto', padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>Edit Your Profile</h1>
-      <p>Update your interests and expertise to help us find better matches for you.</p>
-      
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="interests" style={{ display: 'block', marginBottom: '5px' }}>
-            Your Interests (comma-separated):
-          </label>
-          <input
-            id="interests"
-            value={interestsInput}
-            onChange={e => handleBubbleInput(e.target.value, setInterestsArr, interestsArr, setInterestsInput)}
-            onKeyDown={e => handleBubbleKeyDown(e, setInterestsArr, interestsArr, interestsInput, setInterestsInput)}
-            placeholder="e.g., artificial intelligence, history, hiking"
-            style={{ width: '100%', border: '1px solid #ccc', borderRadius: '4px', padding: '8px', fontSize: '1em', marginBottom: '8px' }}
-            disabled={isSubmitting}
-          />
-          {/* Bubbles for interests */}
-          <div style={{ marginTop: '0', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {interestsArr.map((item, idx) => (
-              <span key={idx} style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                background: '#e0e7ff',
-                color: '#3730a3',
-                borderRadius: '16px',
-                padding: '4px 12px',
-                fontSize: '0.95em',
-                marginRight: '4px',
-                marginBottom: '4px',
-              }}>
-                {item}
-                <button
-                  type="button"
-                  aria-label={`Remove ${item}`}
-                  onClick={() => {
-                    setInterestsArr(interestsArr.filter((_, i) => i !== idx));
-                  }}
-                  style={{
-                    marginLeft: '8px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#a21caf',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    fontSize: '1em',
-                    lineHeight: 1,
-                  }}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'linear-gradient(180deg, #2D1B69 0%, #4B2A9D 100%)',
+      padding: '32px 16px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
+      <Head>
+        <title>Update Your Interests - Symbi</title>
+      </Head>
+
+      <div style={{
+        width: '100%',
+        maxWidth: '700px',
+        background: 'white',
+        borderRadius: '16px',
+        padding: '32px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        marginTop: '32px'
+      }}>
+        <h1 style={{
+          fontSize: '32px',
+          fontWeight: '700',
+          color: '#1A202C',
+          marginBottom: '8px',
+          textAlign: 'center'
+        }}>
+          Update Your Interests 🔧
+        </h1>
+        
+        <p style={{
+          color: '#888',
+          textAlign: 'center',
+          marginBottom: '32px',
+          fontSize: '16px'
+        }}>
+          We&apos;ll use your interests and skills to find the best matches.
+        </p>
+        
+        <form onSubmit={(e) => { e.preventDefault(); handleSaveAndNavigate(); }}>
+          <div style={{ marginBottom: '24px' }}>
+            <label htmlFor="interests" style={{
+              display: 'block',
+              marginBottom: '8px',
+              color: '#4A5568',
+              fontWeight: '500'
+            }}>
+              Your Interests
+            </label>
+            <input
+              id="interests"
+              value={interestsInput}
+              onChange={e => handleBubbleInput(e.target.value, setInterestsArr, interestsArr, setInterestsInput)}
+              onKeyDown={e => handleBubbleKeyDown(e, setInterestsArr, interestsArr, interestsInput, setInterestsInput)}
+              placeholder="Type interests and press Enter or comma to add"
+              className="interest-input"
+              style={{
+                width: '100%',
+                border: '2px solid #E2E8F0',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                fontSize: '16px',
+                transition: 'all 0.2s',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+              }}
+              disabled={isSubmitting}
+            />
+            <div style={{
+              marginTop: '12px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              {interestsArr.map((item, idx) => (
+                <span key={idx} className="interest-tag" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  borderRadius: '9999px',
+                  padding: '6px 12px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s',
+                  animation: 'fadeIn 0.3s ease-out'
+                }}>
+                  {item}
+                  <button
+                    type="button"
+                    aria-label={`Remove ${item}`}
+                    onClick={() => {
+                      setInterestsArr(interestsArr.filter((_, i) => i !== idx));
+                    }}
+                    className="remove-button"
+                    style={{
+                      marginLeft: '8px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#4B2A9D',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '16px',
+                      lineHeight: 1,
+                      padding: '0 4px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="expertise" style={{ display: 'block', marginBottom: '5px' }}>
-            Your Expertise/Skills (comma-separated):
-          </label>
-          <input
-            id="expertise"
-            value={expertiseInput}
-            onChange={e => handleBubbleInput(e.target.value, setExpertiseArr, expertiseArr, setExpertiseInput)}
-            onKeyDown={e => handleBubbleKeyDown(e, setExpertiseArr, expertiseArr, expertiseInput, setExpertiseInput)}
-            placeholder="e.g., Python, project management, public speaking"
-            style={{ width: '100%', border: '1px solid #ccc', borderRadius: '4px', padding: '8px', fontSize: '1em', marginBottom: '8px' }}
-            disabled={isSubmitting}
-          />
-          {/* Bubbles for expertise */}
-          <div style={{ marginTop: '0', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {expertiseArr.map((item, idx) => (
-              <span key={idx} style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                background: '#fef9c3',
-                color: '#92400e',
-                borderRadius: '16px',
-                padding: '4px 12px',
-                fontSize: '0.95em',
-                marginRight: '4px',
-                marginBottom: '4px',
-              }}>
-                {item}
-                <button
-                  type="button"
-                  aria-label={`Remove ${item}`}
-                  onClick={() => {
-                    setExpertiseArr(expertiseArr.filter((_, i) => i !== idx));
-                  }}
-                  style={{
-                    marginLeft: '8px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#b45309',
-                    cursor: 'pointer',
-                    fontWeight: 'bold',
-                    fontSize: '1em',
-                    lineHeight: 1,
-                  }}
-                >
-                  ×
-                </button>
-              </span>
-            ))}
+          <div style={{ marginBottom: '32px' }}>
+            <label htmlFor="expertise" style={{
+              display: 'block',
+              marginBottom: '8px',
+              color: '#4A5568',
+              fontWeight: '500'
+            }}>
+              Your Expertise/Skills
+            </label>
+            <input
+              id="expertise"
+              value={expertiseInput}
+              onChange={e => handleBubbleInput(e.target.value, setExpertiseArr, expertiseArr, setExpertiseInput)}
+              onKeyDown={e => handleBubbleKeyDown(e, setExpertiseArr, expertiseArr, expertiseInput, setExpertiseInput)}
+              placeholder="Type skills and press Enter or comma to add"
+              className="expertise-input"
+              style={{
+                width: '100%',
+                border: '2px solid #E2E8F0',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                fontSize: '16px',
+                transition: 'all 0.2s',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
+              }}
+              disabled={isSubmitting}
+            />
+            <div style={{
+              marginTop: '12px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}>
+              {expertiseArr.map((item, idx) => (
+                <span key={idx} className="expertise-tag" style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  borderRadius: '9999px',
+                  padding: '6px 12px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s',
+                  animation: 'fadeIn 0.3s ease-out'
+                }}>
+                  {item}
+                  <button
+                    type="button"
+                    aria-label={`Remove ${item}`}
+                    onClick={() => {
+                      setExpertiseArr(expertiseArr.filter((_, i) => i !== idx));
+                    }}
+                    className="remove-button"
+                    style={{
+                      marginLeft: '8px',
+                      background: 'transparent',
+                      border: 'none',
+                      color: '#92400E',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      fontSize: '16px',
+                      lineHeight: 1,
+                      padding: '0 4px'
+                    }}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {message && <p style={{ color: message.startsWith('Failed') ? 'red' : 'green', marginBottom: '15px' }}>{message}</p>}
+          {message && (
+            <div style={{
+              padding: '12px 16px',
+              borderRadius: '8px',
+              marginBottom: '24px',
+              backgroundColor: message.startsWith('Failed') ? '#FEE2E2' : '#DCFCE7',
+              color: message.startsWith('Failed') ? '#991B1B' : '#166534',
+              textAlign: 'center'
+            }}>
+              {message}
+            </div>
+          )}
 
-        <button 
-          type="submit" 
-          disabled={isSubmitting}
-          style={{ padding: '10px 20px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px' }}
-        >
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
-        </button>
-      </form>
-      <div style={{ marginTop: '20px' }}>
-        <Link href="/">
-          Back to Home
-        </Link>
+          <div style={{
+            marginTop: '24px',
+            textAlign: 'center'
+          }}>
+            <button
+              onClick={handleSaveAndNavigate}
+              disabled={isSubmitting}
+              className="back-link"
+              style={{
+                color: '#4B2A9D',
+                textDecoration: 'none',
+                fontSize: '16px',
+                fontWeight: '500',
+                transition: 'all 0.2s',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0'
+              }}
+            >
+              {isSubmitting ? 'Saving...' : '← Back to Dashboard'}
+            </button>
+          </div>
+        </form>
       </div>
+
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .interest-input:focus,
+        .expertise-input:focus {
+          border-color: #4B2A9D;
+          box-shadow: 0 0 0 3px rgba(75, 42, 157, 0.1);
+          outline: none;
+        }
+
+        .back-link:hover {
+          text-decoration: underline;
+        }
+
+        .back-link:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        .interest-tag:hover,
+        .expertise-tag:hover {
+          transform: scale(1.02);
+        }
+
+        .interest-tag {
+          background: #E9D5FF;
+          color: #4B2A9D;
+        }
+
+        .interest-tag:hover {
+          background: #D8B4FE;
+        }
+
+        .expertise-tag {
+          background: #FEF3C7;
+          color: #92400E;
+        }
+
+        .expertise-tag:hover {
+          background: #FDE68A;
+        }
+
+        .remove-button {
+          opacity: 0.7;
+          transition: opacity 0.2s;
+        }
+
+        .remove-button:hover {
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 };

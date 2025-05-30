@@ -229,12 +229,39 @@ const DashboardPage: React.FC = () => {
         }}>
           {/* Discover Feed Header */}
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-            <h1 style={{ fontSize: '40px', fontWeight: '700', color: 'white', textAlign: 'center', margin: 0 }}>
-              Discover other people&apos;s skills
-            </h1>
-            <p style={{ textAlign: 'center', fontSize: '18px', color: '#dcd6f5', marginTop: '8px' }}>
-              See what your classmates know—and what they&apos;re excited to learn.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+              <Link href="/onboarding-again" legacyBehavior>
+                <a className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                  <span>Edit Profile</span>
+                </a>
+              </Link>
+              <button
+                onClick={async () => {
+                  await logOut();
+                  router.push('/login');
+                }}
+                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v3a1 1 0 102 0V9z" clipRule="evenodd" />
+                </svg>
+                <span>Logout</span>
+              </button>
+            </div>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <h1 style={{ fontSize: '40px', fontWeight: '700', color: 'white', textAlign: 'center', margin: 0 }}>
+                {`Welcome ${
+                  userProfile?.displayName?.split(' ')[0] ||
+                  (user?.email ? user.email.split('@')[0] : 'User')
+                }!`}
+              </h1>
+              <p style={{ textAlign: 'center', fontSize: '18px', color: '#dcd6f5', marginTop: '8px' }}>
+                See what your classmates know—and what they're excited to learn.
+              </p>
+            </div>
           </div>
 
           {/* "What is a Symbi Match?" Section */}
@@ -267,7 +294,7 @@ const DashboardPage: React.FC = () => {
           {/* Skills Grid Header */}
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: '20px', fontWeight: '600', color: 'white', margin: '0 0 16px 0' }}>
-              Explore What You Can Learn
+              Discover other people&apos;s skills
             </h2>
           </div>
 
