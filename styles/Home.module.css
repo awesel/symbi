@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #FF6B2B 0%, #FF8C42 100%);
+  background: linear-gradient(180deg, #4A2B8C 0%, #6B46C1 100%);
   font-family: 'Inter', sans-serif;
   color: #1a202c;
 }
@@ -37,6 +37,26 @@
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+/* Define keyframe animation for spinning */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Define keyframe animation for gradient shimmer */
+@keyframes gradientShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
   }
 }
 
@@ -114,7 +134,7 @@
 }
 
 .heroSection {
-  background: linear-gradient(180deg, #4C0D0D 0%, #8A1A1A 100%);
+  background: linear-gradient(180deg, #2D1B69 0%, #4B2A9D 100%);
   color: white;
   text-align: center;
   padding: 10rem 1rem;
@@ -134,8 +154,8 @@
 }
 
 .heroLogoIcon:hover {
-  transform: scale(1.1);
-  animation: lightMove 2s infinite linear;
+  transform: rotate(360deg) scale(1.05);
+  animation: spin 2s linear infinite;
 }
 
 .heroTitle {
@@ -144,10 +164,17 @@
   margin-bottom: 1.5rem;
   line-height: 1;
   letter-spacing: -0.04em;
-  background: linear-gradient(to right, #FF9A8B, #FF6A88, #FF99AC);
+  background: linear-gradient(to right, #C3A3E5, #A78BFA, #D8B4FE);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #FF9A8B;
+  color: #C3A3E5;
+  background-size: 200% auto; /* Make background wider for animation */
+  transition: transform 0.3s ease-in-out; /* Add transition for smooth scaling */
+}
+
+.heroTitle:hover {
+  animation: gradientShimmer 1.5s linear infinite; /* Make shimmer faster */
+  transform: scale(1.05); /* Expand slightly on hover */
 }
 
 .heroSubtitle {
@@ -170,8 +197,8 @@
   justify-content: center;
   border-radius: 9999px;
   overflow: hidden;
-  border: 2px solid #FFFFFF60;
-  background-color: #FFFFFF20;
+  border: 2px solid #C3A3E5;
+  background-color: transparent;
 }
 
 .heroEmailInput {
@@ -193,7 +220,7 @@
 .heroCTAButton {
   padding: 16px 20px;
   border-radius: 9999px;
-  background-color: #FF4B2B;
+  background-color: #805AD5;
   color: white;
   font-size: 16px;
   font-weight: 700;
@@ -205,7 +232,7 @@
 }
 
 .heroCTAButton:hover {
-  background-color: #E53E3E;
+  background-color: #6B46C1;
   transform: scale(1.02);
 }
 
@@ -226,7 +253,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 3px solid #4C0D0D;
+  border: 3px solid #C3A3E5;
   object-fit: cover;
 }
 
@@ -366,8 +393,9 @@
   }
 
   .heroSection {
-    padding: 6rem 1rem;
+    padding: 6rem 1rem 0;
     min-height: 70vh;
+    margin-bottom: 8rem;
   }
 
   .heroTitle {
@@ -387,8 +415,9 @@
     max-width: 300px;
   }
 
-  .trustBadge {
+  .trustBadgeContainer {
     margin-top: 1rem;
+    margin-bottom: 0;
     font-size: 12px;
   }
 
@@ -414,13 +443,14 @@
   }
 
   .horizontalSectionsContainer {
-    margin-top: 0; /* Remove negative margin on mobile to prevent overlap */
-    padding-top: 1rem; /* Add some padding to the top */
+    margin-top: 0;
+    padding: 1rem;
+    gap: 1rem;
   }
 
   .card,
   .howItWorksList li {
-    padding: 1.2rem;
+    padding: 1rem;
   }
 
   .howItWorksList li {
@@ -429,32 +459,51 @@
   }
 
   .stepNumber {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.25rem;
-    margin-bottom: 0.4rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
   }
 
   .stepContent h3 {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
 
   .stepContent p {
-    font-size: 0.9rem;
+    font-size: 0.875rem;
   }
 
   .cardLabel {
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.4rem;
   }
 
   .cardContent {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
 
   .footer {
     padding: 1rem;
     font-size: 0.8rem;
+  }
+
+  .sectionImage {
+    height: 140px;
+    margin-bottom: 15px;
+  }
+
+  .innerChecklistSection {
+    padding: 20px;
+    gap: 12px;
+  }
+
+  .interestsChecklist {
+    gap: 12px;
+  }
+
+  .checklistItem {
+    font-size: 18px;
+    padding-left: 25px;
   }
 }
 
@@ -553,7 +602,7 @@
     transform: translateY(-50%);
     width: 18px; /* Size of the circle */
     height: 18px; /* Size of the circle */
-    border: 2px solid #D1D5DA; /* Grey border for unchecked state (adjust color to match image) */
+    border: 2px solid #A78BFA; /* Light purple border for unchecked state */
     border-radius: 50%; /* Make it round */
     background-color: transparent;
     display: flex; /* Use flex to center checkmark */
@@ -566,13 +615,12 @@
 
 /* Style for checked checklist items */
 .checklistItem.checked {
-  color: #1A202C; /* Darker text color when checked */
-  text-decoration: line-through; /* Add line-through to the text */
+  color: #1A202C; /* Darker text color when checked - keeping dark */
 }
 
 .checklistItem.checked::before {
-    border-color: #EF4444; /* Red border when checked */
-    background-color: #EF4444; /* Red background when checked */
+    border-color: #6B46C1; /* Darker purple border when checked */
+    background-color: #6B46C1; /* Darker purple background when checked */
     content: '\2714'; /* Unicode for checkmark */
     color: white; /* White checkmark */
 }
@@ -932,7 +980,7 @@
     transform: translateY(-50%);
     width: 18px; /* Size of the circle */
     height: 18px; /* Size of the circle */
-    border: 2px solid #D1D5DA; /* Grey border for unchecked state */
+    border: 2px solid #A78BFA; /* Light purple border for unchecked state */
     border-radius: 50%; /* Make it round */
     background-color: transparent;
     display: flex; /* Use flex to center checkmark */
@@ -945,13 +993,12 @@
 
 /* Style for checked checklist items */
 .checklistItem.checked {
-  color: #1A202C; /* Darker text color when checked */
-  text-decoration: line-through; /* Add line-through to the text */
+  color: #1A202C; /* Darker text color when checked - keeping dark */
 }
 
 .checklistItem.checked::before {
-    border-color: #EF4444; /* Red border when checked */
-    background-color: #EF4444; /* Red background when checked */
+    border-color: #6B46C1; /* Darker purple border when checked */
+    background-color: #6B46C1; /* Darker purple background when checked */
     content: '\2714'; /* Unicode for checkmark */
     color: white; /* White checkmark */
 }

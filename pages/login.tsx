@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
 
       <main className={styles.mainContent}>
         <section className={styles.heroSection}>
-          <Image src="/images/newsymbilogo.png" alt="New Symbi Logo" width={40} height={40} className={styles.heroLogoIcon} />
+          <Image src="/images/newlogo.png" alt="New Symbi Logo" width={40} height={40} className={styles.heroLogoIcon} />
           
           <h1 className={styles.heroTitle}>Symbi</h1>
           <p className={styles.heroSubtitle}>
@@ -81,11 +81,11 @@ const LoginPage: React.FC = () => {
           <div className={styles.trustBadgeContainer}>
              <div className={styles.avatarPlaceholder}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://i.pravatar.cc/150?img=3" alt="User Avatar" />
+                <img src="/images/tiger woods.png" alt="User Avatar" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://i.pravatar.cc/150?img=8" alt="User Avatar" />
+                <img src="/images/christian.png" alt="User Avatar" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="https://i.pravatar.cc/150?img=1" alt="User Avatar" />
+                <img src="/images/peter.png" alt="User Avatar" />
              </div>
             <p className={styles.trustBadge}>
               Join 250+ people already onboard
@@ -126,7 +126,7 @@ const LoginPage: React.FC = () => {
                   </p>
                 </div>
                 <Image
-                  src="/images/people image.png"
+                  src="/images/first.png"
                   alt="People being matched"
                   width={350}
                   height={200}
@@ -144,7 +144,7 @@ const LoginPage: React.FC = () => {
                   </p>
                 </div>
                <Image
-                 src="/images/conversation.png"
+                 src="/images/second.png"
                  alt="People conversing on phone"
                  width={350}
                  height={300}
@@ -162,7 +162,7 @@ const LoginPage: React.FC = () => {
                   </p>
                 </div>
                <Image
-                 src="/images/meetup.png"
+                 src="/images/third.png"
                  alt="People meeting up in person"
                  width={350}
                  height={180}
