@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../contexts/AuthContext";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import Link from "next/link";
 
 /** Parse one `matchedOn` line coming from Firestore.  
@@ -130,6 +130,16 @@ function getMatchId(a: string, b: string) {
   return a < b ? `${a}_${b}` : `${b}_${a}`;
 }
 
+function DateSeparator({ date }: { date: Date }) {
+  return (
+    <div className="flex items-center justify-center my-4">
+      <div className="px-4 py-1 bg-gray-700 rounded-full text-sm text-gray-300">
+        {format(date, 'MMMM d, yyyy')}
+      </div>
+    </div>
+  );
+}
+
 export default function ChatRoom({ chatId }: ChatRoomProps) {
   /* ──────────────── local state ──────────────── */
   const { user } = useAuth();
@@ -139,6 +149,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
   >([]);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [showMeetupAlert, setShowMeetupAlert] = useState(false);
 
   const [otherName, setOtherName] = useState<string>("Chat");
 
@@ -239,9 +250,11 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
     if (!chatId) return;
     const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
     const unsub = onSnapshot(q, (snap) => {
-      setMessages(
-        snap.docs.map((d) => ({ id: d.id, ...(d.data() as MessageData) }))
-      );
+      const newMessages = snap.docs.map((d) => ({ id: d.id, ...(d.data() as MessageData) }));
+      setMessages(newMessages);
+      // Show alert if more than 15 messages
+      setShowMeetupAlert(newMessages.length > 15);
+      console.log(`Message count: ${newMessages.length}${newMessages.length > 15 ? ' (meetup alert shown)' : ''}`);
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     });
     return unsub;
@@ -288,35 +301,55 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
           </div>
         )}
 
-        {messages.map((m) => {
+        {messages.map((m, index) => {
           const mine = m.sender === user?.uid;
           const ts = m.timestamp?.toDate ? format(m.timestamp.toDate(), "HH:mm") : "Sending…";
+          const showDateSeparator = index > 0 && m.timestamp?.toDate && 
+            !isSameDay(m.timestamp.toDate(), messages[index - 1].timestamp?.toDate() ?? new Date());
+
           return (
-            <div key={m.id} className={`flex flex-col ${mine ? "items-end" : "items-start"} mb-2`}>
-              {!mine && m.displayName && (
-                <div className="text-xs text-gray-400 mb-1 flex items-center">
-                  <span>{m.displayName}</span>
-                  {ts !== "Sending…" && <span className="ml-2 text-gray-500">{ts}</span>}
-                </div>
+            <div key={m.id}>
+              {showDateSeparator && m.timestamp?.toDate && (
+                <DateSeparator date={m.timestamp.toDate()} />
               )}
-              <div
-                className={`max-w-[75%] py-2 px-4 rounded-full shadow ${
-                  mine
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-700 text-gray-200"
-                }`}
-              >
-                <p className="text-sm leading-relaxed">{m.text}</p>
-                {mine && ts !== "Sending…" && (
-                   <p className="text-xs mt-0.5 text-blue-200 text-right">{ts}</p>
+              <div className={`flex flex-col ${mine ? "items-end" : "items-start"} mb-2`}>
+                {!mine && m.displayName && (
+                  <div className="text-xs text-gray-400 mb-1 flex items-center">
+                    <span>{m.displayName}</span>
+                    {ts !== "Sending…" && <span className="ml-2 text-gray-500">{ts}</span>}
+                  </div>
                 )}
+                <div
+                  className={`max-w-[75%] py-2 px-4 rounded-full shadow ${
+                    mine
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-700 text-gray-200"
+                  }`}
+                >
+                  <p className="text-sm leading-relaxed">{m.text}</p>
+                  {mine && ts !== "Sending…" && (
+                     <p className="text-xs mt-0.5 text-blue-200 text-right">{ts}</p>
+                  )}
+                </div>
               </div>
-              {/* Reactions/options placeholder removed */}
             </div>
           );
         })}
         <div ref={bottomRef} />
       </div>
+
+      {showMeetupAlert && (
+        <div className="mx-4 mb-4 p-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg text-center text-white shadow-lg">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <span className="text-2xl">🎓</span>
+            <h3 className="text-lg font-semibold">Great Conversation!</h3>
+          </div>
+          <p className="text-sm opacity-90">
+            You and {otherName} seem to be having a great conversation! Since you're both on Stanford campus, 
+            why not meet up for coffee or lunch to continue the discussion in person?
+          </p>
+        </div>
+      )}
 
       {/* input */}
       <form
