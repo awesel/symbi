@@ -7,6 +7,10 @@ import * as nodemailer from "nodemailer";
 const DEFAULT_EMAIL_FROM = "\"Symbi\" <no-reply@symbi.club>";
 const DEFAULT_APP_URL = "https://symbi.club";
 
+const DO_NOT_SEND_LIST: string[] = [
+  "rycereyn@stanford.edu",
+];
+
 let transporterInstance: nodemailer.Transporter | null = null;
 
 /**
@@ -69,6 +73,11 @@ export async function sendUnrespondedMessagesEmail(
     EMAIL_FROM = DEFAULT_EMAIL_FROM,
     APP_URL = DEFAULT_APP_URL,
   } = process.env;
+
+  if (DO_NOT_SEND_LIST.includes(userEmail.toLowerCase())) {
+    console.log(`Skipping email to ${userEmail} as it is on the do-not-send list.`);
+    return;
+  }
 
   const transporter = getTransporter();
 
