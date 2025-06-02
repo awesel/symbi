@@ -10,8 +10,8 @@ import {
   updateDoc,
   doc,
   getDoc,
+  type Timestamp,
 } from "firebase/firestore";
-import type { Timestamp } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { format, isSameDay } from "date-fns";
@@ -206,7 +206,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
                 setSysMsg(
                   status === "symbi"
                     ? "You have been bonnected due to symbiotic synergy!"
-                    : "You've been bonnected."
+                    : "You have been bonnected."
                 );
               }
             } else { // matchedOn is empty or not an array with length
@@ -345,7 +345,7 @@ export default function ChatRoom({ chatId }: ChatRoomProps) {
             <h3 className="text-lg font-semibold">Great Conversation!</h3>
           </div>
           <p className="text-sm opacity-90">
-            You and {otherName} seem to be having a great conversation! Since you're both on Stanford campus, 
+            You and {otherName} seem to be having a great conversation! Since you are both on Stanford campus, 
             why not meet up for coffee or lunch to continue the discussion in person?
           </p>
         </div>
