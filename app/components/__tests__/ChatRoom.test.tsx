@@ -17,21 +17,6 @@ describe('ChatRoom', () => {
   });
 
   it('shows date separator between messages from different days', () => {
-    const messages = [
-      {
-        id: '1',
-        text: 'Message 1',
-        sender: 'user1',
-        timestamp: Timestamp.fromDate(new Date('2024-03-20T10:00:00')),
-      },
-      {
-        id: '2',
-        text: 'Message 2',
-        sender: 'user2',
-        timestamp: Timestamp.fromDate(new Date('2024-03-21T10:00:00')),
-      }
-    ];
-
     render(<ChatRoom chatId="test-chat" />);
     
     // Mock the messages state

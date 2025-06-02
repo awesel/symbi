@@ -10,8 +10,8 @@ import {
   updateDoc,
   doc,
   getDoc,
-  Timestamp,
 } from "firebase/firestore";
+import type { Timestamp } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { format, isSameDay } from "date-fns";
