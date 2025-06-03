@@ -88,7 +88,7 @@ const LoginPage: React.FC = () => {
                 <img src="/images/peter.png" alt="User Avatar" />
              </div>
             <p className={styles.trustBadge}>
-              Join 50+ people already onboard
+              Join 50+ Stanford students already onboard
             </p>
           </div>
         </section>
