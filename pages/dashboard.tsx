@@ -22,6 +22,7 @@ const DashboardPage: React.FC = () => {
   const [skillsLoading, setSkillsLoading] = useState(true);
   const [userInterests, setUserInterests] = useState<string[]>([]); // State to hold current user's interests
   const [isMobile, setIsMobile] = useState(false);
+  const isAdmin = user?.email && ['connor1@stanford.edu', 'jaoun@stanford.edu', 'awesel@stanford.edu'].includes(user.email);
 
   // Effect to detect mobile screen size
   useEffect(() => {
@@ -173,6 +174,39 @@ const DashboardPage: React.FC = () => {
 
           {/* Simplified Menu Options */}
           <nav className="flex flex-col p-4 space-y-2 mb-4 border-b border-gray-200">
+            {isAdmin && (
+              <Link href="/moderator" legacyBehavior>
+                <a
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '12px 28px',
+                    borderRadius: '14px',
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    border: 'none',
+                    background: 'linear-gradient(90deg, #4B2A9D 0%, #6B46C1 100%)',
+                    color: '#fff',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                    transition: 'background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,1.3,.6,1), filter 0.18s cubic-bezier(.4,1.3,.6,1)',
+                    cursor: 'pointer',
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.transform = 'scale(1.06)';
+                    e.currentTarget.style.boxShadow = '0 6px 24px rgba(75,42,157,0.18)';
+                    e.currentTarget.style.filter = 'brightness(1.08)';
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                    e.currentTarget.style.filter = 'none';
+                  }}
+                >
+                  <span className="mr-3">👨‍💼</span>Moderator Dashboard
+                </a>
+              </Link>
+            )}
             <Link href="/onboarding-again" legacyBehavior>
               <a
                 style={{
@@ -286,6 +320,42 @@ const DashboardPage: React.FC = () => {
           {/* Discover Feed Header */}
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px', gap: '16px' }}>
+              {isAdmin && (
+                <Link href="/moderator" legacyBehavior>
+                  <a
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 28px',
+                      borderRadius: '14px',
+                      fontSize: '1.1rem',
+                      fontWeight: 600,
+                      border: 'none',
+                      background: 'linear-gradient(90deg, #4B2A9D 0%, #6B46C1 100%)',
+                      color: '#fff',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                      transition: 'background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.18s cubic-bezier(.4,1.3,.6,1), filter 0.18s cubic-bezier(.4,1.3,.6,1)',
+                      cursor: 'pointer',
+                    }}
+                    onMouseOver={e => {
+                      e.currentTarget.style.transform = 'scale(1.06)';
+                      e.currentTarget.style.boxShadow = '0 6px 24px rgba(75,42,157,0.18)';
+                      e.currentTarget.style.filter = 'brightness(1.08)';
+                    }}
+                    onMouseOut={e => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                      e.currentTarget.style.filter = 'none';
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" style={{ color: 'white' }}>
+                      <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                    </svg>
+                    <span>Moderator Dashboard</span>
+                  </a>
+                </Link>
+              )}
               <Link href="/onboarding-again" legacyBehavior>
                 <a
                   style={{

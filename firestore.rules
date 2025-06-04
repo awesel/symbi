@@ -2,6 +2,15 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check if user is an admin
+    function isAdmin() {
+      return request.auth.token.email in ['connor1@stanford.edu', 'jaoun@stanford.edu', 'awesel@stanford.edu'];
+    }
+
+    // Allow full access for admin users
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
 
     /* ───────── USERS ───────── */
     match /users/{userId} {
