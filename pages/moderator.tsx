@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../lib/firebase';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -13,6 +13,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { Timestamp } from 'firebase/firestore';
 
 ChartJS.register(
   CategoryScale,
@@ -37,12 +38,12 @@ interface ChatData {
   id: string;
   users: string[];
   lastMessage: string;
-  lastTimestamp: any;
+  lastTimestamp: Timestamp | null;
   messageCount: number;
   messages: Array<{
     text: string;
     sender: string;
-    timestamp: any;
+    timestamp: Timestamp | null;
   }>;
 }
 
