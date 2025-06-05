@@ -154,6 +154,64 @@ const ModeratorPage = () => {
     fetchData();
   }, [user, router]);
 
+  const downloadCSVs = () => {
+    // Create Users CSV
+    const userRows = [];
+    userRows.push(['User ID', 'Display Name', 'Total Messages', 'Total Chats', 'Average Messages per Chat']);
+    
+    Object.keys(userNames).forEach(userId => {
+      const messageCount = messagesPerUser[userId] || 0;
+      const chatCount = chatsPerUser[userId] || 0;
+      const avgMessages = chatCount > 0 ? (messageCount / chatCount).toFixed(2) : '0';
+      
+      userRows.push([
+        userId,
+        userNames[userId] || 'Unknown',
+        messageCount,
+        chatCount,
+        avgMessages
+      ]);
+    });
+
+    // Create Chats CSV
+    const chatRows = [];
+    chatRows.push(['Chat ID', 'Users', 'Total Messages', 'Last Message', 'Last Timestamp', 'All Messages']);
+    
+    chats.forEach(chat => {
+      const allMessages = chat.messages
+        .map(msg => `${userNames[msg.sender] || msg.sender}: ${msg.text} (${msg.timestamp?.toDate().toLocaleString() || 'No timestamp'})`)
+        .join(' | ');
+      
+      chatRows.push([
+        chat.id,
+        chat.users.map(userId => userNames[userId] || userId).join(', '),
+        chat.messageCount,
+        chat.lastMessage,
+        chat.lastTimestamp?.toDate().toLocaleString() || 'N/A',
+        allMessages
+      ]);
+    });
+
+    // Helper function to download a CSV
+    const downloadCSV = (rows: string[][], filename: string) => {
+      const csvContent = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    // Download both CSVs
+    const date = new Date().toISOString().split('T')[0];
+    downloadCSV(userRows, `users-${date}.csv`);
+    downloadCSV(chatRows, `chats-${date}.csv`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -218,7 +276,18 @@ const ModeratorPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
-      <h1 className="text-3xl font-bold mb-8">Moderator Dashboard</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Moderator Dashboard</h1>
+        <button
+          onClick={downloadCSVs}
+          className="px-4 py-2 bg-brand-purple hover:bg-brand-purple/80 text-white rounded-lg transition-colors flex items-center space-x-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          <span>Download CSVs</span>
+        </button>
+      </div>
       
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
